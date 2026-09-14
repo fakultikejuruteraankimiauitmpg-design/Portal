@@ -187,6 +187,9 @@
         </p>
     </div>
 
+    <!-- AUTH CHANGE: load the shared cookie session helper -->
+    <script src="auth.js"></script>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -547,12 +550,9 @@
                     return;
                 }
                 setLoading(true);
-                // Simpan maklumat pelawat
-                try {
-                    sessionStorage.setItem('fms_user', JSON.stringify({ id: inputValue, role: 'guest', name: inputValue }));
-                    sessionStorage.setItem('fms_role', 'guest');
-                    sessionStorage.setItem('fms_login_at', new Date().toISOString());
-                } catch (e) { /* ignore */ }
+
+                // AUTH CHANGE: cookie-based session instead of sessionStorage
+                FMSAuth.saveSession({ id: inputValue, name: inputValue }, 'guest');
 
                 showStatus(t.success_guest.replace('{name}', inputValue), "success");
                 console.log("➡️ Guest mode: akan redirect ke:", PORTAL_ROUTES.guest);
@@ -604,16 +604,9 @@
                     return;
                 }
 
-                // Simpan sesi
+                // AUTH CHANGE: save full user into cookie session
                 user.id = user.id || inputValue;
-                user.role = finalRole;
-                try {
-                    sessionStorage.setItem('fms_user', JSON.stringify(user));
-                    sessionStorage.setItem('fms_role', finalRole);
-                    sessionStorage.setItem('fms_login_at', new Date().toISOString());
-                } catch (storageErr) {
-                    console.warn("sessionStorage tidak tersedia:", storageErr);
-                }
+                FMSAuth.saveSession(user, finalRole);
 
                 showStatus(t.success_msg.replace('{type}', labelForRole(finalRole)), "success");
                 logToFirebase(inputValue, finalRole);
@@ -638,6 +631,12 @@
         // Init
         initFirebase();
         updateUI();
+
+        // AUTH CHANGE: if already logged in, skip login page entirely
+        const existing = FMSAuth.loadSession();
+        if (existing && PORTAL_ROUTES[existing.role]) {
+            window.location.replace(encodeURI(PORTAL_ROUTES[existing.role]));
+        }
     </script>
 </body>
 </html>
