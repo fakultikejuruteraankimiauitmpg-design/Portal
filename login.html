@@ -207,13 +207,11 @@
             lab_staff:      "laboratory staff portal.html",
             coordinator:    "coordinator program portal.html",
             admin:          "admin portal.html",
-            guest:          "pelawat portal.html"   // ✅ nama fail pelawat anda
+            guest:          "pelawat portal.html"
         };
 
         /* ============================================================
            NORMALISASI PERANAN
-           Supaya "Academic Staff", "ACADEMIC_STAFF", "academic-staff",
-           "staf_akademik" semuanya jadi satu kunci yang sama.
            ============================================================ */
         const ROLE_ALIASES = {
             // Pelajar
@@ -549,7 +547,7 @@
                     return;
                 }
                 setLoading(true);
-                // Simpan maklumat pelawat (optional) dan terus ke portal pelawat
+                // Simpan maklumat pelawat
                 try {
                     sessionStorage.setItem('fms_user', JSON.stringify({ id: inputValue, role: 'guest', name: inputValue }));
                     sessionStorage.setItem('fms_role', 'guest');
