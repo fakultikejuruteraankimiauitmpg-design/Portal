@@ -195,10 +195,11 @@
         /* ============================================================
            1) KONFIGURASI
            ============================================================ */
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzjbycKWrAVH1Db-FiZgiqaYiVHct3Zt-ETz3SeUVeFRD8Eu5c1ti4RpUtY9ZANrZtX/exec";
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTf6R87uxIhon3uB5ZW4E2M3o37J58UMRDu494bBQESo1YmaAT0gPDTnmYgmd4gh2IKg/exec";
 
         /* ============================================================
            HALAMAN DESTINASI MENGIKUT PERANAN
+           (nama fail mesti sama dengan fail sebenar dalam folder yang sama)
            ============================================================ */
         const PORTAL_ROUTES = {
             student:        "student portal.html",
@@ -206,16 +207,20 @@
             lab_staff:      "laboratory staff portal.html",
             coordinator:    "coordinator program portal.html",
             admin:          "admin portal.html",
-            guest:          "pelawat portal.html"   // ✅ PELAWAT → pelawat portal.html
+            guest:          "guest portal.html"   // tukar ikut nama fail pelawat anda
         };
 
         /* ============================================================
            NORMALISASI PERANAN
+           Supaya "Academic Staff", "ACADEMIC_STAFF", "academic-staff",
+           "staf_akademik" semuanya jadi satu kunci yang sama.
            ============================================================ */
         const ROLE_ALIASES = {
+            // Pelajar
             student: 'student',
             pelajar: 'student',
 
+            // Staf Akademik
             academic_staff: 'academic_staff',
             academicstaff: 'academic_staff',
             academic: 'academic_staff',
@@ -223,6 +228,7 @@
             pensyarah: 'academic_staff',
             staf_akademik: 'academic_staff',
 
+            // Staf Makmal
             lab_staff: 'lab_staff',
             labstaff: 'lab_staff',
             laboratory_staff: 'lab_staff',
@@ -230,16 +236,19 @@
             staf_makmal: 'lab_staff',
             makmal: 'lab_staff',
 
+            // Penyelaras Program
             coordinator: 'coordinator',
             coordinator_program: 'coordinator',
             program_coordinator: 'coordinator',
             penyelaras: 'coordinator',
             penyelaras_program: 'coordinator',
 
+            // Admin
             admin: 'admin',
             administrator: 'admin',
             pentadbir: 'admin',
 
+            // Pelawat
             guest: 'guest',
             visitor: 'guest',
             pelawat: 'guest'
@@ -251,6 +260,7 @@
             return ROLE_ALIASES[key] || key;
         }
 
+        /* Redirect ke portal dengan encoding nama fail (selamat untuk nama ada ruang) */
         function goToPortal(role) {
             const route = PORTAL_ROUTES[role];
             if (!route) return false;
@@ -259,11 +269,12 @@
         }
 
         const REQUEST_TIMEOUT_MS = 15000;
+        /* ============================================================ */
 
         let db, auth;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'fakulti-kej-kimia';
 
-        let currentMode = 'login';
+        let currentMode = 'login'; // 'login' atau 'guest'
         let currentLang = 'ms';
         let isSubmitting = false;
 
@@ -291,7 +302,6 @@
                 err_id_required: "Sila masukkan ID anda.",
                 err_pw_required: "Sila masukkan kata laluan anda.",
                 err_name_required: "Sila masukkan nama penuh anda.",
-                err_name_no_number: "Nama tidak boleh mengandungi nombor. Sila masukkan nama penuh sahaja.",
                 err_invalid: "ID atau kata laluan tidak sah.",
                 err_network: "Ralat sambungan. Sila semak internet anda dan cuba lagi.",
                 err_timeout: "Sambungan tamat masa. Sila cuba sebentar lagi.",
@@ -328,7 +338,6 @@
                 err_id_required: "Please enter your ID.",
                 err_pw_required: "Please enter your password.",
                 err_name_required: "Please enter your full name.",
-                err_name_no_number: "Name cannot contain numbers. Please enter your full name only.",
                 err_invalid: "Invalid ID or password.",
                 err_network: "Connection error. Please check your internet and try again.",
                 err_timeout: "Connection timed out. Please try again shortly.",
@@ -486,7 +495,7 @@
         }
 
         /* ============================================================
-           3) AUDIT TRAIL (Firebase)
+           3) AUDIT TRAIL (Firebase) — pilihan
            ============================================================ */
         async function initFirebase() {
             try {
@@ -522,7 +531,7 @@
         }
 
         /* ============================================================
-           4) HANDLER LOG MASUK
+           4) HANDLER LOG MASUK (AUTO-DETECT ROLE)
            ============================================================ */
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -532,58 +541,30 @@
             const inputValue = userIdInput.value.trim();
             const passwordValue = passwordInput.value;
 
-            /* ==================================================
-               MOD PELAWAT — Terus ke pelawat portal.html
-               Hanya perlu isi NAMA (tiada nombor)
-               ================================================== */
+            /* ----- MOD PELAWAT (GUEST) ----- */
             if (currentMode === 'guest') {
-                // 1) Semak nama kosong
                 if (!inputValue) {
                     showStatus(t.err_name_required, "error");
                     userIdInput.focus();
                     return;
                 }
-
-                // 2) Semak nama tiada nombor
-                if (/\d/.test(inputValue)) {
-                    showStatus(t.err_name_no_number, "error");
-                    userIdInput.focus();
-                    return;
-                }
-
                 setLoading(true);
-
-                // Simpan sesi pelawat
+                // Simpan maklumat pelawat (optional) dan terus ke portal pelawat
                 try {
-                    sessionStorage.setItem('fms_user', JSON.stringify({
-                        id: inputValue,
-                        role: 'guest',
-                        name: inputValue,
-                        login_at: new Date().toISOString()
-                    }));
+                    sessionStorage.setItem('fms_user', JSON.stringify({ id: inputValue, role: 'guest', name: inputValue }));
                     sessionStorage.setItem('fms_role', 'guest');
                     sessionStorage.setItem('fms_login_at', new Date().toISOString());
-                } catch (storageErr) {
-                    console.warn("sessionStorage tidak tersedia:", storageErr);
-                }
+                } catch (e) { /* ignore */ }
 
-                // Papar mesej selamat datang
                 showStatus(t.success_guest.replace('{name}', inputValue), "success");
-
-                // Audit log (optional)
                 logToFirebase(inputValue, 'guest');
-
-                // ✅ TERUS KE pelawat portal.html
                 setTimeout(() => {
-                    window.location.href = encodeURI("pelawat portal.html");
+                    goToPortal('guest');
                 }, 900);
-
                 return;
             }
 
-            /* ==================================================
-               MOD LOG MASUK (AUTO-DETECT ROLE)
-               ================================================== */
+            /* ----- MOD LOG MASUK (AUTO-DETECT) ----- */
             if (!inputValue) {
                 showStatus(t.err_id_required, "error");
                 userIdInput.focus();
@@ -624,6 +605,7 @@
                     return;
                 }
 
+                // Simpan sesi
                 user.id = user.id || inputValue;
                 user.role = finalRole;
                 try {
