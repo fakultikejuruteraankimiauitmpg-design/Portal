@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visitor Portal | Fakulti Kejuruteraan Kimia | UiTM Cawangan Johor</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+    /* ===== PALETTE: 3 SOLID COLOURS ONLY =====
+       NAVY   #002D62
+       PURPLE #9B26B6
+       GOLD   #FDB913
+       + neutral slate/white/black
+    */
+    :root {
+        --navy:   #002D62;
+        --purple: #9B26B6;
+        --gold:   #FDB913;
+        --p655c: #002D62;
+        --p254c: #9B26B6;
+        --p130c: #FDB913;
+    }
+
+    * { -webkit-tap-highlight-color: transparent; }
+
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        scroll-behavior: smooth;
+        background: #F8FAFC;
+        background-attachment: fixed;
+    }
+
+    .faculty-logo { display: flex; align-items: center; gap: 14px; }
+    .logo-bar {
+        width: 3px; height: 42px;
+        background: #FDB913;
+        border-radius: 2px;
+    }
+    .logo-text { display: flex; flex-direction: column; line-height: 1.1; font-weight: 800; text-transform: uppercase; letter-spacing: -0.01em; }
+    .logo-text .line-small { font-size: 0.62rem; letter-spacing: 0.2em; color: var(--gold); margin-bottom: 2px; }
+    .logo-text .line-large { font-size: 0.95rem; color: #fff; }
+
+    .glass-nav {
+        background: #002D62;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 4px 30px -10px rgba(0, 45, 98, 0.45);
+    }
+
+    .lang-toggle-wrapper {
+        background: rgba(255,255,255,.12);
+        border: 1px solid rgba(255,255,255,.2);
+        border-radius: 9999px; padding: 3px;
+        display: inline-flex; gap: 2px;
+    }
+    .lang-btn {
+        padding: 5px 11px; border-radius: 9999px;
+        font-size: 10px; font-weight: 800; cursor: pointer;
+        transition: all .2s cubic-bezier(.4,0,.2,1);
+        opacity: .7; color: #fff;
+        display: flex; align-items: center; gap: 5px;
+    }
+    .lang-btn:hover { opacity: 1; background: rgba(255,255,255,.1); }
+    .lang-btn.active {
+        opacity: 1;
+        background: #FDB913;
+        color: #002D62;
+        box-shadow: 0 4px 14px rgba(253,185,19,.5);
+    }
+
+    .visitor-badge {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: rgba(253,185,19,.18);
+        border: 1px solid rgba(253,185,19,.4);
+        color: #FDB913;
+        padding: 5px 12px; border-radius: 9999px;
+        font-size: 10px; font-weight: 900;
+        letter-spacing: .12em; text-transform: uppercase;
+    }
+
+    .card {
+        background: #fff;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        transition: all .3s cubic-bezier(.4,0,.2,1);
+        position: relative;
+        overflow: hidden;
+    }
+    .card-hover:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 24px 42px -16px rgba(0,45,98,.28);
+        border-color: rgba(155, 38, 182, 0.3);
+    }
+
+    /* Stat cards — SOLID colours */
+    .stat-card {
+        position: relative; overflow: hidden; color: #fff;
+        border: none !important;
+        box-shadow: 0 14px 30px -12px rgba(0,0,0,.25);
+    }
+    .stat-card::before {
+        content: ''; position: absolute;
+        right: -30px; top: -30px;
+        width: 130px; height: 130px; border-radius: 50%;
+        background: rgba(255,255,255,0.12); pointer-events: none;
+    }
+    .stat-navy   { background: #002D62; }
+    .stat-purple { background: #9B26B6; }
+    .stat-gold   { background: #FDB913; }
+    .stat-deep   { background: #002D62; }
+
+    .stat-card .stat-icon-box {
+        width: 44px; height: 44px; border-radius: 12px;
+        background: rgba(255,255,255,0.20);
+        display: flex; align-items: center; justify-content: center;
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+    .stat-card .stat-icon-box i { color: #fff; font-size: 16px; }
+
+    .btn-gold {
+        background: #FDB913;
+        color: #fff;
+        transition: all .25s cubic-bezier(.4,0,.2,1);
+        box-shadow: 0 10px 22px -8px rgba(253,185,19,.6);
+    }
+    .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 16px 30px -10px rgba(253, 185, 19, .7); }
+
+    .btn-outline-white {
+        background: transparent;
+        color: #fff;
+        border: 1px solid rgba(255,255,255,.35);
+        transition: all .25s cubic-bezier(.4,0,.2,1);
+    }
+    .btn-outline-white:hover {
+        background: rgba(255,255,255,.12);
+        border-color: rgba(255,255,255,.6);
+        transform: translateY(-2px);
+    }
+
+    .text-p655c { color: var(--navy); }
+    .text-p254c { color: var(--purple); }
+    .text-p130c { color: var(--gold); }
+
+    .section-label {
+        font-size: 10px; font-weight: 800; letter-spacing: .2em;
+        text-transform: uppercase;
+        color: #9B26B6;
+    }
+
+    .chip {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 5px 12px; font-size: 10px; font-weight: 800;
+        letter-spacing: .08em; text-transform: uppercase;
+        border-radius: 9999px;
+    }
+    .chip-gold   { background: rgba(253,185,19,.18); color: #B45309; border: 1px solid rgba(253,185,19,.4); }
+    .chip-purple { background: rgba(155,38,182,.12); color: #9B26B6; border: 1px solid rgba(155,38,182,.3); }
+    .chip-navy   { background: rgba(0,45,98,.10); color: #002D62; border: 1px solid rgba(0,45,98,.25); }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    .anim-up { animation: fadeUp .45s cubic-bezier(.4,0,.2,1) both; }
+
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    .float-anim { animation: float 5s ease-in-out infinite; }
+
+    .dropdown { opacity: 0; visibility: hidden; transform: translateY(-8px); transition: all .22s cubic-bezier(.4,0,.2,1); }
+    .dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
+
+    /* Hero — SOLID navy */
+    .hero-banner {
+        background: #002D62;
+        position: relative; overflow: hidden;
+        box-shadow: 0 20px 45px -18px rgba(0, 45, 98, .55);
+    }
+    .hero-banner::before {
+        content: ''; position: absolute; inset: 0;
+        background-image: radial-gradient(rgba(255,255,255,.18) 1px, transparent 1px);
+        background-size: 26px 26px; opacity: .35;
+    }
+
+    /* Quick Links — SOLID colours */
+    .quick-link {
+        position: relative; overflow: hidden;
+        border-radius: 14px; color: #fff;
+        transition: all .28s cubic-bezier(.4,0,.2,1);
+        box-shadow: 0 8px 20px -10px rgba(0,0,0,.25);
+        display: flex; flex-direction: column; align-items: center; gap: 8px;
+        padding: 20px 12px; text-align: center; text-decoration: none;
+    }
+    .quick-link::before {
+        content: ''; position: absolute;
+        top: -30px; right: -30px;
+        width: 90px; height: 90px; border-radius: 50%;
+        background: rgba(255,255,255,0.14); transition: transform .35s;
+    }
+    .quick-link:hover { transform: translateY(-6px) scale(1.03); box-shadow: 0 20px 34px -14px rgba(0,0,0,.35); }
+    .quick-link:hover::before { transform: scale(1.4); }
+    .quick-link i { font-size: 22px; position: relative; z-index: 1; }
+    .quick-link span {
+        font-size: 10px; font-weight: 800; letter-spacing: .1em;
+        text-transform: uppercase; line-height: 1.25; position: relative; z-index: 1;
+        word-break: break-word;
+    }
+    .ql-navy   { background: #002D62; }
+    .ql-purple { background: #9B26B6; }
+    .ql-gold   { background: #FDB913; }
+
+    /* Metric cards */
+    .ach-card {
+        background: #fff;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 18px 40px -20px rgba(0,45,98,.25);
+        border: 1px solid rgba(226,232,240,.7);
+        transition: all .3s cubic-bezier(.4,0,.2,1);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+    .ach-card:hover { transform: translateY(-6px); box-shadow: 0 28px 50px -22px rgba(0,45,98,.35); }
+
+    .ach-header { padding: 22px 24px 20px; color: #fff; position: relative; overflow: hidden; }
+    .ach-header::before {
+        content: ''; position: absolute; top: -40px; right: -40px;
+        width: 160px; height: 160px; border-radius: 50%;
+        background: rgba(255,255,255,0.10); pointer-events: none;
+    }
+    .ach-header-pub  { background: #002D62; }
+    .ach-header-inv  { background: #9B26B6; }
+    .ach-header-grt  { background: #FDB913; }
+
+    .ach-icon-box {
+        width: 46px; height: 46px; border-radius: 14px;
+        background: rgba(255,255,255,0.20);
+        border: 1px solid rgba(255,255,255,0.3);
+        display: flex; align-items: center; justify-content: center;
+    }
+    .ach-icon-box i { color: #fff; font-size: 18px; }
+
+    .ach-badge {
+        font-size: 10px; font-weight: 900;
+        padding: 4px 10px; border-radius: 9999px;
+        background: rgba(255,255,255,0.25);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: #fff; letter-spacing: .06em;
+        display: inline-flex; align-items: center; gap: 4px;
+    }
+
+    .ach-big-number {
+        font-size: 2.6rem; font-weight: 900; line-height: 1;
+        color: #fff; letter-spacing: -0.02em;
+    }
+    .ach-big-number small { font-size: 0.95rem; font-weight: 800; opacity: .85; margin-right: 4px; }
+    .ach-sub {
+        font-size: 10px; font-weight: 800; letter-spacing: .16em;
+        text-transform: uppercase; color: rgba(255,255,255,.8); margin-top: 6px;
+    }
+
+    .ach-body { padding: 18px 22px 22px; flex: 1; display: flex; flex-direction: column; }
+    .ach-chart-wrap { position: relative; height: 150px; margin-bottom: 16px; }
+
+    .ach-legend-row {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 8px 0; border-bottom: 1px dashed #E2E8F0;
+        font-size: 11px; font-weight: 700;
+    }
+    .ach-legend-row:last-child { border-bottom: none; }
+    .ach-legend-label {
+        display: flex; align-items: center; gap: 8px;
+        color: #475569; text-transform: uppercase;
+        letter-spacing: .04em; font-weight: 800; font-size: 10px;
+    }
+    .ach-dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex-shrink: 0; }
+    .ach-legend-value { font-weight: 900; color: var(--navy); font-size: 13px; }
+
+    .ach-progress-wrap { margin-top: 14px; padding-top: 14px; border-top: 1px dashed #E2E8F0; }
+    .ach-progress-track { height: 8px; background: #F1F5F9; border-radius: 9999px; overflow: hidden; margin-top: 6px; }
+    .ach-progress-fill { height: 100%; border-radius: 9999px; transition: width 1.2s cubic-bezier(.4,0,.2,1); }
+    .fill-navy   { background: #002D62; }
+    .fill-purple { background: #9B26B6; }
+    .fill-gold   { background: #FDB913; }
+
+    .trend-wrap {
+        background: #fff; border-radius: 24px; padding: 24px;
+        border: 1px solid rgba(226,232,240,.7);
+        box-shadow: 0 18px 40px -22px rgba(0,45,98,.25);
+        position: relative; overflow: hidden;
+    }
+    .trend-wrap::before {
+        content: ''; position: absolute; top: 0; left: 0; right: 0;
+        height: 4px; background: #9B26B6;
+    }
+
+    /* Lab showcase */
+    .lab-card {
+        background: #fff;
+        border: 1px solid rgba(226,232,240,.8);
+        transition: all .3s cubic-bezier(.4,0,.2,1);
+        overflow: hidden;
+        border-radius: 20px;
+        box-shadow: 0 8px 24px -14px rgba(0,45,98,.15);
+        display: flex; flex-direction: column;
+    }
+    .lab-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 26px 40px -18px rgba(155, 38, 182, .35);
+        border-color: rgba(155, 38, 182, .3);
+    }
+    .lab-card .lab-img { height: 170px; overflow: hidden; position: relative; }
+    .lab-card .lab-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .7s ease; }
+    .lab-card:hover .lab-img img { transform: scale(1.08); }
+    .lab-tag {
+        position: absolute; top: 12px; left: 12px;
+        padding: 5px 14px; font-size: 9px; font-weight: 900;
+        text-transform: uppercase; letter-spacing: .1em;
+        color: #fff; border-radius: 9999px;
+        box-shadow: 0 4px 12px rgba(0,0,0,.2);
+    }
+    .tag-navy   { background: #002D62; }
+    .tag-purple { background: #9B26B6; }
+    .tag-gold   { background: #FDB913; }
+
+    .news-card {
+        background: #fff; border: 1px solid rgba(226,232,240,.8);
+        transition: all .3s cubic-bezier(.4,0,.2,1);
+        cursor: pointer; overflow: hidden; border-radius: 16px;
+        box-shadow: 0 8px 24px -14px rgba(0,45,98,.15);
+    }
+    .news-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 26px 40px -18px rgba(155, 38, 182, .35);
+        border-color: rgba(155, 38, 182, .3);
+    }
+    .news-card .news-img { height: 180px; overflow: hidden; position: relative; }
+    .news-card .news-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .7s ease; }
+    .news-card:hover .news-img img { transform: scale(1.08); }
+    .news-badge {
+        position: absolute; top: 12px; left: 12px;
+        padding: 5px 14px; font-size: 9px; font-weight: 900;
+        text-transform: uppercase; letter-spacing: .1em;
+        color: #fff; border-radius: 9999px;
+        box-shadow: 0 4px 12px rgba(0,0,0,.2);
+    }
+    .badge-safety    { background: #002D62; }
+    .badge-equipment { background: #9B26B6; }
+    .badge-training  { background: #FDB913; }
+
+    .modal-backdrop {
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(6px);
+        opacity: 0; visibility: hidden; transition: all .25s ease;
+        z-index: 100;
+    }
+    .modal-backdrop.open { opacity: 1; visibility: visible; }
+    .modal-box { transform: translateY(18px) scale(.97); transition: all .3s cubic-bezier(.4,0,.2,1); border-radius: 16px; overflow: hidden; }
+    .modal-backdrop.open .modal-box { transform: translateY(0) scale(1); }
+    .modal-header-gradient { background: #002D62; color: #fff; }
+
+    .field-label {
+        display: block; font-size: 9px; font-weight: 800;
+        letter-spacing: .18em; text-transform: uppercase;
+        color: #94A3B8; margin-bottom: 6px;
+    }
+    .field-input {
+        width: 100%; padding: 12px 14px;
+        font-size: 13px; font-weight: 600;
+        color: var(--navy);
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 10px; outline: none;
+        transition: all .2s ease;
+    }
+    .field-input::placeholder { color: #94A3B8; font-weight: 500; }
+    .field-input:focus { background: #fff; border-color: #9B26B6; box-shadow: 0 0 0 4px rgba(155, 38, 182, .12); }
+    .field-input.is-invalid { border-color: #9B26B6; background: #FAF5FF; }
+
+    textarea.field-input { resize: vertical; min-height: 96px; font-family: inherit; }
+    select.field-input { appearance: none; cursor: pointer; }
+
+    .error-box {
+        display: none; padding: 12px 14px;
+        background: #FAF5FF; border-left: 4px solid #9B26B6;
+        border-radius: 8px; font-size: 11px; color: #6B21A8;
+        font-weight: 600; line-height: 1.5;
+    }
+    .error-box.show { display: block; animation: fadeUp .25s cubic-bezier(.4,0,.2,1) both; }
+    .error-box ul { list-style: disc; padding-left: 16px; }
+
+    .toast {
+        position: fixed; bottom: 24px; left: 50%;
+        transform: translateX(-50%) translateY(80px);
+        background: #FDB913; color: #fff;
+        padding: 14px 22px; border-radius: 9999px;
+        font-size: 11px; font-weight: 800;
+        letter-spacing: .1em; text-transform: uppercase;
+        box-shadow: 0 18px 40px -12px rgba(253,185,19,.6);
+        display: flex; align-items: center; gap: 10px;
+        z-index: 200; opacity: 0;
+        transition: all .35s cubic-bezier(.4,0,.2,1);
+        max-width: 90vw; text-align: center;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .toast.toast-blue { background: #002D62; box-shadow: 0 18px 40px -12px rgba(0,45,98,.6); }
+
+    .info-banner { background: #EFF6FF; border-left: 4px solid #9B26B6; border-radius: 10px; }
+
+    .dot-gold   { background: #FDB913; }
+    .dot-purple { background: #9B26B6; }
+    .dot-navy   { background: #002D62; }
+
+    .status-badge {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 4px 10px; border-radius: 9999px;
+        font-size: 9px; font-weight: 900;
+        letter-spacing: .08em; text-transform: uppercase;
+        white-space: nowrap;
+    }
+    .status-ok    { background: rgba(0,45,98,.10); color: #002D62; border: 1px solid rgba(0,45,98,.25); }
+    .status-warn  { background: rgba(253,185,19,.18); color: #B45309; border: 1px solid rgba(253,185,19,.4); }
+    .status-alert { background: rgba(155,38,182,.12); color: #9B26B6; border: 1px solid rgba(155,38,182,.3); }
+
+    /* Guideline items */
+    .guide-item {
+        display: flex; gap: 14px; align-items: flex-start;
+        padding: 16px; border-radius: 14px;
+        background: #F8FAFC; border-left: 4px solid;
+        transition: all .25s cubic-bezier(.4,0,.2,1);
+    }
+    .guide-item:hover {
+        background: #fff;
+        box-shadow: 0 12px 26px -14px rgba(0,45,98,.2);
+        transform: translateX(2px);
+    }
+    .guide-navy   { border-left-color: #002D62; }
+    .guide-purple { border-left-color: #9B26B6; }
+    .guide-gold   { border-left-color: #FDB913; }
+
+    .guide-icon {
+        width: 42px; height: 42px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; flex-shrink: 0;
+        box-shadow: 0 6px 16px -6px rgba(0,0,0,.35);
+    }
+    .guide-icon i { font-size: 15px; }
+
+    /* Tour steps */
+    .step-item { position: relative; padding-left: 44px; }
+    .step-item::before {
+        content: ''; position: absolute;
+        left: 15px; top: 30px; bottom: -14px;
+        width: 2px; background: #E2E8F0;
+    }
+    .step-item:last-child::before { display: none; }
+    .step-dot {
+        position: absolute; left: 0; top: 0;
+        width: 32px; height: 32px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 11px; font-weight: 900; color: #fff;
+        box-shadow: 0 6px 16px -6px rgba(0,0,0,.35);
+    }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    .site-footer { background: #002D62; color: #fff; margin-top: 40px; position: relative; }
+    .site-footer::before {
+        content: ''; position: absolute; top: 0; left: 0; right: 0;
+        height: 4px; background: #FDB913;
+    }
+    .footer-inner { max-width: 80rem; margin: 0 auto; padding: 56px 24px 0; }
+    .footer-grid {
+        display: grid; grid-template-columns: 1fr; gap: 40px;
+        padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
+    @media (min-width: 768px) { .footer-grid { grid-template-columns: 1.4fr 1fr 1.2fr; gap: 48px; } }
+
+    .footer-logo { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+    .footer-logo .logo-bar { width: 3px; height: 42px; background: #FDB913; border-radius: 2px; }
+    .footer-logo .logo-text { display: flex; flex-direction: column; line-height: 1.1; font-weight: 800; text-transform: uppercase; }
+    .footer-logo .line-small { font-size: 0.62rem; letter-spacing: 0.2em; color: #FDB913; margin-bottom: 2px; }
+    .footer-logo .line-large { font-size: 0.95rem; color: #fff; }
+
+    .footer-desc { font-size: 12px; line-height: 1.7; color: rgba(255,255,255,0.75); font-weight: 500; max-width: 380px; }
+    .footer-heading {
+        font-size: 10px; font-weight: 900; letter-spacing: 0.2em;
+        text-transform: uppercase; color: #FDB913; margin-bottom: 18px;
+    }
+    .footer-links { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a {
+        color: rgba(255,255,255,0.8); text-decoration: none;
+        font-size: 12px; font-weight: 600;
+        transition: color .2s ease, padding-left .2s ease;
+        display: inline-flex; align-items: center; gap: 8px;
+    }
+    .footer-links a::before {
+        content: ''; width: 4px; height: 4px; border-radius: 50%;
+        background: #9B26B6; display: inline-block; transition: background .2s ease;
+    }
+    .footer-links a:hover { color: #FDB913; padding-left: 4px; }
+    .footer-links a:hover::before { background: #FDB913; }
+
+    .footer-contact { display: flex; flex-direction: column; gap: 14px; }
+    .footer-contact-item {
+        display: flex; gap: 12px; align-items: flex-start;
+        font-size: 12px; color: rgba(255,255,255,0.8);
+        font-weight: 500; line-height: 1.6;
+    }
+    .footer-contact-item i { color: #FDB913; font-size: 13px; margin-top: 3px; width: 16px; flex-shrink: 0; }
+    .footer-contact-item a { color: rgba(255,255,255,0.85); text-decoration: none; transition: color .2s ease; }
+    .footer-contact-item a:hover { color: #FDB913; }
+
+    .footer-bottom {
+        padding: 22px 0; display: flex; flex-direction: column;
+        gap: 12px; align-items: center; justify-content: space-between;
+    }
+    @media (min-width: 640px) { .footer-bottom { flex-direction: row; } }
+
+    .footer-copy { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.65); letter-spacing: 0.03em; }
+    .footer-legal { display: flex; align-items: center; gap: 20px; }
+    .footer-legal a {
+        font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.75);
+        text-decoration: none; letter-spacing: 0.05em; transition: color .2s ease;
+    }
+    .footer-legal a:hover { color: #FDB913; }
+</style>
+</head>
+<body class="text-slate-900">
+
+<!-- ============================================================
+     TOP NAVIGATION
+============================================================= -->
+<nav class="glass-nav sticky top-0 z-50">
+    <div class="px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-[70px]">
+
+            <a href="visitor.html" class="faculty-logo">
+                <div class="logo-bar"></div>
+                <div class="logo-text">
+                    <span class="line-small" data-i18n="nav_faculty">FAKULTI</span>
+                    <span class="line-large" data-i18n="nav_dept">KEJURUTERAAN KIMIA</span>
+                </div>
+            </a>
+
+            <div class="flex items-center gap-3 sm:gap-4">
+                <div class="hidden md:flex items-center gap-3 bg-white/12 border border-white/20 px-4 py-2 w-56 rounded-full">
+                    <i class="fas fa-magnifying-glass text-white/60 text-xs"></i>
+                    <input type="text" placeholder="Search portal..."
+                           data-i18n-ph="ph_search"
+                           class="bg-transparent border-none outline-none text-white text-xs placeholder-white/60 w-full font-medium">
+                </div>
+
+                <div class="lang-toggle-wrapper">
+                    <button class="lang-btn active" id="btn-en" onclick="switchLanguage('en')">
+                        <img src="https://flagcdn.com/w20/gb.png" class="w-3.5 h-auto rounded-[2px]" alt="EN"> EN
+                    </button>
+                    <button class="lang-btn" id="btn-ms" onclick="switchLanguage('ms')">
+                        <img src="https://flagcdn.com/w20/my.png" class="w-3.5 h-auto rounded-[2px]" alt="BM"> BM
+                    </button>
+                </div>
+
+                <span class="visitor-badge hidden sm:inline-flex">
+                    <i class="fas fa-globe"></i> <span data-i18n="visitor_mode">Visitor</span>
+                </span>
+
+                <div class="relative">
+                    <button id="portalToggle" class="flex items-center gap-2 text-white/90 hover:text-white transition px-3 py-2 rounded-full hover:bg-white/10 text-[10px] font-black uppercase tracking-widest">
+                        <i class="fas fa-right-to-bracket text-xs"></i>
+                        <span class="hidden sm:inline" data-i18n="nav_login">Portal Login</span>
+                        <i class="fas fa-chevron-down text-white/50 text-[9px]"></i>
+                    </button>
+
+                    <div id="portalDropdown"
+                         class="dropdown absolute right-0 top-[calc(100%+14px)] w-64 bg-white shadow-2xl border border-slate-200 z-50 rounded-2xl overflow-hidden">
+                        <div class="p-5 border-b border-slate-100 bg-slate-50">
+                            <p class="text-[10px] font-black uppercase tracking-widest text-slate-500" data-i18n="nav_login_title">Members Portal</p>
+                            <p class="text-[10px] font-bold text-slate-400 mt-1" data-i18n="nav_login_sub">Sign in with your UiTM credentials</p>
+                        </div>
+                        <div class="py-2">
+                            <a href="laboratory staff.html" class="w-full flex items-center gap-3 px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-600 hover:bg-purple-50 hover:text-p254c transition">
+                                <i class="fas fa-flask w-4 text-p254c"></i> <span data-i18n="nav_login_staff">Lab Staff Login</span>
+                            </a>
+                            <a href="loginadmin.html" class="w-full flex items-center gap-3 px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-600 hover:bg-purple-50 hover:text-p254c transition">
+                                <i class="fas fa-user-shield w-4 text-p254c"></i> <span data-i18n="nav_login_admin">Admin Login</span>
+                            </a>
+                            <a href="login.html" class="w-full flex items-center gap-3 px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-600 hover:bg-purple-50 hover:text-p254c transition">
+                                <i class="fas fa-graduation-cap w-4 text-p254c"></i> <span data-i18n="nav_login_student">Student Login</span>
+                            </a>
+                        </div>
+                        <div class="border-t border-slate-100 p-4 bg-slate-50">
+                            <a href="#" class="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-white" style="background:#9B26B6;">
+                                <i class="fas fa-user-plus"></i> <span data-i18n="nav_register">Register Account</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- ============================================================
+     MAIN CONTENT
+============================================================= -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+    <!-- Welcome banner -->
+    <div class="hero-banner p-8 sm:p-10 mb-6 rounded-3xl anim-up">
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="max-w-2xl">
+                <span class="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.25em] text-yellow-300 mb-3">
+                    <span class="w-2 h-2 rounded-full bg-yellow-300 animate-pulse"></span>
+                    <span data-i18n="visitor_hero_tag">Public Access · Visitor Portal</span>
+                </span>
+
+                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-tight tracking-tight drop-shadow-lg">
+                    <span data-i18n="visitor_hero_title_1">Discover the Laboratories of</span><br>
+                    <span class="text-yellow-300" data-i18n="visitor_hero_title_2">Fakulti Kejuruteraan Kimia</span>
+                </h1>
+
+                <p class="text-sm text-blue-100 font-medium mt-4 leading-relaxed max-w-xl" data-i18n="visitor_hero_sub">
+                    Explore our research facilities, book a guided lab tour, and learn how chemical engineering drives innovation at UiTM Cawangan Johor.
+                </p>
+
+                <div class="mt-6 flex flex-wrap items-center gap-3">
+                    <button id="bookTourHeroBtn" class="btn-gold px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                        <i class="fas fa-calendar-check"></i> <span data-i18n="visitor_book_tour">Book a Lab Tour</span>
+                    </button>
+                    <a href="#labs" class="btn-outline-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                        <i class="fas fa-compass"></i> <span data-i18n="visitor_explore">Explore Labs</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="shrink-0">
+                <div class="bg-white/15 border border-white/25 p-5 min-w-[220px] rounded-2xl float-anim">
+                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-yellow-300 mb-1" data-i18n="visitor_open_today">Opening Hours</p>
+                    <p class="text-white font-bold text-sm" data-i18n="visitor_open_hours">Mon – Fri · 8:00 AM – 5:00 PM</p>
+                    <div class="h-px bg-white/25 my-3"></div>
+                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-yellow-300 mb-1" data-i18n="visitor_campus">Campus</p>
+                    <p class="text-white font-bold text-xs" data-i18n="visitor_campus_name">UiTM Johor · Pasir Gudang</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="card p-6 mb-6 anim-up rounded-3xl">
+        <div class="mb-5 pb-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <span class="section-label" data-i18n="visitor_quick_label">Visitor Menu</span>
+                <h3 class="text-lg font-black text-p655c mt-1" data-i18n="visitor_quick_title">Public Quick Links</h3>
+            </div>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest" data-i18n="visitor_quick_hint">Opens in new tab</span>
+        </div>
+
+        <div id="quickLinksGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            <!-- rendered by JS -->
+        </div>
+    </div>
+
+    <!-- Public stat cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
+        <div class="stat-card stat-navy card-hover p-6 rounded-2xl">
+            <div class="flex items-start justify-between mb-4 relative z-10">
+                <div class="stat-icon-box"><i class="fas fa-flask-vial"></i></div>
+                <span class="text-[10px] font-black uppercase tracking-widest bg-white/25 px-2 py-1 rounded-full" data-i18n="visitor_stat_live">Live</span>
+            </div>
+            <p class="text-3xl font-black leading-none mb-2 relative z-10">8</p>
+            <p class="text-[10px] font-black uppercase tracking-widest text-blue-100 relative z-10" data-i18n="visitor_stat_labs">Specialised Laboratories</p>
+        </div>
+
+        <div class="stat-card stat-purple card-hover p-6 rounded-2xl">
+            <div class="flex items-start justify-between mb-4 relative z-10">
+                <div class="stat-icon-box"><i class="fas fa-microscope"></i></div>
+                <span class="text-[10px] font-black uppercase tracking-widest bg-white/25 px-2 py-1 rounded-full" data-i18n="visitor_stat_active">Active</span>
+            </div>
+            <p class="text-3xl font-black leading-none mb-2 relative z-10">340<small style="font-size:1.2rem;">+</small></p>
+            <p class="text-[10px] font-black uppercase tracking-widest text-purple-100 relative z-10" data-i18n="visitor_stat_equipment">Instruments &amp; Equipment</p>
+        </div>
+
+        <div class="stat-card stat-gold card-hover p-6 rounded-2xl">
+            <div class="flex items-start justify-between mb-4 relative z-10">
+                <div class="stat-icon-box"><i class="fas fa-graduation-cap"></i></div>
+                <span class="text-[10px] font-black uppercase tracking-widest bg-white/25 px-2 py-1 rounded-full">2026</span>
+            </div>
+            <p class="text-3xl font-black leading-none mb-2 relative z-10">1.2<small style="font-size:1.2rem;">k</small></p>
+            <p class="text-[10px] font-black uppercase tracking-widest text-yellow-100 relative z-10" data-i18n="visitor_stat_students">Students Enrolled</p>
+        </div>
+
+        <div class="stat-card stat-deep card-hover p-6 rounded-2xl">
+            <div class="flex items-start justify-between mb-4 relative z-10">
+                <div class="stat-icon-box"><i class="fas fa-trophy"></i></div>
+                <span class="text-[10px] font-black uppercase tracking-widest bg-white/25 px-2 py-1 rounded-full" data-i18n="visitor_stat_since">Since 1999</span>
+            </div>
+            <p class="text-3xl font-black leading-none mb-2 relative z-10">45<small style="font-size:1.2rem;">+</small></p>
+            <p class="text-[10px] font-black uppercase tracking-widest text-blue-100 relative z-10" data-i18n="visitor_stat_research">Research Projects / Year</p>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         PUBLIC DASHBOARD
+    ============================================================ -->
+    <section class="mb-8 anim-up">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 border-b border-slate-200 pb-4">
+            <div>
+                <span class="section-label" data-i18n="visitor_dash_tag">At a Glance</span>
+                <h2 class="text-2xl sm:text-3xl font-black text-p655c mt-2" data-i18n="visitor_dash_title">Faculty &amp; Laboratory Overview</h2>
+                <p class="text-xs text-slate-500 font-medium mt-1" data-i18n="visitor_dash_sub">Public statistics · FKK Johor Campus</p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <span class="chip chip-gold"><i class="fas fa-calendar"></i> 2023 – 2026</span>
+                <span class="chip chip-purple"><i class="fas fa-arrow-trend-up"></i> <span data-i18n="visitor_dash_trend">Growing</span></span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <!-- LAB CAPACITY -->
+            <div class="ach-card">
+                <div class="ach-header ach-header-pub">
+                    <div class="flex items-center justify-between mb-5 relative z-10">
+                        <div class="flex items-center gap-3">
+                            <div class="ach-icon-box"><i class="fas fa-building-columns"></i></div>
+                            <div>
+                                <p class="text-[9px] uppercase tracking-[0.2em] font-black text-white/70">Fasiliti</p>
+                                <p class="text-sm font-black text-white uppercase tracking-wide" data-i18n="visitor_facilities">Facilities</p>
+                            </div>
+                        </div>
+                        <span class="ach-badge"><i class="fas fa-arrow-up text-[8px]"></i> +2</span>
+                    </div>
+                    <div class="relative z-10">
+                        <p class="ach-big-number">8</p>
+                        <p class="ach-sub" data-i18n="visitor_facilities_sub">Specialised teaching &amp; research labs</p>
+                    </div>
+                </div>
+                <div class="ach-body">
+                    <div class="ach-chart-wrap"><canvas id="facilityChart"></canvas></div>
+                    <div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #002D62;"></span><span data-i18n="visitor_fac_teaching">Teaching Labs</span></span>
+                            <span class="ach-legend-value">4</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #9B26B6;"></span><span data-i18n="visitor_fac_research">Research Labs</span></span>
+                            <span class="ach-legend-value">3</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #FDB913;"></span><span data-i18n="visitor_fac_service">Service Labs</span></span>
+                            <span class="ach-legend-value">1</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #002D62;"></span><span data-i18n="visitor_fac_total">Total Facilities</span></span>
+                            <span class="ach-legend-value">8</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESEARCH OUTPUT -->
+            <div class="ach-card">
+                <div class="ach-header ach-header-inv">
+                    <div class="flex items-center justify-between mb-5 relative z-10">
+                        <div class="flex items-center gap-3">
+                            <div class="ach-icon-box"><i class="fas fa-book-open-reader"></i></div>
+                            <div>
+                                <p class="text-[9px] uppercase tracking-[0.2em] font-black text-white/70">Penyelidikan</p>
+                                <p class="text-sm font-black text-white uppercase tracking-wide" data-i18n="visitor_research">Research</p>
+                            </div>
+                        </div>
+                        <span class="ach-badge"><i class="fas fa-arrow-up text-[8px]"></i> +18%</span>
+                    </div>
+                    <div class="relative z-10">
+                        <p class="ach-big-number">180<small style="font-size:1.4rem;">+</small></p>
+                        <p class="ach-sub" data-i18n="visitor_research_sub">Publications in the last 3 years</p>
+                    </div>
+                </div>
+                <div class="ach-body">
+                    <div class="ach-chart-wrap"><canvas id="researchChart"></canvas></div>
+                    <div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #9B26B6;"></span><span data-i18n="visitor_res_journal">Journal Articles</span></span>
+                            <span class="ach-legend-value">96</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #FDB913;"></span><span data-i18n="visitor_res_conf">Conference Papers</span></span>
+                            <span class="ach-legend-value">58</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #002D62;"></span><span data-i18n="visitor_res_patent">Patents &amp; IP</span></span>
+                            <span class="ach-legend-value">12</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #002D62;"></span><span data-i18n="visitor_res_grants">Active Grants</span></span>
+                            <span class="ach-legend-value">24</span>
+                        </div>
+                    </div>
+                    <div class="ach-progress-wrap">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-500" data-i18n="visitor_res_target">Annual Research Target</span>
+                            <span class="text-[11px] font-black text-p254c">92%</span>
+                        </div>
+                        <div class="ach-progress-track"><div class="ach-progress-fill fill-purple" style="width: 92%"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISITOR ENGAGEMENT -->
+            <div class="ach-card">
+                <div class="ach-header ach-header-grt">
+                    <div class="flex items-center justify-between mb-5 relative z-10">
+                        <div class="flex items-center gap-3">
+                            <div class="ach-icon-box"><i class="fas fa-people-group"></i></div>
+                            <div>
+                                <p class="text-[9px] uppercase tracking-[0.2em] font-black text-white/80">Pelawat</p>
+                                <p class="text-sm font-black text-white uppercase tracking-wide" data-i18n="visitor_engagement">Visitors</p>
+                            </div>
+                        </div>
+                        <span class="ach-badge"><i class="fas fa-arrow-up text-[8px]"></i> +32%</span>
+                    </div>
+                    <div class="relative z-10">
+                        <p class="ach-big-number">1,480</p>
+                        <p class="ach-sub" data-i18n="visitor_engagement_sub">Visitors hosted in 2025</p>
+                    </div>
+                </div>
+                <div class="ach-body">
+                    <div class="ach-chart-wrap"><canvas id="visitorChart"></canvas></div>
+                    <div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #002D62;"></span><span data-i18n="visitor_eng_school">School Groups</span></span>
+                            <span class="ach-legend-value">620</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #9B26B6;"></span><span data-i18n="visitor_eng_industry">Industry Partners</span></span>
+                            <span class="ach-legend-value">380</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #FDB913;"></span><span data-i18n="visitor_eng_public">Public &amp; Alumni</span></span>
+                            <span class="ach-legend-value">480</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #002D62;"></span><span data-i18n="visitor_eng_tours">Guided Lab Tours</span></span>
+                            <span class="ach-legend-value">86</span>
+                        </div>
+                    </div>
+                    <div class="ach-progress-wrap">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-500" data-i18n="visitor_eng_sat">Visitor Satisfaction</span>
+                            <span class="text-[11px] font-black text-p130c">97%</span>
+                        </div>
+                        <div class="ach-progress-track"><div class="ach-progress-fill fill-gold" style="width: 97%"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trend -->
+        <div class="trend-wrap">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 pb-4 border-b border-slate-100">
+                <div>
+                    <span class="section-label" data-i18n="visitor_yearly_label">Yearly Trend</span>
+                    <h3 class="text-lg font-black text-p655c mt-1" data-i18n="visitor_yearly_title">Visitor Numbers, Tours &amp; Research Output (2023 – 2026)</h3>
+                </div>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <span class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                        <span class="w-3 h-3 rounded" style="background: #002D62;"></span>
+                        <span data-i18n="visitor_legend_visitors">Visitors</span>
+                    </span>
+                    <span class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                        <span class="w-3 h-3 rounded" style="background: #9B26B6;"></span>
+                        <span data-i18n="visitor_legend_tours">Guided Tours</span>
+                    </span>
+                    <span class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                        <span class="w-3 h-3 rounded" style="background: #FDB913;"></span>
+                        <span data-i18n="visitor_legend_publications">Publications</span>
+                    </span>
+                </div>
+            </div>
+            <div style="position: relative; height: 260px;">
+                <canvas id="visitorTrendChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         LAB SHOWCASE
+    ============================================================ -->
+    <section id="labs" class="mb-8 anim-up">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 border-b border-slate-200 pb-4">
+            <div>
+                <span class="section-label" data-i18n="visitor_labs_tag">Our Facilities</span>
+                <h2 class="text-2xl sm:text-3xl font-black text-p655c mt-2" data-i18n="visitor_labs_title">Laboratory Showcase</h2>
+                <p class="text-xs text-slate-500 font-medium mt-1" data-i18n="visitor_labs_sub">Purpose-built spaces for teaching, research &amp; industry collaboration</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <article class="lab-card">
+                <div class="lab-img">
+                    <img src="https://images.unsplash.com/photo-1581093588401-fbb62a02f120?auto=format&fit=crop&q=80&w=800" alt="Analytical Lab">
+                    <div class="lab-tag tag-navy" data-i18n="visitor_lab_tag_research">Research</div>
+                </div>
+                <div class="p-5 flex-1 flex flex-col">
+                    <h3 class="text-base font-black text-p655c mb-2 leading-snug" data-i18n="visitor_lab_1_name">Analytical Chemistry Laboratory</h3>
+                    <p class="text-xs text-slate-500 font-medium leading-relaxed mb-4 flex-1" data-i18n="visitor_lab_1_desc">
+                        Equipped with HPLC, GC-MS and FTIR systems for advanced chemical characterisation and quality analysis.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="chip chip-navy"><i class="fas fa-microscope"></i> HPLC · GC-MS</span>
+                        <span class="chip chip-purple"><i class="fas fa-flask"></i> FTIR</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="lab-card">
+                <div class="lab-img">
+                    <img src="https://images.unsplash.com/photo-1554475901-4538ddfbccc2?auto=format&fit=crop&q=80&w=800" alt="Organic Lab">
+                    <div class="lab-tag tag-purple" data-i18n="visitor_lab_tag_teaching">Teaching</div>
+                </div>
+                <div class="p-5 flex-1 flex flex-col">
+                    <h3 class="text-base font-black text-p655c mb-2 leading-snug" data-i18n="visitor_lab_2_name">Organic Chemistry Laboratory</h3>
+                    <p class="text-xs text-slate-500 font-medium leading-relaxed mb-4 flex-1" data-i18n="visitor_lab_2_desc">
+                        Dedicated fume hood stations and synthesis equipment for undergraduate practicals and postgraduate research.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="chip chip-purple"><i class="fas fa-vial"></i> Synthesis</span>
+                        <span class="chip chip-gold"><i class="fas fa-wind"></i> Fume Hoods</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="lab-card">
+                <div class="lab-img">
+                    <img src="https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&q=80&w=800" alt="Thermodynamics Lab">
+                    <div class="lab-tag tag-gold" data-i18n="visitor_lab_tag_service">Service</div>
+                </div>
+                <div class="p-5 flex-1 flex flex-col">
+                    <h3 class="text-base font-black text-p655c mb-2 leading-snug" data-i18n="visitor_lab_3_name">Thermodynamics &amp; Process Laboratory</h3>
+                    <p class="text-xs text-slate-500 font-medium leading-relaxed mb-4 flex-1" data-i18n="visitor_lab_3_desc">
+                        Pilot-scale process units for heat transfer, distillation and fluid mechanics experiments.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="chip chip-navy"><i class="fas fa-temperature-high"></i> Heat Transfer</span>
+                        <span class="chip chip-gold"><i class="fas fa-water"></i> Fluid Mechanics</span>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         VISITOR GUIDELINES + TOUR BOOKING
+    ============================================================ -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+
+        <div class="xl:col-span-2 card p-6 rounded-3xl anim-up">
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                <div>
+                    <span class="section-label" data-i18n="visitor_guide_label">Before You Visit</span>
+                    <h3 class="text-lg font-black text-p655c mt-1" data-i18n="visitor_guide_title">Visitor Guidelines &amp; Safety</h3>
+                </div>
+                <span class="chip chip-gold"><i class="fas fa-shield-halved"></i> <span data-i18n="visitor_guide_mandatory">Mandatory</span></span>
+            </div>
+
+            <div class="space-y-3">
+                <div class="guide-item guide-navy">
+                    <div class="guide-icon" style="background:#002D62;"><i class="fas fa-id-card"></i></div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-bold text-p655c" data-i18n="visitor_guide_1">Register at the Reception</p>
+                        <p class="text-[11px] font-medium text-slate-500 mt-1 leading-relaxed" data-i18n="visitor_guide_1_desc">All visitors must present a valid ID and sign in at the faculty reception before entering any laboratory.</p>
+                    </div>
+                </div>
+
+                <div class="guide-item guide-purple">
+                    <div class="guide-icon" style="background:#9B26B6;"><i class="fas fa-vest"></i></div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-bold text-p655c" data-i18n="visitor_guide_2">Wear Protective Equipment</p>
+                        <p class="text-[11px] font-medium text-slate-500 mt-1 leading-relaxed" data-i18n="visitor_guide_2_desc">Lab coats, safety goggles and closed shoes are provided and required inside all laboratory areas.</p>
+                    </div>
+                </div>
+
+                <div class="guide-item guide-gold">
+                    <div class="guide-icon" style="background:#FDB913;"><i class="fas fa-person-chalkboard"></i></div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-bold text-p655c" data-i18n="visitor_guide_3">Stay With Your Guide</p>
+                        <p class="text-[11px] font-medium text-slate-500 mt-1 leading-relaxed" data-i18n="visitor_guide_3_desc">Do not touch equipment or chemicals. Always remain with your assigned guide throughout the tour.</p>
+                    </div>
+                </div>
+
+                <div class="guide-item guide-navy">
+                    <div class="guide-icon" style="background:#002D62;"><i class="fas fa-camera-retro"></i></div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-bold text-p655c" data-i18n="visitor_guide_4">Photography Policy</p>
+                        <p class="text-[11px] font-medium text-slate-500 mt-1 leading-relaxed" data-i18n="visitor_guide_4_desc">Photos are permitted in common areas only. Ask your guide before photographing any equipment or documents.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-banner flex gap-3 p-4 mt-5">
+                <i class="fas fa-circle-info text-purple-600 mt-0.5"></i>
+                <div>
+                    <p class="text-[11px] font-black uppercase tracking-wider text-purple-800 mb-1" data-i18n="visitor_guide_note_title">Need Special Arrangements?</p>
+                    <p class="text-[10px] font-medium text-purple-700 leading-relaxed" data-i18n="visitor_guide_note_sub">For group visits over 20 people, accessibility needs or media coverage, contact the faculty office at least 5 working days in advance.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-6 rounded-3xl anim-up">
+            <div class="mb-5 pb-4 border-b border-slate-100">
+                <span class="section-label" data-i18n="visitor_steps_label">How It Works</span>
+                <h3 class="text-lg font-black text-p655c mt-1" data-i18n="visitor_steps_title">Book a Tour in 3 Steps</h3>
+            </div>
+
+            <div class="space-y-7">
+                <div class="step-item">
+                    <div class="step-dot" style="background:#002D62;">1</div>
+                    <p class="text-sm font-bold text-p655c" data-i18n="visitor_step_1">Submit Request</p>
+                    <p class="text-[11px] font-medium text-slate-500 mt-1 leading-relaxed" data-i18n="visitor_step_1_desc">Fill in the booking form with your preferred date, group size and area of interest.</p>
+                </div>
+                <div class="step-item">
+                    <div class="step-dot" style="background:#9B26B6;">2</div>
+                    <p class="text-sm font-bold text-p655c" data-i18n="visitor_step_2">Receive Confirmation</p>
+                    <p class="text-[11px] font-medium text-slate-500 mt-1 leading-relaxed" data-i18n="visitor_step_2_desc">Our team will reply within 2 working days to confirm availability and your guide.</p>
+                </div>
+                <div class="step-item">
+                    <div class="step-dot" style="background:#FDB913;">3</div>
+                    <p class="text-sm font-bold text-p655c" data-i18n="visitor_step_3">Visit the Labs</p>
+                    <p class="text-[11px] font-medium text-slate-500 mt-1 leading-relaxed" data-i18n="visitor_step_3_desc">Arrive 15 minutes early at reception with your ID for a guided 45-minute tour.</p>
+                </div>
+            </div>
+
+            <button id="bookTourSideBtn" class="btn-gold w-full mt-7 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
+                <i class="fas fa-calendar-check"></i> <span data-i18n="visitor_book_tour">Book a Lab Tour</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Newsroom & Events -->
+    <section class="mb-10">
+        <div class="flex justify-between items-end mb-6 border-b border-slate-200 pb-4">
+            <div>
+                <span class="section-label" data-i18n="visitor_news_tag">Latest Updates</span>
+                <h2 class="text-2xl sm:text-3xl font-black text-p655c mt-2" data-i18n="visitor_news_title">Public News &amp; Events</h2>
+            </div>
+            <a href="#" class="text-xs font-black uppercase tracking-widest text-p254c hover:text-p655c transition flex items-center gap-2">
+                <span data-i18n="visitor_news_archive">View Archive</span> <i class="fas fa-chevron-right text-[10px]"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <article class="news-card group">
+                <div class="news-img">
+                    <img src="https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&q=80&w=800" alt="Open Day">
+                    <div class="news-badge badge-safety" data-i18n="visitor_news_1_tag">Open Day</div>
+                </div>
+                <div class="p-5">
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-2">March 15, 2026</div>
+                    <h3 class="text-base font-bold text-p655c mb-3 leading-snug group-hover:text-p254c transition" data-i18n="visitor_news_1_title">
+                        Faculty Open Day — Explore Our Laboratories with a Guided Tour.
+                    </h3>
+                    <a href="#" class="text-[10px] font-black uppercase tracking-widest text-p130c mt-2 inline-block" data-i18n="visitor_read_more">Read More</a>
+                </div>
+            </article>
+
+            <article class="news-card group">
+                <div class="news-img">
+                    <img src="https://images.unsplash.com/photo-1554475901-4538ddfbccc2?auto=format&fit=crop&q=80&w=800" alt="Equipment">
+                    <div class="news-badge badge-equipment" data-i18n="visitor_news_2_tag">Facility</div>
+                </div>
+                <div class="p-5">
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-2">March 10, 2026</div>
+                    <h3 class="text-base font-bold text-p655c mb-3 leading-snug group-hover:text-p254c transition" data-i18n="visitor_news_2_title">
+                        New FTIR Spectrometer Now Available for Collaborative Research.
+                    </h3>
+                    <a href="#" class="text-[10px] font-black uppercase tracking-widest text-p130c mt-2 inline-block" data-i18n="visitor_read_more">Read More</a>
+                </div>
+            </article>
+
+            <article class="news-card group">
+                <div class="news-img">
+                    <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=800" alt="Outreach">
+                    <div class="news-badge badge-training" data-i18n="visitor_news_3_tag">Outreach</div>
+                </div>
+                <div class="p-5">
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-2">March 05, 2026</div>
+                    <h3 class="text-base font-bold text-p655c mb-3 leading-snug group-hover:text-p254c transition" data-i18n="visitor_news_3_title">
+                        STEM Outreach Programme for Secondary Schools — Registration Open.
+                    </h3>
+                    <a href="#" class="text-[10px] font-black uppercase tracking-widest text-p130c mt-2 inline-block" data-i18n="visitor_read_more">Read More</a>
+                </div>
+            </article>
+        </div>
+    </section>
+
+</main>
+
+<!-- ============================================================
+     FOOTER
+============================================================= -->
+<footer class="site-footer">
+    <div class="footer-inner">
+
+        <div class="footer-grid">
+            <div>
+                <div class="footer-logo">
+                    <div class="logo-bar"></div>
+                    <div class="logo-text">
+                        <span class="line-small">FAKULTI</span>
+                        <span class="line-large">KEJURUTERAAN KIMIA</span>
+                    </div>
+                </div>
+                <p class="footer-desc" data-i18n="footer_desc">
+                    Universiti Teknologi MARA (UiTM) Cawangan Johor, Kampus Pasir Gudang.
+                    Dedicated to academic excellence and industrial innovation.
+                </p>
+            </div>
+
+            <div>
+                <h4 class="footer-heading" data-i18n="footer_quick_links">Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="#" data-i18n="footer_lab_dir">Lab Directory</a></li>
+                    <li><a href="#" data-i18n="footer_safety_manual">Safety Manual</a></li>
+                    <li><a href="#" data-i18n="footer_equipment_log">Equipment Log</a></li>
+                    <li><a href="#" data-i18n="footer_chemical_db">Chemical Database</a></li>
+                    <li><a href="#" data-i18n="footer_contact">Contact</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="footer-heading" data-i18n="footer_contact_heading">UiTM Cawangan Johor</h4>
+                <div class="footer-contact">
+                    <div class="footer-contact-item">
+                        <i class="fas fa-location-dot"></i>
+                        <span data-i18n="footer_address">Kampus Pasir Gudang, Jalan Purnama<br>81750 Masai, Johor</span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fas fa-phone"></i>
+                        <a href="tel:+6073818000">+607-381 8000</a>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <a href="mailto:korporat@uitm.edu.my">korporat@uitm.edu.my</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p class="footer-copy" data-i18n="footer_copyright">© 2026 FKK UiTM Johor. All Rights Reserved.</p>
+            <div class="footer-legal">
+                <a href="#" data-i18n="footer_privacy">Privacy Policy</a>
+                <a href="#" data-i18n="footer_terms">Terms of Use</a>
+            </div>
+        </div>
+
+    </div>
+</footer>
+
+<!-- ============================================================
+     TOUR BOOKING MODAL
+============================================================= -->
+<div id="tourModal" class="modal-backdrop fixed inset-0 flex items-center justify-center p-4">
+    <div class="modal-box bg-white w-full max-w-lg shadow-2xl max-h-[92vh] overflow-hidden flex flex-col">
+
+        <div class="modal-header-gradient flex items-center justify-between px-6 py-5 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-white/20 border border-white/30">
+                    <i class="fas fa-calendar-check text-white text-sm"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-black leading-none" data-i18n="visitor_tour_modal_title">Book a Lab Tour</h3>
+                    <p class="text-[9px] font-bold text-white/70 uppercase tracking-widest mt-1" data-i18n="visitor_tour_modal_sub">We reply within 2 working days</p>
+                </div>
+            </div>
+            <button id="tourModalClose" class="text-white/70 hover:text-white transition text-lg"><i class="fas fa-xmark"></i></button>
+        </div>
+
+        <div class="overflow-y-auto flex-1 p-6 space-y-5">
+            <div class="info-banner flex gap-3 p-4">
+                <i class="fas fa-circle-info text-purple-600 mt-0.5"></i>
+                <div>
+                    <p class="text-[11px] font-black uppercase tracking-wider text-purple-800 mb-1" data-i18n="visitor_tour_info_title">Guided Tour Details</p>
+                    <p class="text-[10px] font-medium text-purple-700 leading-relaxed" data-i18n="visitor_tour_info_sub">45-minute guided tour · Max 20 people per group · Weekdays only · Free of charge.</p>
+                </div>
+            </div>
+
+            <div><label class="field-label" data-i18n="visitor_tour_name">Full Name</label><input id="tourName" type="text" class="field-input" placeholder="Enter your full name"></div>
+            <div><label class="field-label" data-i18n="visitor_tour_email">Email</label><input id="tourEmail" type="email" class="field-input" placeholder="name@example.com"></div>
+            <div><label class="field-label" data-i18n="visitor_tour_org">Organisation / School</label><input id="tourOrg" type="text" class="field-input" placeholder="e.g. SMK Pasir Gudang"></div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="field-label" data-i18n="visitor_tour_date">Preferred Date</label>
+                    <input id="tourDate" type="date" class="field-input">
+                </div>
+                <div>
+                    <label class="field-label" data-i18n="visitor_tour_size">Group Size</label>
+                    <input id="tourSize" type="number" min="1" max="20" value="10" class="field-input">
+                </div>
+            </div>
+
+            <div>
+                <label class="field-label" data-i18n="visitor_tour_interest">Area of Interest</label>
+                <select id="tourInterest" class="field-input">
+                    <option value="general" data-i18n="visitor_tour_int_general">General Faculty Tour</option>
+                    <option value="analytical" data-i18n="visitor_tour_int_analytical">Analytical Chemistry Lab</option>
+                    <option value="organic" data-i18n="visitor_tour_int_organic">Organic Chemistry Lab</option>
+                    <option value="thermo" data-i18n="visitor_tour_int_thermo">Thermodynamics &amp; Process Lab</option>
+                    <option value="research" data-i18n="visitor_tour_int_research">Research Facilities</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="field-label" data-i18n="visitor_tour_notes">Additional Notes (Optional)</label>
+                <textarea id="tourNotes" class="field-input" placeholder="Accessibility needs, special requests, etc."></textarea>
+            </div>
+
+            <div id="tourError" class="error-box"></div>
+        </div>
+
+        <div class="flex gap-3 px-6 py-5 border-t border-slate-100 shrink-0 bg-slate-50">
+            <button id="tourCancel" type="button" class="flex-1 py-3 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-white hover:text-p655c transition"><span data-i18n="settings_cancel">Cancel</span></button>
+            <button id="tourSubmit" type="button" class="flex-1 btn-gold py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"><i class="fas fa-paper-plane"></i> <span data-i18n="visitor_tour_submit">Submit Request</span></button>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="toast">
+    <i class="fas fa-circle-check"></i>
+    <span id="toastMsg" data-i18n="visitor_toast_tour">Tour Request Submitted</span>
+</div>
+
+<script>
+(function () {
+
+    /* =========================================================
+       CONSTANTS
+    ========================================================== */
+    const TOUR_KEY = 'fkkVisitorTourRequests';
+
+    let currentLang = 'en';
+    let charts = { facility: null, research: null, visitor: null, trend: null };
+
+    /* Static quick links (3 SOLID colours only) */
+    const QUICK_LINKS = [
+        { href: '#labs',                          icon: 'fa-flask-vial',         color: 'ql-navy',   labelKey: 'visitor_link_labs',      external: false },
+        { href: '#',                              icon: 'fa-graduation-cap',     color: 'ql-purple', labelKey: 'visitor_link_programmes', external: false },
+        { href: '#',                              icon: 'fa-book-open-reader',   color: 'ql-gold',   labelKey: 'visitor_link_research',   external: false },
+        { href: '#',                              icon: 'fa-building-columns',   color: 'ql-navy',   labelKey: 'visitor_link_campus',     external: false },
+        { href: '#',                              icon: 'fa-newspaper',          color: 'ql-purple', labelKey: 'visitor_link_news',       external: false },
+        { href: '#',                              icon: 'fa-calendar-check',     color: 'ql-gold',   labelKey: 'visitor_link_events',     external: false },
+        { href: 'mailto:korporat@uitm.edu.my',    icon: 'fa-envelope',           color: 'ql-navy',   labelKey: 'visitor_link_contact',    external: true },
+        { href: '#',                              icon: 'fa-circle-question',    color: 'ql-purple', labelKey: 'visitor_link_faq',        external: false }
+    ];
+
+    /* =========================================================
+       i18n
+    ========================================================== */
+    const i18n = {
+        en: {
+            nav_faculty: "FAKULTI", nav_dept: "KEJURUTERAAN KIMIA", ph_search: "Search portal...",
+            visitor_mode: "Visitor",
+            nav_login: "Portal Login", nav_login_title: "Members Portal",
+            nav_login_sub: "Sign in with your UiTM credentials",
+            nav_login_staff: "Lab Staff Login", nav_login_admin: "Admin Login",
+            nav_login_student: "Student Login", nav_register: "Register Account",
+
+            /* Hero */
+            visitor_hero_tag: "Public Access · Visitor Portal",
+            visitor_hero_title_1: "Discover the Laboratories of",
+            visitor_hero_title_2: "Fakulti Kejuruteraan Kimia",
+            visitor_hero_sub: "Explore our research facilities, book a guided lab tour, and learn how chemical engineering drives innovation at UiTM Cawangan Johor.",
+            visitor_book_tour: "Book a Lab Tour",
+            visitor_explore: "Explore Labs",
+            visitor_open_today: "Opening Hours",
+            visitor_open_hours: "Mon – Fri · 8:00 AM – 5:00 PM",
+            visitor_campus: "Campus",
+            visitor_campus_name: "UiTM Johor · Pasir Gudang",
+
+            /* Quick links */
+            visitor_quick_label: "Visitor Menu", visitor_quick_title: "Public Quick Links", visitor_quick_hint: "Opens in new tab",
+            visitor_link_labs: "Lab Showcase", visitor_link_programmes: "Programmes",
+            visitor_link_research: "Research", visitor_link_campus: "Campus Map",
+            visitor_link_news: "News & Events", visitor_link_events: "Open Day",
+            visitor_link_contact: "Contact Us", visitor_link_faq: "Visitor FAQ",
+
+            /* Stats */
+            visitor_stat_live: "Live", visitor_stat_labs: "Specialised Laboratories",
+            visitor_stat_active: "Active", visitor_stat_equipment: "Instruments & Equipment",
+            visitor_stat_since: "Since 1999", visitor_stat_students: "Students Enrolled",
+            visitor_stat_research: "Research Projects / Year",
+
+            /* Dashboard */
+            visitor_dash_tag: "At a Glance", visitor_dash_title: "Faculty & Laboratory Overview",
+            visitor_dash_sub: "Public statistics · FKK Johor Campus", visitor_dash_trend: "Growing",
+
+            visitor_facilities: "Facilities", visitor_facilities_sub: "Specialised teaching & research labs",
+            visitor_fac_teaching: "Teaching Labs", visitor_fac_research: "Research Labs",
+            visitor_fac_service: "Service Labs", visitor_fac_total: "Total Facilities",
+
+            visitor_research: "Research", visitor_research_sub: "Publications in the last 3 years",
+            visitor_res_journal: "Journal Articles", visitor_res_conf: "Conference Papers",
+            visitor_res_patent: "Patents & IP", visitor_res_grants: "Active Grants",
+            visitor_res_target: "Annual Research Target",
+
+            visitor_engagement: "Visitors", visitor_engagement_sub: "Visitors hosted in 2025",
+            visitor_eng_school: "School Groups", visitor_eng_industry: "Industry Partners",
+            visitor_eng_public: "Public & Alumni", visitor_eng_tours: "Guided Lab Tours",
+            visitor_eng_sat: "Visitor Satisfaction",
+
+            visitor_yearly_label: "Yearly Trend",
+            visitor_yearly_title: "Visitor Numbers, Tours & Research Output (2023 – 2026)",
+            visitor_legend_visitors: "Visitors", visitor_legend_tours: "Guided Tours",
+            visitor_legend_publications: "Publications",
+
+            /* Labs showcase */
+            visitor_labs_tag: "Our Facilities", visitor_labs_title: "Laboratory Showcase",
+            visitor_labs_sub: "Purpose-built spaces for teaching, research & industry collaboration",
+            visitor_lab_tag_research: "Research", visitor_lab_tag_teaching: "Teaching", visitor_lab_tag_service: "Service",
+            visitor_lab_1_name: "Analytical Chemistry Laboratory",
+            visitor_lab_1_desc: "Equipped with HPLC, GC-MS and FTIR systems for advanced chemical characterisation and quality analysis.",
+            visitor_lab_2_name: "Organic Chemistry Laboratory",
+            visitor_lab_2_desc: "Dedicated fume hood stations and synthesis equipment for undergraduate practicals and postgraduate research.",
+            visitor_lab_3_name: "Thermodynamics & Process Laboratory",
+            visitor_lab_3_desc: "Pilot-scale process units for heat transfer, distillation and fluid mechanics experiments.",
+
+            /* Guidelines */
+            visitor_guide_label: "Before You Visit", visitor_guide_title: "Visitor Guidelines & Safety",
+            visitor_guide_mandatory: "Mandatory",
+            visitor_guide_1: "Register at the Reception",
+            visitor_guide_1_desc: "All visitors must present a valid ID and sign in at the faculty reception before entering any laboratory.",
+            visitor_guide_2: "Wear Protective Equipment",
+            visitor_guide_2_desc: "Lab coats, safety goggles and closed shoes are provided and required inside all laboratory areas.",
+            visitor_guide_3: "Stay With Your Guide",
+            visitor_guide_3_desc: "Do not touch equipment or chemicals. Always remain with your assigned guide throughout the tour.",
+            visitor_guide_4: "Photography Policy",
+            visitor_guide_4_desc: "Photos are permitted in common areas only. Ask your guide before photographing any equipment or documents.",
+            visitor_guide_note_title: "Need Special Arrangements?",
+            visitor_guide_note_sub: "For group visits over 20 people, accessibility needs or media coverage, contact the faculty office at least 5 working days in advance.",
+
+            /* Steps */
+            visitor_steps_label: "How It Works", visitor_steps_title: "Book a Tour in 3 Steps",
+            visitor_step_1: "Submit Request",
+            visitor_step_1_desc: "Fill in the booking form with your preferred date, group size and area of interest.",
+            visitor_step_2: "Receive Confirmation",
+            visitor_step_2_desc: "Our team will reply within 2 working days to confirm availability and your guide.",
+            visitor_step_3: "Visit the Labs",
+            visitor_step_3_desc: "Arrive 15 minutes early at reception with your ID for a guided 45-minute tour.",
+
+            /* News */
+            visitor_news_tag: "Latest Updates", visitor_news_title: "Public News & Events",
+            visitor_news_archive: "View Archive", visitor_read_more: "Read More",
+            visitor_news_1_tag: "Open Day", visitor_news_2_tag: "Facility", visitor_news_3_tag: "Outreach",
+            visitor_news_1_title: "Faculty Open Day — Explore Our Laboratories with a Guided Tour.",
+            visitor_news_2_title: "New FTIR Spectrometer Now Available for Collaborative Research.",
+            visitor_news_3_title: "STEM Outreach Programme for Secondary Schools — Registration Open.",
+
+            /* Tour modal */
+            visitor_tour_modal_title: "Book a Lab Tour",
+            visitor_tour_modal_sub: "We reply within 2 working days",
+            visitor_tour_info_title: "Guided Tour Details",
+            visitor_tour_info_sub: "45-minute guided tour · Max 20 people per group · Weekdays only · Free of charge.",
+            visitor_tour_name: "Full Name", visitor_tour_email: "Email",
+            visitor_tour_org: "Organisation / School",
+            visitor_tour_date: "Preferred Date", visitor_tour_size: "Group Size",
+            visitor_tour_interest: "Area of Interest",
+            visitor_tour_int_general: "General Faculty Tour",
+            visitor_tour_int_analytical: "Analytical Chemistry Lab",
+            visitor_tour_int_organic: "Organic Chemistry Lab",
+            visitor_tour_int_thermo: "Thermodynamics & Process Lab",
+            visitor_tour_int_research: "Research Facilities",
+            visitor_tour_notes: "Additional Notes (Optional)",
+            visitor_tour_submit: "Submit Request",
+            visitor_toast_tour: "Tour Request Submitted",
+
+            visitor_err_name: "Please enter your full name.",
+            visitor_err_email: "Please enter a valid email address.",
+            visitor_err_date: "Please choose a preferred date.",
+            visitor_err_size: "Group size must be between 1 and 20.",
+
+            /* Settings / generic */
+            settings_cancel: "Cancel",
+            toast_saved: "Saved",
+
+            /* Footer */
+            footer_desc: "Universiti Teknologi MARA (UiTM) Cawangan Johor, Kampus Pasir Gudang. Dedicated to academic excellence and industrial innovation.",
+            footer_quick_links: "Quick Links",
+            footer_lab_dir: "Lab Directory",
+            footer_safety_manual: "Safety Manual",
+            footer_equipment_log: "Equipment Log",
+            footer_chemical_db: "Chemical Database",
+            footer_contact: "Contact",
+            footer_contact_heading: "UiTM Cawangan Johor",
+            footer_address: "Kampus Pasir Gudang, Jalan Purnama<br>81750 Masai, Johor",
+            footer_copyright: "© 2026 FKK UiTM Johor. All Rights Reserved.",
+            footer_privacy: "Privacy Policy",
+            footer_terms: "Terms of Use"
+        },
+        ms: {
+            nav_faculty: "FAKULTI", nav_dept: "KEJURUTERAAN KIMIA", ph_search: "Cari dalam portal...",
+            visitor_mode: "Pelawat",
+            nav_login: "Log Masuk Portal", nav_login_title: "Portal Ahli",
+            nav_login_sub: "Log masuk dengan kelayakan UiTM anda",
+            nav_login_staff: "Log Masuk Staf Makmal", nav_login_admin: "Log Masuk Admin",
+            nav_login_student: "Log Masuk Pelajar", nav_register: "Daftar Akaun",
+
+            visitor_hero_tag: "Akses Awam · Portal Pelawat",
+            visitor_hero_title_1: "Terokai Makmal",
+            visitor_hero_title_2: "Fakulti Kejuruteraan Kimia",
+            visitor_hero_sub: "Terokai kemudahan penyelidikan kami, tempah lawatan makmal berpandu, dan ketahui bagaimana kejuruteraan kimia memacu inovasi di UiTM Cawangan Johor.",
+            visitor_book_tour: "Tempah Lawatan Makmal",
+            visitor_explore: "Terokai Makmal",
+            visitor_open_today: "Waktu Operasi",
+            visitor_open_hours: "Isnin – Jumaat · 8:00 PG – 5:00 PTG",
+            visitor_campus: "Kampus",
+            visitor_campus_name: "UiTM Johor · Pasir Gudang",
+
+            visitor_quick_label: "Menu Pelawat", visitor_quick_title: "Pautan Pantas Awam", visitor_quick_hint: "Buka dalam tab baharu",
+            visitor_link_labs: "Pameran Makmal", visitor_link_programmes: "Program",
+            visitor_link_research: "Penyelidikan", visitor_link_campus: "Peta Kampus",
+            visitor_link_news: "Berita & Acara", visitor_link_events: "Hari Terbuka",
+            visitor_link_contact: "Hubungi Kami", visitor_link_faq: "Soalan Lazim",
+
+            visitor_stat_live: "Aktif", visitor_stat_labs: "Makmal Khusus",
+            visitor_stat_active: "Aktif", visitor_stat_equipment: "Instrumen & Peralatan",
+            visitor_stat_since: "Sejak 1999", visitor_stat_students: "Pelajar Berdaftar",
+            visitor_stat_research: "Projek Penyelidikan / Tahun",
+
+            visitor_dash_tag: "Sekilas Pandang", visitor_dash_title: "Gambaran Fakulti & Makmal",
+            visitor_dash_sub: "Statistik awam · Kampus FKK Johor", visitor_dash_trend: "Berkembang",
+
+            visitor_facilities: "Fasiliti", visitor_facilities_sub: "Makmal pengajaran & penyelidikan khusus",
+            visitor_fac_teaching: "Makmal Pengajaran", visitor_fac_research: "Makmal Penyelidikan",
+            visitor_fac_service: "Makmal Perkhidmatan", visitor_fac_total: "Jumlah Fasiliti",
+
+            visitor_research: "Penyelidikan", visitor_research_sub: "Penerbitan dalam 3 tahun terakhir",
+            visitor_res_journal: "Artikel Jurnal", visitor_res_conf: "Kertas Persidangan",
+            visitor_res_patent: "Paten & Harta Intelek", visitor_res_grants: "Geran Aktif",
+            visitor_res_target: "Sasaran Penyelidikan Tahunan",
+
+            visitor_engagement: "Pelawat", visitor_engagement_sub: "Pelawat diterima pada 2025",
+            visitor_eng_school: "Kumpulan Sekolah", visitor_eng_industry: "Rakan Industri",
+            visitor_eng_public: "Awam & Alumni", visitor_eng_tours: "Lawatan Makmal Berpandu",
+            visitor_eng_sat: "Kepuasan Pelawat",
+
+            visitor_yearly_label: "Trend Tahunan",
+            visitor_yearly_title: "Bilangan Pelawat, Lawatan & Output Penyelidikan (2023 – 2026)",
+            visitor_legend_visitors: "Pelawat", visitor_legend_tours: "Lawatan Berpandu",
+            visitor_legend_publications: "Penerbitan",
+
+            visitor_labs_tag: "Fasiliti Kami", visitor_labs_title: "Pameran Makmal",
+            visitor_labs_sub: "Ruang yang dibina khas untuk pengajaran, penyelidikan & kerjasama industri",
+            visitor_lab_tag_research: "Penyelidikan", visitor_lab_tag_teaching: "Pengajaran", visitor_lab_tag_service: "Perkhidmatan",
+            visitor_lab_1_name: "Makmal Kimia Analitikal",
+            visitor_lab_1_desc: "Dilengkapi sistem HPLC, GC-MS dan FTIR untuk pencirian kimia lanjutan dan analisis kualiti.",
+            visitor_lab_2_name: "Makmal Kimia Organik",
+            visitor_lab_2_desc: "Stesen kebuk wasap dan peralatan sintesis khusus untuk amali prasiswazah dan penyelidikan pascasiswazah.",
+            visitor_lab_3_name: "Makmal Termodinamik & Proses",
+            visitor_lab_3_desc: "Unit proses skala pandu untuk pemindahan haba, penyulingan dan eksperimen mekanik bendalir.",
+
+            visitor_guide_label: "Sebelum Anda Melawat", visitor_guide_title: "Garis Panduan & Keselamatan Pelawat",
+            visitor_guide_mandatory: "Wajib",
+            visitor_guide_1: "Daftar di Kaunter Penerimaan",
+            visitor_guide_1_desc: "Semua pelawat mesti menunjukkan ID yang sah dan mendaftar di kaunter fakulti sebelum memasuki mana-mana makmal.",
+            visitor_guide_2: "Pakai Peralatan Perlindungan",
+            visitor_guide_2_desc: "Makmal, cermin mata keselamatan dan kasut tertutup disediakan dan wajib dipakai di dalam semua kawasan makmal.",
+            visitor_guide_3: "Kekal Bersama Pemandu",
+            visitor_guide_3_desc: "Jangan sentuh peralatan atau bahan kimia. Sentiasa bersama pemandu yang ditugaskan sepanjang lawatan.",
+            visitor_guide_4: "Polisi Fotografi",
+            visitor_guide_4_desc: "Foto dibenarkan di kawasan umum sahaja. Tanya pemandu anda sebelum memotret peralatan atau dokumen.",
+            visitor_guide_note_title: "Perlukan Pengaturan Khas?",
+            visitor_guide_note_sub: "Untuk lawatan kumpulan melebihi 20 orang, keperluan aksesibiliti atau liputan media, hubungi pejabat fakulti sekurang-kurangnya 5 hari bekerja lebih awal.",
+
+            visitor_steps_label: "Cara Ia Berfungsi", visitor_steps_title: "Tempah Lawatan dalam 3 Langkah",
+            visitor_step_1: "Hantar Permohonan",
+            visitor_step_1_desc: "Isi borang tempahan dengan tarikh pilihan, saiz kumpulan dan bidang yang diminati.",
+            visitor_step_2: "Terima Pengesahan",
+            visitor_step_2_desc: "Pasukan kami akan membalas dalam 2 hari bekerja untuk mengesahkan ketersediaan dan pemandu anda.",
+            visitor_step_3: "Lawati Makmal",
+            visitor_step_3_desc: "Hadir 15 minit lebih awal di kaunter penerimaan dengan ID anda untuk lawatan berpandu 45 minit.",
+
+            visitor_news_tag: "Terkini", visitor_news_title: "Berita & Acara Awam",
+            visitor_news_archive: "Lihat Arkib", visitor_read_more: "Baca Lagi",
+            visitor_news_1_tag: "Hari Terbuka", visitor_news_2_tag: "Fasiliti", visitor_news_3_tag: "Jangkauan",
+            visitor_news_1_title: "Hari Terbuka Fakulti — Terokai Makmal Kami dengan Lawatan Berpandu.",
+            visitor_news_2_title: "Spektrometer FTIR Baharu Kini Tersedia untuk Penyelidikan Kolaboratif.",
+            visitor_news_3_title: "Program Jangkauan STEM untuk Sekolah Menengah — Pendaftaran Dibuka.",
+
+            visitor_tour_modal_title: "Tempah Lawatan Makmal",
+            visitor_tour_modal_sub: "Kami membalas dalam 2 hari bekerja",
+            visitor_tour_info_title: "Butiran Lawatan Berpandu",
+            visitor_tour_info_sub: "Lawatan berpandu 45 minit · Maks 20 orang sekumpulan · Hari bekerja sahaja · Percuma.",
+            visitor_tour_name: "Nama Penuh", visitor_tour_email: "E-mel",
+            visitor_tour_org: "Organisasi / Sekolah",
+            visitor_tour_date: "Tarikh Pilihan", visitor_tour_size: "Saiz Kumpulan",
+            visitor_tour_interest: "Bidang Minat",
+            visitor_tour_int_general: "Lawatan Fakulti Am",
+            visitor_tour_int_analytical: "Makmal Kimia Analitikal",
+            visitor_tour_int_organic: "Makmal Kimia Organik",
+            visitor_tour_int_thermo: "Makmal Termodinamik & Proses",
+            visitor_tour_int_research: "Kemudahan Penyelidikan",
+            visitor_tour_notes: "Nota Tambahan (Pilihan)",
+            visitor_tour_submit: "Hantar Permohonan",
+            visitor_toast_tour: "Permohonan Lawatan Dihantar",
+
+            visitor_err_name: "Sila masukkan nama penuh anda.",
+            visitor_err_email: "Sila masukkan alamat e-mel yang sah.",
+            visitor_err_date: "Sila pilih tarikh pilihan.",
+            visitor_err_size: "Saiz kumpulan mestilah antara 1 dan 20.",
+
+            settings_cancel: "Batal",
+            toast_saved: "Disimpan",
+
+            footer_desc: "Universiti Teknologi MARA (UiTM) Cawangan Johor, Kampus Pasir Gudang. Berdedikasi untuk kecemerlangan akademik dan inovasi industri.",
+            footer_quick_links: "Pautan Pantas",
+            footer_lab_dir: "Direktori Makmal",
+            footer_safety_manual: "Manual Keselamatan",
+            footer_equipment_log: "Log Peralatan",
+            footer_chemical_db: "Pangkalan Data Kimia",
+            footer_contact: "Hubungi",
+            footer_contact_heading: "UiTM Cawangan Johor",
+            footer_address: "Kampus Pasir Gudang, Jalan Purnama<br>81750 Masai, Johor",
+            footer_copyright: "© 2026 FKK UiTM Johor. Hak Cipta Terpelihara.",
+            footer_privacy: "Dasar Privasi",
+            footer_terms: "Terma Penggunaan"
+        }
+    };
+
+    /* =========================================================
+       UTILITIES
+    ========================================================== */
+    function t(key) { return (i18n[currentLang] && i18n[currentLang][key]) || key; }
+
+    function escapeHtml(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, m => ({
+            '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+        }[m]));
+    }
+
+    /* =========================================================
+       LANGUAGE
+    ========================================================== */
+    window.switchLanguage = function (lang) {
+        currentLang = lang;
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (i18n[lang] && i18n[lang][key] !== undefined) el.innerHTML = i18n[lang][key];
+        });
+        document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+            const key = el.getAttribute('data-i18n-ph');
+            if (i18n[lang] && i18n[lang][key]) el.setAttribute('placeholder', i18n[lang][key]);
+        });
+        document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+        document.getElementById('btn-ms').classList.toggle('active', lang === 'ms');
+
+        renderQuickLinks();
+    };
+
+    /* =========================================================
+       QUICK LINKS
+    ========================================================== */
+    function renderQuickLinks() {
+        const grid = document.getElementById('quickLinksGrid');
+        if (!grid) return;
+
+        grid.innerHTML = QUICK_LINKS.map(link => {
+            const label = t(link.labelKey);
+            const target = link.external ? ' target="_blank" rel="noopener"' : '';
+            return `
+                <a href="${escapeHtml(link.href)}"${target}
+                   class="quick-link ${link.color}"
+                   data-label-key="${escapeHtml(link.labelKey)}">
+                    <i class="fas ${escapeHtml(link.icon)}"></i>
+                    <span>${escapeHtml(label)}</span>
+                </a>`;
+        }).join('');
+    }
+
+    /* =========================================================
+       CHART.JS — SOLID colours only
+    ========================================================== */
+    function initCharts() {
+        if (typeof Chart === 'undefined') return;
+
+        Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+        Chart.defaults.font.weight = '700';
+        Chart.defaults.color = '#64748B';
+
+        /* Facilities — horizontal bar */
+        const facCtx = document.getElementById('facilityChart');
+        if (facCtx) {
+            charts.facility = new Chart(facCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Teaching', 'Research', 'Service', 'Total'],
+                    datasets: [{
+                        data: [4, 3, 1, 8],
+                        backgroundColor: ['#002D62', '#9B26B6', '#FDB913', '#002D62'],
+                        borderRadius: 8, borderSkipped: false, barThickness: 22
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                    animation: { duration: 1200, easing: 'easeOutQuart' },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#002D62', padding: 10, cornerRadius: 8,
+                            titleFont: { size: 11, weight: '800' }, bodyFont: { size: 11, weight: '600' }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false, drawBorder: false }, ticks: { display: false }, max: 10 },
+                        y: { grid: { display: false, drawBorder: false }, ticks: { color: '#475569', font: { size: 10, weight: '800' } } }
+                    }
+                }
+            });
+        }
+
+        /* Research output — doughnut */
+        const resCtx = document.getElementById('researchChart');
+        if (resCtx) {
+            charts.research = new Chart(resCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Journal', 'Conference', 'Patents', 'Grants'],
+                    datasets: [{
+                        data: [96, 58, 12, 24],
+                        backgroundColor: ['#9B26B6', '#FDB913', '#002D62', '#002D62'],
+                        borderWidth: 3, borderColor: '#fff', hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '62%',
+                    animation: { duration: 1200, easing: 'easeOutQuart' },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#002D62', padding: 10, cornerRadius: 8,
+                            titleFont: { size: 11, weight: '800' }, bodyFont: { size: 11, weight: '600' }
+                        }
+                    }
+                }
+            });
+        }
+
+        /* Visitor engagement — vertical bar */
+        const visCtx = document.getElementById('visitorChart');
+        if (visCtx) {
+            charts.visitor = new Chart(visCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Schools', 'Industry', 'Public', 'Tours'],
+                    datasets: [{
+                        data: [620, 380, 480, 86],
+                        backgroundColor: ['#002D62', '#9B26B6', '#FDB913', '#002D62'],
+                        borderRadius: 8, borderSkipped: false, barThickness: 30
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    animation: { duration: 1200, easing: 'easeOutQuart', delay: (ctx) => ctx.dataIndex * 120 },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#002D62', padding: 10, cornerRadius: 8,
+                            titleFont: { size: 11, weight: '800' }, bodyFont: { size: 11, weight: '600' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#F1F5F9', drawBorder: false },
+                            ticks: { color: '#94A3B8', font: { size: 9, weight: '700' } }
+                        },
+                        x: { grid: { display: false, drawBorder: false }, ticks: { color: '#475569', font: { size: 10, weight: '800' } } }
+                    }
+                }
+            });
+        }
+
+        /* Trend — line, dual axis */
+        const trendCtx = document.getElementById('visitorTrendChart');
+        if (trendCtx) {
+            charts.trend = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['2023', '2024', '2025', '2026'],
+                    datasets: [
+                        { label: 'Visitors',     data: [820, 1040, 1480, 1720], borderColor: '#002D62', backgroundColor: 'rgba(0, 45, 98, 0.08)',  borderWidth: 3, pointBackgroundColor: '#fff', pointBorderColor: '#002D62', pointBorderWidth: 3, pointRadius: 6, pointHoverRadius: 9, fill: false, tension: 0.4 },
+                        { label: 'Guided Tours', data: [38, 52, 86, 104],      borderColor: '#9B26B6', backgroundColor: 'rgba(155, 38, 182, 0.08)', borderWidth: 3, pointBackgroundColor: '#fff', pointBorderColor: '#9B26B6', pointBorderWidth: 3, pointRadius: 6, pointHoverRadius: 9, fill: false, tension: 0.4, yAxisID: 'y1' },
+                        { label: 'Publications', data: [42, 56, 68, 74],       borderColor: '#FDB913', backgroundColor: 'rgba(253, 185, 19, 0.08)', borderWidth: 3, pointBackgroundColor: '#fff', pointBorderColor: '#FDB913', pointBorderWidth: 3, pointRadius: 6, pointHoverRadius: 9, fill: false, tension: 0.4, yAxisID: 'y1' }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    interaction: { intersect: false, mode: 'index' },
+                    animation: { duration: 1400, easing: 'easeOutQuart' },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#002D62', padding: 12, cornerRadius: 10,
+                            titleFont: { size: 12, weight: '800' }, bodyFont: { size: 11, weight: '600' }, bodySpacing: 6
+                        }
+                    },
+                    scales: {
+                        y: {
+                            position: 'left', beginAtZero: true,
+                            grid: { color: '#F1F5F9', drawBorder: false },
+                            ticks: { color: '#94A3B8', font: { size: 10, weight: '700' } },
+                            title: { display: true, text: 'Visitors', color: '#94A3B8', font: { size: 9, weight: '800' } }
+                        },
+                        y1: {
+                            position: 'right', beginAtZero: true,
+                            grid: { display: false },
+                            ticks: { color: '#94A3B8', font: { size: 10, weight: '700' } },
+                            title: { display: true, text: 'Count', color: '#94A3B8', font: { size: 9, weight: '800' } }
+                        },
+                        x: { grid: { display: false, drawBorder: false }, ticks: { color: '#475569', font: { size: 11, weight: '800' } } }
+                    }
+                }
+            });
+        }
+    }
+
+    /* =========================================================
+       PORTAL DROPDOWN
+    ========================================================== */
+    const portalToggle = document.getElementById('portalToggle');
+    const portalDropdown = document.getElementById('portalDropdown');
+    function closeDropdown() { portalDropdown.classList.remove('open'); }
+    portalToggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        portalDropdown.classList.toggle('open');
+    });
+    document.addEventListener('click', function (e) {
+        if (!portalDropdown.contains(e.target) && !portalToggle.contains(e.target)) closeDropdown();
+    });
+
+    /* =========================================================
+       TOUR BOOKING MODAL
+    ========================================================== */
+    const tourModal = document.getElementById('tourModal');
+    const tourName = document.getElementById('tourName');
+    const tourEmail = document.getElementById('tourEmail');
+    const tourOrg = document.getElementById('tourOrg');
+    const tourDate = document.getElementById('tourDate');
+    const tourSize = document.getElementById('tourSize');
+    const tourInterest = document.getElementById('tourInterest');
+    const tourNotes = document.getElementById('tourNotes');
+    const tourError = document.getElementById('tourError');
+
+    function openTourModal() {
+        closeDropdown();
+        hideTourError();
+        [tourName, tourEmail, tourDate, tourSize].forEach(f => f.classList.remove('is-invalid'));
+        tourModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => tourName.focus(), 120);
+    }
+    function closeTourModal() {
+        tourModal.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    function showTourError(messages) {
+        tourError.innerHTML = '<ul>' + messages.map(m => `<li>${m}</li>`).join('') + '</ul>';
+        tourError.classList.add('show');
+    }
+    function hideTourError() { tourError.classList.remove('show'); }
+
+    document.getElementById('bookTourHeroBtn').addEventListener('click', openTourModal);
+    document.getElementById('bookTourSideBtn').addEventListener('click', openTourModal);
+    document.getElementById('tourModalClose').addEventListener('click', closeTourModal);
+    document.getElementById('tourCancel').addEventListener('click', closeTourModal);
+    tourModal.addEventListener('click', e => { if (e.target === tourModal) closeTourModal(); });
+
+    [tourName, tourEmail, tourDate, tourSize].forEach(f => {
+        f.addEventListener('input', function () { this.classList.remove('is-invalid'); hideTourError(); });
+    });
+
+    document.getElementById('tourSubmit').addEventListener('click', function () {
+        hideTourError();
+        const name = tourName.value.trim();
+        const email = tourEmail.value.trim();
+        const date = tourDate.value;
+        const size = parseInt(tourSize.value, 10);
+
+        const errors = [];
+        if (!name) { errors.push(t('visitor_err_name')); tourName.classList.add('is-invalid'); }
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errors.push(t('visitor_err_email')); tourEmail.classList.add('is-invalid'); }
+        if (!date) { errors.push(t('visitor_err_date')); tourDate.classList.add('is-invalid'); }
+        if (isNaN(size) || size < 1 || size > 20) { errors.push(t('visitor_err_size')); tourSize.classList.add('is-invalid'); }
+
+        if (errors.length) { showTourError(errors); return; }
+
+        const request = {
+            id: 'TOUR-' + Date.now().toString(36).toUpperCase(),
+            name, email,
+            org: tourOrg.value.trim(),
+            date,
+            size,
+            interest: tourInterest.value,
+            notes: tourNotes.value.trim(),
+            submittedAt: new Date().toISOString()
+        };
+
+        try {
+            const raw = localStorage.getItem(TOUR_KEY);
+            const arr = raw ? JSON.parse(raw) : [];
+            arr.unshift(request);
+            localStorage.setItem(TOUR_KEY, JSON.stringify(arr.slice(0, 50)));
+        } catch (e) {}
+
+        closeTourModal();
+        showToast(t('visitor_toast_tour'), false);
+
+        /* Reset form */
+        [tourName, tourEmail, tourOrg, tourDate, tourNotes].forEach(f => f.value = '');
+        tourSize.value = '10';
+        tourInterest.value = 'general';
+    });
+
+    /* =========================================================
+       TOAST
+    ========================================================== */
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toastMsg');
+    let toastTimer = null;
+    function showToast(message, purple) {
+        toastMsg.innerHTML = message;
+        toast.classList.toggle('toast-blue', !!purple);
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
+    }
+
+    /* =========================================================
+       INIT
+    ========================================================== */
+    document.addEventListener('DOMContentLoaded', function () {
+        switchLanguage('en');
+        setTimeout(initCharts, 150);
+
+        /* Set min date on tour date input to tomorrow */
+        const d = new Date();
+        d.setDate(d.getDate() + 1);
+        tourDate.setAttribute('min', d.toISOString().split('T')[0]);
+    });
+
+})();
+</script>
+</body>
+</html>

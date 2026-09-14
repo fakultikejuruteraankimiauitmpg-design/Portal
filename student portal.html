@@ -1,0 +1,2188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Portal | Fakulti Kejuruteraan Kimia | UiTM Cawangan Johor</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+    /* ===== PALETTE: 3 SOLID COLOURS ONLY =====
+       NAVY   #002D62
+       PURPLE #9B26B6
+       GOLD   #FDB913
+       + neutral slate/white/black
+    */
+    :root {
+        --navy:   #002D62;
+        --purple: #9B26B6;
+        --gold:   #FDB913;
+        --p655c: #002D62;
+        --p254c: #9B26B6;
+        --p130c: #FDB913;
+    }
+
+    * { -webkit-tap-highlight-color: transparent; }
+
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        scroll-behavior: smooth;
+        background: #F8FAFC;
+        background-attachment: fixed;
+    }
+
+    .faculty-logo { display: flex; align-items: center; gap: 14px; }
+    .logo-bar {
+        width: 3px; height: 42px;
+        background: #FDB913;
+        border-radius: 2px;
+    }
+    .logo-text { display: flex; flex-direction: column; line-height: 1.1; font-weight: 800; text-transform: uppercase; letter-spacing: -0.01em; }
+    .logo-text .line-small { font-size: 0.62rem; letter-spacing: 0.2em; color: var(--gold); margin-bottom: 2px; }
+    .logo-text .line-large { font-size: 0.95rem; color: #fff; }
+
+    .glass-nav {
+        background: #002D62;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 4px 30px -10px rgba(0, 45, 98, 0.45);
+    }
+
+    .lang-toggle-wrapper {
+        background: rgba(255,255,255,.12);
+        border: 1px solid rgba(255,255,255,.2);
+        border-radius: 9999px; padding: 3px;
+        display: inline-flex; gap: 2px;
+    }
+    .lang-btn {
+        padding: 5px 11px; border-radius: 9999px;
+        font-size: 10px; font-weight: 800; cursor: pointer;
+        transition: all .2s cubic-bezier(.4,0,.2,1);
+        opacity: .7; color: #fff;
+        display: flex; align-items: center; gap: 5px;
+    }
+    .lang-btn:hover { opacity: 1; background: rgba(255,255,255,.1); }
+    .lang-btn.active {
+        opacity: 1;
+        background: #FDB913;
+        color: #002D62;
+        box-shadow: 0 4px 14px rgba(253,185,19,.5);
+    }
+
+    .card {
+        background: #fff;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        transition: all .3s cubic-bezier(.4,0,.2,1);
+        position: relative;
+        overflow: hidden;
+    }
+    .card-hover:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 24px 42px -16px rgba(0,45,98,.28);
+        border-color: rgba(155, 38, 182, 0.3);
+    }
+
+    /* Stat cards — SOLID colours */
+    .stat-card {
+        position: relative; overflow: hidden; color: #fff;
+        border: none !important;
+        box-shadow: 0 14px 30px -12px rgba(0,0,0,.25);
+    }
+    .stat-card::before {
+        content: ''; position: absolute;
+        right: -30px; top: -30px;
+        width: 130px; height: 130px; border-radius: 50%;
+        background: rgba(255,255,255,0.12); pointer-events: none;
+    }
+    .stat-navy   { background: #002D62; }
+    .stat-purple { background: #9B26B6; }
+    .stat-gold   { background: #FDB913; }
+    .stat-deep   { background: #002D62; }
+
+    .stat-card .stat-icon-box {
+        width: 44px; height: 44px; border-radius: 12px;
+        background: rgba(255,255,255,0.20);
+        display: flex; align-items: center; justify-content: center;
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+    .stat-card .stat-icon-box i { color: #fff; font-size: 16px; }
+
+    .btn-gold {
+        background: #FDB913;
+        color: #fff;
+        transition: all .25s cubic-bezier(.4,0,.2,1);
+        box-shadow: 0 10px 22px -8px rgba(253,185,19,.6);
+    }
+    .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 16px 30px -10px rgba(253, 185, 19, .7); }
+
+    .text-p655c { color: var(--navy); }
+    .text-p254c { color: var(--purple); }
+    .text-p130c { color: var(--gold); }
+
+    .section-label {
+        font-size: 10px; font-weight: 800; letter-spacing: .2em;
+        text-transform: uppercase;
+        color: #9B26B6;
+    }
+
+    .chip {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 5px 12px; font-size: 10px; font-weight: 800;
+        letter-spacing: .08em; text-transform: uppercase;
+        border-radius: 9999px;
+    }
+    .chip-gold   { background: rgba(253,185,19,.18); color: #B45309; border: 1px solid rgba(253,185,19,.4); }
+    .chip-purple { background: rgba(155,38,182,.12); color: #9B26B6; border: 1px solid rgba(155,38,182,.3); }
+    .chip-navy   { background: rgba(0,45,98,.10); color: #002D62; border: 1px solid rgba(0,45,98,.25); }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    .anim-up { animation: fadeUp .45s cubic-bezier(.4,0,.2,1) both; }
+
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    .float-anim { animation: float 5s ease-in-out infinite; }
+
+    .dropdown { opacity: 0; visibility: hidden; transform: translateY(-8px); transition: all .22s cubic-bezier(.4,0,.2,1); }
+    .dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
+
+    /* Hero — SOLID navy */
+    .hero-banner {
+        background: #002D62;
+        position: relative; overflow: hidden;
+        box-shadow: 0 20px 45px -18px rgba(0, 45, 98, .55);
+    }
+    .hero-banner::before {
+        content: ''; position: absolute; inset: 0;
+        background-image: radial-gradient(rgba(255,255,255,.18) 1px, transparent 1px);
+        background-size: 26px 26px; opacity: .35;
+    }
+
+    /* Quick Links — SOLID colours */
+    .quick-link {
+        position: relative; overflow: hidden;
+        border-radius: 14px; color: #fff;
+        transition: all .28s cubic-bezier(.4,0,.2,1);
+        box-shadow: 0 8px 20px -10px rgba(0,0,0,.25);
+        display: flex; flex-direction: column; align-items: center; gap: 8px;
+        padding: 20px 12px; text-align: center; text-decoration: none;
+    }
+    .quick-link::before {
+        content: ''; position: absolute;
+        top: -30px; right: -30px;
+        width: 90px; height: 90px; border-radius: 50%;
+        background: rgba(255,255,255,0.14); transition: transform .35s;
+    }
+    .quick-link:hover { transform: translateY(-6px) scale(1.03); box-shadow: 0 20px 34px -14px rgba(0,0,0,.35); }
+    .quick-link:hover::before { transform: scale(1.4); }
+    .quick-link i { font-size: 22px; position: relative; z-index: 1; }
+    .quick-link span {
+        font-size: 10px; font-weight: 800; letter-spacing: .1em;
+        text-transform: uppercase; line-height: 1.25; position: relative; z-index: 1;
+        word-break: break-word;
+    }
+    .ql-navy   { background: #002D62; }
+    .ql-purple { background: #9B26B6; }
+    .ql-gold   { background: #FDB913; }
+
+    /* Activity Trail */
+    .activity-timeline { position: relative; }
+    .activity-timeline::before {
+        content: ''; position: absolute;
+        left: 19px; top: 22px; bottom: 22px;
+        width: 2px;
+        background: #E2E8F0;
+    }
+    .activity-item {
+        display: flex; gap: 16px; padding: 12px 0;
+        position: relative;
+    }
+    .activity-icon {
+        width: 40px; height: 40px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; flex-shrink: 0; z-index: 1;
+        box-shadow: 0 6px 16px -6px rgba(0,0,0,.35);
+        border: 2px solid #fff;
+    }
+    .activity-icon i { font-size: 14px; }
+    .activity-content { flex: 1; min-width: 0; padding-top: 2px; }
+    .activity-title {
+        font-size: 12px; font-weight: 800;
+        color: var(--navy); line-height: 1.4;
+    }
+    .activity-entity {
+        color: var(--purple); font-weight: 900;
+    }
+    .activity-detail {
+        font-size: 11px; font-weight: 500;
+        color: #64748B; margin-top: 3px;
+        line-height: 1.5;
+        word-break: break-word;
+    }
+    .activity-time {
+        font-size: 9px; font-weight: 800;
+        letter-spacing: .12em; text-transform: uppercase;
+        color: #94A3B8; margin-top: 5px;
+        display: inline-flex; align-items: center; gap: 5px;
+    }
+    .activity-empty {
+        text-align: center; padding: 36px 20px;
+        color: #94A3B8;
+    }
+    .activity-empty i { font-size: 30px; margin-bottom: 12px; display: block; opacity: .4; }
+
+    /* Achievement cards */
+    .ach-card {
+        background: #fff;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 18px 40px -20px rgba(0,45,98,.25);
+        border: 1px solid rgba(226,232,240,.7);
+        transition: all .3s cubic-bezier(.4,0,.2,1);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+    .ach-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 28px 50px -22px rgba(0,45,98,.35);
+    }
+
+    .ach-header {
+        padding: 22px 24px 20px;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+    }
+    .ach-header::before {
+        content: '';
+        position: absolute;
+        top: -40px; right: -40px;
+        width: 160px; height: 160px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.10);
+        pointer-events: none;
+    }
+
+    .ach-header-pub  { background: #002D62; }
+    .ach-header-inv  { background: #9B26B6; }
+    .ach-header-grt  { background: #FDB913; }
+
+    .ach-icon-box {
+        width: 46px; height: 46px;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.20);
+        border: 1px solid rgba(255,255,255,0.3);
+        display: flex; align-items: center; justify-content: center;
+    }
+    .ach-icon-box i { color: #fff; font-size: 18px; }
+
+    .ach-badge {
+        font-size: 10px; font-weight: 900;
+        padding: 4px 10px; border-radius: 9999px;
+        background: rgba(255,255,255,0.25);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: #fff;
+        letter-spacing: .06em;
+        display: inline-flex; align-items: center; gap: 4px;
+    }
+
+    .ach-big-number {
+        font-size: 2.6rem;
+        font-weight: 900;
+        line-height: 1;
+        color: #fff;
+        letter-spacing: -0.02em;
+    }
+    .ach-big-number small {
+        font-size: 0.95rem;
+        font-weight: 800;
+        opacity: .85;
+        margin-right: 4px;
+    }
+    .ach-sub {
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: .16em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,.8);
+        margin-top: 6px;
+    }
+
+    .ach-body {
+        padding: 18px 22px 22px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .ach-chart-wrap {
+        position: relative;
+        height: 150px;
+        margin-bottom: 16px;
+    }
+
+    .ach-legend-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px dashed #E2E8F0;
+        font-size: 11px;
+        font-weight: 700;
+    }
+    .ach-legend-row:last-child { border-bottom: none; }
+    .ach-legend-label {
+        display: flex; align-items: center; gap: 8px;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        font-weight: 800;
+        font-size: 10px;
+    }
+    .ach-dot {
+        width: 10px; height: 10px; border-radius: 3px;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+    .ach-legend-value {
+        font-weight: 900;
+        color: var(--navy);
+        font-size: 13px;
+    }
+
+    .ach-progress-wrap {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px dashed #E2E8F0;
+    }
+    .ach-progress-track {
+        height: 8px;
+        background: #F1F5F9;
+        border-radius: 9999px;
+        overflow: hidden;
+        margin-top: 6px;
+    }
+    .ach-progress-fill {
+        height: 100%;
+        border-radius: 9999px;
+        transition: width 1.2s cubic-bezier(.4,0,.2,1);
+    }
+    .fill-navy   { background: #002D62; }
+    .fill-purple { background: #9B26B6; }
+    .fill-gold   { background: #FDB913; }
+
+    .trend-wrap {
+        background: #fff;
+        border-radius: 24px;
+        padding: 24px;
+        border: 1px solid rgba(226,232,240,.7);
+        box-shadow: 0 18px 40px -22px rgba(0,45,98,.25);
+        position: relative;
+        overflow: hidden;
+    }
+    .trend-wrap::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 4px;
+        background: #9B26B6;
+    }
+
+    .news-card {
+        background: #fff;
+        border: 1px solid rgba(226,232,240,.8);
+        transition: all .3s cubic-bezier(.4,0,.2,1);
+        cursor: pointer; overflow: hidden;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px -14px rgba(0,45,98,.15);
+    }
+    .news-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 26px 40px -18px rgba(155, 38, 182, .35);
+        border-color: rgba(155, 38, 182, .3);
+    }
+    .news-card .news-img { height: 180px; overflow: hidden; position: relative; }
+    .news-card .news-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .7s ease; }
+    .news-card:hover .news-img img { transform: scale(1.08); }
+    .news-badge {
+        position: absolute; top: 12px; left: 12px;
+        padding: 5px 14px;
+        font-size: 9px; font-weight: 900;
+        text-transform: uppercase; letter-spacing: .1em;
+        color: #fff; border-radius: 9999px;
+        box-shadow: 0 4px 12px rgba(0,0,0,.2);
+    }
+    .badge-research { background: #002D62; }
+    .badge-academic { background: #9B26B6; }
+    .badge-industry { background: #FDB913; }
+
+    .modal-backdrop {
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(6px);
+        opacity: 0; visibility: hidden; transition: all .25s ease;
+        z-index: 100;
+    }
+    .modal-backdrop.open { opacity: 1; visibility: visible; }
+    .modal-box { transform: translateY(18px) scale(.97); transition: all .3s cubic-bezier(.4,0,.2,1); border-radius: 16px; overflow: hidden; }
+    .modal-backdrop.open .modal-box { transform: translateY(0) scale(1); }
+    .modal-header-gradient { background: #002D62; color: #fff; }
+
+    .settings-tab {
+        flex: 1; padding: 14px 16px;
+        font-size: 10px; font-weight: 800;
+        letter-spacing: .18em; text-transform: uppercase;
+        color: #94A3B8;
+        border-bottom: 3px solid transparent;
+        transition: all .2s ease; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        background: #F8FAFC;
+    }
+    .settings-tab:hover { color: var(--navy); }
+    .settings-tab.active { color: var(--navy); border-bottom-color: #9B26B6; background: #fff; }
+    .settings-tab.active i { color: #9B26B6; }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; animation: fadeUp .3s cubic-bezier(.4,0,.2,1) both; }
+
+    .field-label {
+        display: block; font-size: 9px; font-weight: 800;
+        letter-spacing: .18em; text-transform: uppercase;
+        color: #94A3B8; margin-bottom: 6px;
+    }
+    .field-input {
+        width: 100%; padding: 12px 14px;
+        font-size: 13px; font-weight: 600;
+        color: var(--navy);
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 10px; outline: none;
+        transition: all .2s ease;
+    }
+    .field-input::placeholder { color: #94A3B8; font-weight: 500; }
+    .field-input:focus { background: #fff; border-color: #9B26B6; box-shadow: 0 0 0 4px rgba(155, 38, 182, .12); }
+    .field-input:disabled { background: #F1F5F9; color: #64748B; cursor: not-allowed; }
+    .field-input.is-invalid { border-color: #9B26B6; background: #FAF5FF; }
+
+    .pwd-wrap { position: relative; }
+    .pwd-wrap .field-input { padding-right: 44px; }
+    .pwd-toggle {
+        position: absolute; right: 14px; top: 50%;
+        transform: translateY(-50%);
+        color: #94A3B8; font-size: 12px; cursor: pointer;
+        transition: color .2s;
+        background: none; border: none; padding: 0;
+    }
+    .pwd-toggle:hover { color: #9B26B6; }
+
+    .strength-bar { height: 5px; display: flex; gap: 4px; }
+    .strength-seg { flex: 1; background: #E2E8F0; border-radius: 3px; transition: background .3s ease; }
+    .strength-seg.on-weak   { background: #FDB913; }
+    .strength-seg.on-medium { background: #9B26B6; }
+    .strength-seg.on-strong { background: #002D62; }
+    .strength-text { font-size: 9px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+    .strength-text.weak   { color: #B45309; }
+    .strength-text.medium { color: #9B26B6; }
+    .strength-text.strong { color: #002D62; }
+
+    .error-box {
+        display: none; padding: 12px 14px;
+        background: #FAF5FF;
+        border-left: 4px solid #9B26B6;
+        border-radius: 8px;
+        font-size: 11px; color: #6B21A8;
+        font-weight: 600; line-height: 1.5;
+    }
+    .error-box.show { display: block; animation: fadeUp .25s cubic-bezier(.4,0,.2,1) both; }
+    .error-box ul { list-style: disc; padding-left: 16px; }
+
+    .toast {
+        position: fixed; bottom: 24px; left: 50%;
+        transform: translateX(-50%) translateY(80px);
+        background: #FDB913;
+        color: #fff;
+        padding: 14px 22px; border-radius: 9999px;
+        font-size: 11px; font-weight: 800;
+        letter-spacing: .1em; text-transform: uppercase;
+        box-shadow: 0 18px 40px -12px rgba(253,185,19,.6);
+        display: flex; align-items: center; gap: 10px;
+        z-index: 200; opacity: 0;
+        transition: all .35s cubic-bezier(.4,0,.2,1);
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .toast.toast-blue { background: #002D62; box-shadow: 0 18px 40px -12px rgba(0,45,98,.6); }
+
+    .info-banner { background: #EFF6FF; border-left: 4px solid #9B26B6; border-radius: 10px; }
+
+    .sched-item { border-radius: 12px; transition: all .25s cubic-bezier(.4,0,.2,1); border-left: 4px solid; background: #F8FAFC; }
+    .sched-item:hover { background: #fff; box-shadow: 0 12px 26px -14px rgba(0,45,98,.2); transform: translateX(2px); }
+    .sched-gold   { border-left-color: #FDB913; }
+    .sched-purple { border-left-color: #9B26B6; }
+    .sched-navy   { border-left-color: #002D62; }
+
+    .dot-gold   { background: #FDB913; }
+    .dot-purple { background: #9B26B6; }
+    .dot-navy   { background: #002D62; }
+
+    /* Deadline row */
+    .deadline-row {
+        display: flex; align-items: center; gap: 14px;
+        padding: 14px 16px;
+        background: #F8FAFC;
+        border-radius: 12px;
+        border-left: 4px solid;
+        transition: all .25s cubic-bezier(.4,0,.2,1);
+    }
+    .deadline-row:hover { background: #fff; box-shadow: 0 12px 26px -14px rgba(0,45,98,.2); transform: translateX(2px); }
+    .deadline-date {
+        text-align: center;
+        flex-shrink: 0;
+        width: 56px;
+        padding: 6px 0;
+        border-radius: 10px;
+        color: #fff;
+    }
+    .deadline-date .day { font-size: 18px; font-weight: 900; line-height: 1; }
+    .deadline-date .mon { font-size: 9px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; margin-top: 2px; }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    .site-footer {
+        background: #002D62;
+        color: #fff;
+        margin-top: 40px;
+        position: relative;
+    }
+    .site-footer::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 4px;
+        background: #FDB913;
+    }
+
+    .footer-inner {
+        max-width: 80rem;
+        margin: 0 auto;
+        padding: 56px 24px 0;
+    }
+
+    .footer-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 40px;
+        padding-bottom: 40px;
+        border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
+    @media (min-width: 768px) {
+        .footer-grid { grid-template-columns: 1.4fr 1fr 1.2fr; gap: 48px; }
+    }
+
+    .footer-logo { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+    .footer-logo .logo-bar {
+        width: 3px; height: 42px;
+        background: #FDB913;
+        border-radius: 2px;
+    }
+    .footer-logo .logo-text { display: flex; flex-direction: column; line-height: 1.1; font-weight: 800; text-transform: uppercase; }
+    .footer-logo .line-small { font-size: 0.62rem; letter-spacing: 0.2em; color: #FDB913; margin-bottom: 2px; }
+    .footer-logo .line-large { font-size: 0.95rem; color: #fff; }
+
+    .footer-desc {
+        font-size: 12px;
+        line-height: 1.7;
+        color: rgba(255,255,255,0.75);
+        font-weight: 500;
+        max-width: 380px;
+    }
+
+    .footer-heading {
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #FDB913;
+        margin-bottom: 18px;
+    }
+
+    .footer-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .footer-links a {
+        color: rgba(255,255,255,0.8);
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 600;
+        transition: color .2s ease, padding-left .2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .footer-links a::before {
+        content: '';
+        width: 4px; height: 4px;
+        border-radius: 50%;
+        background: #9B26B6;
+        display: inline-block;
+        transition: background .2s ease;
+    }
+    .footer-links a:hover { color: #FDB913; padding-left: 4px; }
+    .footer-links a:hover::before { background: #FDB913; }
+
+    .footer-contact {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+    .footer-contact-item {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        font-size: 12px;
+        color: rgba(255,255,255,0.8);
+        font-weight: 500;
+        line-height: 1.6;
+    }
+    .footer-contact-item i {
+        color: #FDB913;
+        font-size: 13px;
+        margin-top: 3px;
+        width: 16px;
+        flex-shrink: 0;
+    }
+    .footer-contact-item a {
+        color: rgba(255,255,255,0.85);
+        text-decoration: none;
+        transition: color .2s ease;
+    }
+    .footer-contact-item a:hover { color: #FDB913; }
+
+    .footer-bottom {
+        padding: 22px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+    }
+    @media (min-width: 640px) {
+        .footer-bottom { flex-direction: row; }
+    }
+
+    .footer-copy {
+        font-size: 11px;
+        font-weight: 600;
+        color: rgba(255,255,255,0.65);
+        letter-spacing: 0.03em;
+    }
+
+    .footer-legal {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    .footer-legal a {
+        font-size: 11px;
+        font-weight: 700;
+        color: rgba(255,255,255,0.75);
+        text-decoration: none;
+        letter-spacing: 0.05em;
+        transition: color .2s ease;
+    }
+    .footer-legal a:hover { color: #FDB913; }
+</style>
+</head>
+<body class="text-slate-900">
+
+<!-- ============================================================
+     TOP NAVIGATION
+============================================================= -->
+<nav class="glass-nav sticky top-0 z-50">
+    <div class="px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-[70px]">
+
+            <a href="portal.html" class="faculty-logo">
+                <div class="logo-bar"></div>
+                <div class="logo-text">
+                    <span class="line-small" data-i18n="nav_faculty">FAKULTI</span>
+                    <span class="line-large" data-i18n="nav_dept">KEJURUTERAAN KIMIA</span>
+                </div>
+            </a>
+
+            <div class="flex items-center gap-3 sm:gap-4">
+                <div class="hidden md:flex items-center gap-3 bg-white/12 border border-white/20 px-4 py-2 w-64 rounded-full">
+                    <i class="fas fa-magnifying-glass text-white/60 text-xs"></i>
+                    <input type="text" placeholder="Search portal..."
+                           data-i18n-ph="ph_search"
+                           class="bg-transparent border-none outline-none text-white text-xs placeholder-white/60 w-full font-medium">
+                </div>
+
+                <div class="lang-toggle-wrapper">
+                    <button class="lang-btn active" id="btn-en" onclick="switchLanguage('en')">
+                        <img src="https://flagcdn.com/w20/gb.png" class="w-3.5 h-auto rounded-[2px]" alt="EN"> EN
+                    </button>
+                    <button class="lang-btn" id="btn-ms" onclick="switchLanguage('ms')">
+                        <img src="https://flagcdn.com/w20/my.png" class="w-3.5 h-auto rounded-[2px]" alt="BM"> BM
+                    </button>
+                </div>
+
+                <button class="relative text-white/80 hover:text-white transition p-2 rounded-full hover:bg-white/10">
+                    <i class="fas fa-bell text-sm"></i>
+                    <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-yellow-300"></span>
+                </button>
+
+                <div class="relative">
+                    <button id="profileToggle" class="flex items-center gap-3 pl-3 sm:pl-4 border-l border-white/20">
+                        <div class="hidden sm:block text-right leading-tight">
+                            <p id="navName" class="text-[11px] font-black text-white uppercase tracking-wide">—</p>
+                            <p id="navRole" class="text-[9px] font-bold text-p130c uppercase tracking-widest">—</p>
+                        </div>
+                        <div id="navAvatar"
+                             class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-black border-2 border-white/40 text-white"
+                             style="background: #FDB913;">--</div>
+                        <i class="fas fa-chevron-down text-white/50 text-[10px] hidden sm:block"></i>
+                    </button>
+
+                    <div id="profileDropdown"
+                         class="dropdown absolute right-0 top-[calc(100%+14px)] w-64 bg-white shadow-2xl border border-slate-200 z-50 rounded-2xl overflow-hidden">
+                        <div class="p-5 border-b border-slate-100 bg-slate-50">
+                            <p id="ddName" class="text-sm font-black text-p655c leading-tight">—</p>
+                            <p id="ddEmail" class="text-[10px] font-bold text-slate-500 mt-1 truncate">—</p>
+                        </div>
+                        <div class="py-2">
+                            <button id="settingsBtn" class="w-full flex items-center gap-3 px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-600 hover:bg-purple-50 hover:text-p254c transition">
+                                <i class="fas fa-gear w-4 text-p254c"></i> <span data-i18n="menu_settings">Settings</span>
+                            </button>
+                        </div>
+                        <div class="border-t border-slate-100 py-2">
+                            <button id="logoutBtn" class="w-full flex items-center gap-3 px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-p254c hover:bg-purple-50 transition">
+                                <i class="fas fa-arrow-right-from-bracket w-4"></i> <span data-i18n="menu_logout">Sign Out</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- ============================================================
+     MAIN CONTENT
+============================================================= -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+    <!-- Welcome banner -->
+    <div class="hero-banner p-8 sm:p-10 mb-6 rounded-3xl anim-up">
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+                <span class="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.25em] text-yellow-300 mb-3">
+                    <span class="w-2 h-2 rounded-full bg-yellow-300 animate-pulse"></span>
+                    <span data-i18n="stu_dash_online">Semester Active</span>
+                </span>
+
+                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-tight tracking-tight drop-shadow-lg">
+                    <span data-i18n="stu_dash_welcome">Welcome back,</span><br>
+                    <span id="bannerName" class="text-yellow-300">—</span>
+                </h1>
+
+                <div class="mt-4 flex flex-wrap items-center gap-2">
+                    <span class="chip chip-gold"><i class="fas fa-id-card"></i> <span id="studentIdChip">—</span></span>
+                    <span class="chip chip-purple"><i class="fas fa-graduation-cap"></i> <span id="studentProgramChip">—</span></span>
+                </div>
+            </div>
+
+            <div class="shrink-0">
+                <div class="bg-white/15 border border-white/25 p-5 min-w-[200px] rounded-2xl float-anim">
+                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-yellow-300 mb-1" data-i18n="stu_dash_today">Today</p>
+                    <p id="todayDate" class="text-white font-bold text-sm">—</p>
+                    <div class="h-px bg-white/25 my-3"></div>
+                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-yellow-300 mb-1" data-i18n="stu_dash_lastlogin">Last Login</p>
+                    <p id="lastLogin" class="text-white font-bold text-xs">—</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="card p-6 mb-6 anim-up rounded-3xl">
+        <div class="mb-5 pb-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <span class="section-label" data-i18n="stu_quick_links_label">Quick Menu</span>
+                <h3 class="text-lg font-black text-p655c mt-1" data-i18n="stu_quick_links_title">Student Quick Links</h3>
+            </div>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest" data-i18n="stu_quick_links_hint">Opens in new tab</span>
+        </div>
+
+        <div id="quickLinksGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            <!-- rendered by JS -->
+        </div>
+    </div>
+
+    <!-- Personal stat cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
+        <div class="stat-card stat-navy card-hover p-6 rounded-2xl">
+            <div class="flex items-start justify-between mb-4 relative z-10">
+                <div class="stat-icon-box"><i class="fas fa-chart-line"></i></div>
+                <span class="text-[10px] font-black uppercase tracking-widest bg-white/25 px-2 py-1 rounded-full">CGPA</span>
+            </div>
+            <p class="text-3xl font-black leading-none mb-2 relative z-10">3.72</p>
+            <p class="text-[10px] font-black uppercase tracking-widest text-blue-100 relative z-10" data-i18n="stu_stat_cgpa">Current CGPA</p>
+        </div>
+
+        <div class="stat-card stat-purple card-hover p-6 rounded-2xl">
+            <div class="flex items-start justify-between mb-4 relative z-10">
+                <div class="stat-icon-box"><i class="fas fa-book-open"></i></div>
+                <span class="text-[10px] font-black uppercase tracking-widest bg-white/25 px-2 py-1 rounded-full" data-i18n="stu_stat_sem">This Sem</span>
+            </div>
+            <p class="text-3xl font-black leading-none mb-2 relative z-10">6</p>
+            <p class="text-[10px] font-black uppercase tracking-widest text-purple-100 relative z-10" data-i18n="stu_stat_courses">Enrolled Courses</p>
+        </div>
+
+        <div class="stat-card stat-gold card-hover p-6 rounded-2xl">
+            <div class="flex items-start justify-between mb-4 relative z-10">
+                <div class="stat-icon-box"><i class="fas fa-award"></i></div>
+                <span class="text-[10px] font-black uppercase tracking-widest bg-white/25 px-2 py-1 rounded-full">2026</span>
+            </div>
+            <p class="text-3xl font-black leading-none mb-2 relative z-10">96</p>
+            <p class="text-[10px] font-black uppercase tracking-widest text-yellow-100 relative z-10" data-i18n="stu_stat_credits">Total Credits</p>
+        </div>
+
+        <div class="stat-card stat-deep card-hover p-6 rounded-2xl">
+            <div class="flex items-start justify-between mb-4 relative z-10">
+                <div class="stat-icon-box"><i class="fas fa-list-check"></i></div>
+                <span class="text-[10px] font-black uppercase tracking-widest bg-white/25 px-2 py-1 rounded-full" data-i18n="stu_stat_due">Due</span>
+            </div>
+            <p class="text-3xl font-black leading-none mb-2 relative z-10">3</p>
+            <p class="text-[10px] font-black uppercase tracking-widest text-blue-100 relative z-10" data-i18n="stu_stat_assignments">Pending Assignments</p>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         ACADEMIC PERFORMANCE
+    ============================================================ -->
+    <section class="mb-8 anim-up">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 border-b border-slate-200 pb-4">
+            <div>
+                <span class="section-label" data-i18n="stu_ach_tag">Academic Performance</span>
+                <h2 class="text-2xl sm:text-3xl font-black text-p655c mt-2" data-i18n="stu_ach_title">My Progress</h2>
+                <p class="text-xs text-slate-500 font-medium mt-1" data-i18n="stu_ach_sub">Grades, attendance &amp; credit progress · FKK Johor</p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <span class="chip chip-gold"><i class="fas fa-calendar"></i> 2024 – 2026</span>
+                <span class="chip chip-purple"><i class="fas fa-arrow-trend-up"></i> <span data-i18n="stu_ach_trend">Improving</span></span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <!-- GRADES -->
+            <div class="ach-card">
+                <div class="ach-header ach-header-pub">
+                    <div class="flex items-center justify-between mb-5 relative z-10">
+                        <div class="flex items-center gap-3">
+                            <div class="ach-icon-box"><i class="fas fa-graduation-cap"></i></div>
+                            <div>
+                                <p class="text-[9px] uppercase tracking-[0.2em] font-black text-white/70">Gred</p>
+                                <p class="text-sm font-black text-white uppercase tracking-wide" data-i18n="stu_grades">Grades</p>
+                            </div>
+                        </div>
+                        <span class="ach-badge"><i class="fas fa-arrow-up text-[8px]"></i> +0.18</span>
+                    </div>
+                    <div class="relative z-10">
+                        <p class="ach-big-number">3.72</p>
+                        <p class="ach-sub" data-i18n="stu_grades_sub">Current CGPA (out of 4.00)</p>
+                    </div>
+                </div>
+                <div class="ach-body">
+                    <div class="ach-chart-wrap"><canvas id="gradeChart"></canvas></div>
+                    <div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #002D62;"></span><span data-i18n="stu_grade_a">A / A-</span></span>
+                            <span class="ach-legend-value">14</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #9B26B6;"></span><span data-i18n="stu_grade_b">B+ / B</span></span>
+                            <span class="ach-legend-value">8</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #FDB913;"></span><span data-i18n="stu_grade_c">B- / C+</span></span>
+                            <span class="ach-legend-value">3</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #002D62;"></span><span data-i18n="stu_grade_d">C &amp; below</span></span>
+                            <span class="ach-legend-value">1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ATTENDANCE -->
+            <div class="ach-card">
+                <div class="ach-header ach-header-inv">
+                    <div class="flex items-center justify-between mb-5 relative z-10">
+                        <div class="flex items-center gap-3">
+                            <div class="ach-icon-box"><i class="fas fa-user-check"></i></div>
+                            <div>
+                                <p class="text-[9px] uppercase tracking-[0.2em] font-black text-white/70">Kehadiran</p>
+                                <p class="text-sm font-black text-white uppercase tracking-wide" data-i18n="stu_attendance">Attendance</p>
+                            </div>
+                        </div>
+                        <span class="ach-badge"><i class="fas fa-arrow-up text-[8px]"></i> +3%</span>
+                    </div>
+                    <div class="relative z-10">
+                        <p class="ach-big-number">94<small style="font-size:1.4rem;">%</small></p>
+                        <p class="ach-sub" data-i18n="stu_attendance_sub">Overall attendance rate</p>
+                    </div>
+                </div>
+                <div class="ach-body">
+                    <div class="ach-chart-wrap"><canvas id="attChart"></canvas></div>
+                    <div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #9B26B6;"></span><span data-i18n="stu_att_present">Present</span></span>
+                            <span class="ach-legend-value">142</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #002D62;"></span><span data-i18n="stu_att_mc">Medical / Leave</span></span>
+                            <span class="ach-legend-value">6</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #FDB913;"></span><span data-i18n="stu_att_absent">Absent</span></span>
+                            <span class="ach-legend-value">3</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #002D62;"></span><span data-i18n="stu_att_total">Total Sessions</span></span>
+                            <span class="ach-legend-value">151</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CREDITS -->
+            <div class="ach-card">
+                <div class="ach-header ach-header-grt">
+                    <div class="flex items-center justify-between mb-5 relative z-10">
+                        <div class="flex items-center gap-3">
+                            <div class="ach-icon-box"><i class="fas fa-layer-group"></i></div>
+                            <div>
+                                <p class="text-[9px] uppercase tracking-[0.2em] font-black text-white/80">Kredit</p>
+                                <p class="text-sm font-black text-white uppercase tracking-wide" data-i18n="stu_credits">Credits</p>
+                            </div>
+                        </div>
+                        <span class="ach-badge"><i class="fas fa-flag-checkered text-[8px]"></i> <span id="creditPercent">78%</span></span>
+                    </div>
+                    <div class="relative z-10">
+                        <p class="ach-big-number">96<small style="font-size:1.2rem;">/123</small></p>
+                        <p class="ach-sub" data-i18n="stu_credits_sub">Credits completed / required</p>
+                    </div>
+                </div>
+                <div class="ach-body">
+                    <div class="ach-chart-wrap"><canvas id="credChart"></canvas></div>
+                    <div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #002D62;"></span><span data-i18n="stu_cred_core">Core</span></span>
+                            <span class="ach-legend-value">62</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #9B26B6;"></span><span data-i18n="stu_cred_elect">Electives</span></span>
+                            <span class="ach-legend-value">18</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #FDB913;"></span><span data-i18n="stu_cred_mpu">MPU</span></span>
+                            <span class="ach-legend-value">10</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #002D62;"></span><span data-i18n="stu_cred_remaining">Remaining</span></span>
+                            <span class="ach-legend-value">27</span>
+                        </div>
+                    </div>
+                    <div class="ach-progress-wrap">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-500" data-i18n="stu_cred_progress">Degree Progress</span>
+                            <span class="text-[11px] font-black text-p130c">78%</span>
+                        </div>
+                        <div class="ach-progress-track"><div class="ach-progress-fill fill-gold" style="width: 78%"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GPA Trend Chart -->
+        <div class="trend-wrap">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 pb-4 border-b border-slate-100">
+                <div>
+                    <span class="section-label" data-i18n="stu_yearly_label">GPA Trend</span>
+                    <h3 class="text-lg font-black text-p655c mt-1" data-i18n="stu_yearly_title">Semester GPA (Sem 1 – Sem 6)</h3>
+                </div>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <span class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                        <span class="w-3 h-3 rounded" style="background: #002D62;"></span>
+                        <span data-i18n="stu_legend_gpa">GPA</span>
+                    </span>
+                    <span class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                        <span class="w-3 h-3 rounded" style="background: #9B26B6;"></span>
+                        <span data-i18n="stu_legend_cgpa">CGPA</span>
+                    </span>
+                </div>
+            </div>
+            <div style="position: relative; height: 260px;">
+                <canvas id="gpaTrendChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- Schedule + Deadlines -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
+
+        <div class="xl:col-span-2 card p-6 rounded-3xl">
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                <div>
+                    <span class="section-label" data-i18n="stu_sched_label">Schedule</span>
+                    <h3 class="text-lg font-black text-p655c mt-1" data-i18n="stu_sched_title">Today's Classes</h3>
+                </div>
+                <a href="#" class="text-[10px] font-black uppercase tracking-widest text-p254c hover:text-p655c transition" data-i18n="stu_view_all">View All</a>
+            </div>
+
+            <div class="space-y-3">
+                <div class="sched-item sched-gold flex items-center gap-5 p-4">
+                    <div class="text-center shrink-0 w-16">
+                        <p class="text-lg font-black text-p655c leading-none">08:00</p>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">AM</p>
+                    </div>
+                    <div class="h-10 w-px bg-slate-200"></div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-bold text-p655c truncate">CHE423 — Process Control &amp; Instrumentation</p>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                            <i class="fas fa-location-dot mr-1 text-amber-600"></i> BK-12 · <span data-i18n="stu_sched_lecture">Lecture</span> · <span data-i18n="stu_sched_lecturer">Dr. Ahmad</span>
+                        </p>
+                    </div>
+                    <span class="chip chip-gold shrink-0">3H</span>
+                </div>
+
+                <div class="sched-item sched-purple flex items-center gap-5 p-4">
+                    <div class="text-center shrink-0 w-16">
+                        <p class="text-lg font-black text-p655c leading-none">11:00</p>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">AM</p>
+                    </div>
+                    <div class="h-10 w-px bg-slate-200"></div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-bold text-p655c truncate">CHE215 — Thermodynamics Lab</p>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                            <i class="fas fa-location-dot mr-1 text-purple-600"></i> <span data-i18n="stu_sched_lab">Lab</span> 3 · <span data-i18n="stu_sched_practical">Practical</span> · <span data-i18n="stu_sched_lecturer">Dr. Nurul</span>
+                        </p>
+                    </div>
+                    <span class="chip chip-purple shrink-0">2H</span>
+                </div>
+
+                <div class="sched-item sched-navy flex items-center gap-5 p-4">
+                    <div class="text-center shrink-0 w-16">
+                        <p class="text-lg font-black text-p655c leading-none">02:30</p>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">PM</p>
+                    </div>
+                    <div class="h-10 w-px bg-slate-200"></div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-bold text-p655c truncate">CHE499 — Final Year Project Meeting</p>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                            <i class="fas fa-location-dot mr-1 text-blue-700"></i> <span data-i18n="stu_sched_office">Supervisor Office</span> · <span data-i18n="stu_sched_meeting">Meeting</span>
+                        </p>
+                    </div>
+                    <span class="chip chip-navy shrink-0">1H</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-6 rounded-3xl">
+            <div class="mb-5 pb-4 border-b border-slate-100">
+                <span class="section-label" data-i18n="stu_deadline_label">Due Soon</span>
+                <h3 class="text-lg font-black text-p655c mt-1" data-i18n="stu_deadline_title">Upcoming Deadlines</h3>
+            </div>
+
+            <div class="space-y-3">
+                <div class="deadline-row sched-gold">
+                    <div class="deadline-date bg-navy" style="background:#FDB913;">
+                        <p class="day">18</p>
+                        <p class="mon">SEP</p>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-xs font-bold text-p655c leading-snug" data-i18n="stu_dl_1">CHE423 Lab Report 3</p>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">11:59 PM · 2 <span data-i18n="stu_dl_days">days left</span></p>
+                    </div>
+                </div>
+                <div class="deadline-row sched-purple">
+                    <div class="deadline-date" style="background:#9B26B6;">
+                        <p class="day">22</p>
+                        <p class="mon">SEP</p>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-xs font-bold text-p655c leading-snug" data-i18n="stu_dl_2">CHE215 Midterm Exam</p>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">09:00 AM · 6 <span data-i18n="stu_dl_days">days left</span></p>
+                    </div>
+                </div>
+                <div class="deadline-row sched-navy">
+                    <div class="deadline-date" style="background:#002D62;">
+                        <p class="day">28</p>
+                        <p class="mon">SEP</p>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-xs font-bold text-p655c leading-snug" data-i18n="stu_dl_3">CHE499 FYP Progress Report</p>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">11:59 PM · 12 <span data-i18n="stu_dl_days">days left</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         ACTIVITY TRAIL
+    ============================================================ -->
+    <section class="card p-6 rounded-3xl mb-10 anim-up">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-5 pb-4 border-b border-slate-100">
+            <div>
+                <span class="section-label" data-i18n="activity_label">Jejak Aktiviti</span>
+                <h3 class="text-lg font-black text-p655c mt-1" data-i18n="activity_title">Activity Trail</h3>
+                <p class="text-xs text-slate-500 font-medium mt-1" data-i18n="stu_activity_sub">Recent actions on your account</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="chip chip-purple">
+                    <i class="fas fa-clock-rotate-left"></i>
+                    <span id="activityCount">0</span>
+                    <span data-i18n="activity_records">records</span>
+                </span>
+                <button id="clearActivityBtn"
+                        class="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-p254c transition px-3 py-2">
+                    <i class="fas fa-broom"></i> <span data-i18n="activity_clear">Clear</span>
+                </button>
+            </div>
+        </div>
+        <div id="activityTimeline" class="activity-timeline">
+            <!-- rendered by JS -->
+        </div>
+    </section>
+
+    <!-- Newsroom & Events -->
+    <section class="mb-10">
+        <div class="flex justify-between items-end mb-6 border-b border-slate-200 pb-4">
+            <div>
+                <span class="section-label" data-i18n="stu_news_tag">Latest Updates</span>
+                <h2 class="text-2xl sm:text-3xl font-black text-p655c mt-2" data-i18n="stu_news_title">Campus News &amp; Events</h2>
+            </div>
+            <a href="#" class="text-xs font-black uppercase tracking-widest text-p254c hover:text-p655c transition flex items-center gap-2">
+                <span data-i18n="stu_btn_archive">View Archive</span> <i class="fas fa-chevron-right text-[10px]"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <article class="news-card group">
+                <div class="news-img">
+                    <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&q=80&w=800" alt="Academic">
+                    <div class="news-badge badge-academic">Academic</div>
+                </div>
+                <div class="p-5">
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-2">March 15, 2026</div>
+                    <h3 class="text-base font-bold text-p655c mb-3 leading-snug group-hover:text-p254c transition" data-i18n="stu_news_1_title">
+                        Final Examination Timetable Released for Semester 2.
+                    </h3>
+                    <a href="#" class="text-[10px] font-black uppercase tracking-widest text-p130c mt-2 inline-block">Read More</a>
+                </div>
+            </article>
+
+            <article class="news-card group">
+                <div class="news-img">
+                    <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=800" alt="Event">
+                    <div class="news-badge badge-research">Event</div>
+                </div>
+                <div class="p-5">
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-2">March 10, 2026</div>
+                    <h3 class="text-base font-bold text-p655c mb-3 leading-snug group-hover:text-p254c transition" data-i18n="stu_news_2_title">
+                        ChemE Career Fair 2026: Meet 30+ Industry Partners.
+                    </h3>
+                    <a href="#" class="text-[10px] font-black uppercase tracking-widest text-p130c mt-2 inline-block">Read More</a>
+                </div>
+            </article>
+
+            <article class="news-card group">
+                <div class="news-img">
+                    <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=800" alt="Scholarship">
+                    <div class="news-badge badge-industry">Scholarship</div>
+                </div>
+                <div class="p-5">
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-2">March 05, 2026</div>
+                    <h3 class="text-base font-bold text-p655c mb-3 leading-snug group-hover:text-p254c transition" data-i18n="stu_news_3_title">
+                        Yayasan UiTM Scholarship Applications Now Open.
+                    </h3>
+                    <a href="#" class="text-[10px] font-black uppercase tracking-widest text-p130c mt-2 inline-block">Read More</a>
+                </div>
+            </article>
+        </div>
+    </section>
+
+</main>
+
+<!-- ============================================================
+     FOOTER
+============================================================= -->
+<footer class="site-footer">
+    <div class="footer-inner">
+
+        <div class="footer-grid">
+
+            <!-- Brand block -->
+            <div>
+                <div class="footer-logo">
+                    <div class="logo-bar"></div>
+                    <div class="logo-text">
+                        <span class="line-small">FAKULTI</span>
+                        <span class="line-large">KEJURUTERAAN KIMIA</span>
+                    </div>
+                </div>
+                <p class="footer-desc" data-i18n="footer_desc">
+                    Universiti Teknologi MARA (UiTM) Cawangan Johor, Kampus Pasir Gudang.
+                    Dedicated to academic excellence and industrial innovation.
+                </p>
+            </div>
+
+            <!-- Quick Links -->
+            <div>
+                <h4 class="footer-heading" data-i18n="footer_quick_links">Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="#" data-i18n="footer_student_dir">Student Directory</a></li>
+                    <li><a href="#" data-i18n="footer_exam_unit">Exam Unit</a></li>
+                    <li><a href="#" data-i18n="footer_library">Library</a></li>
+                    <li><a href="#" data-i18n="footer_alumni">Alumni</a></li>
+                    <li><a href="#" data-i18n="footer_contact">Contact</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact -->
+            <div>
+                <h4 class="footer-heading" data-i18n="footer_contact_heading">UiTM Cawangan Johor</h4>
+                <div class="footer-contact">
+                    <div class="footer-contact-item">
+                        <i class="fas fa-location-dot"></i>
+                        <span data-i18n="footer_address">Kampus Pasir Gudang, Jalan Purnama<br>81750 Masai, Johor</span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fas fa-phone"></i>
+                        <a href="tel:+6073818000">+607-381 8000</a>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <a href="mailto:korporat@uitm.edu.my">korporat@uitm.edu.my</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+            <p class="footer-copy" data-i18n="footer_copyright">© 2026 FKK UiTM Johor. All Rights Reserved.</p>
+            <div class="footer-legal">
+                <a href="#" data-i18n="footer_privacy">Privacy Policy</a>
+                <a href="#" data-i18n="footer_terms">Terms of Use</a>
+            </div>
+        </div>
+
+    </div>
+</footer>
+
+<!-- ============================================================
+     SETTINGS MODAL
+============================================================= -->
+<div id="settingsModal" class="modal-backdrop fixed inset-0 flex items-center justify-center p-4">
+    <div class="modal-box bg-white w-full max-w-lg shadow-2xl max-h-[92vh] overflow-hidden flex flex-col">
+
+        <div class="modal-header-gradient flex items-center justify-between px-6 py-5 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-white/20 border border-white/30">
+                    <i class="fas fa-gear text-white text-sm"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-black leading-none" data-i18n="settings_title">Profile Settings</h3>
+                    <p class="text-[9px] font-bold text-white/70 uppercase tracking-widest mt-1" data-i18n="settings_sub">Update your profile information</p>
+                </div>
+            </div>
+            <button id="settingsClose" class="text-white/70 hover:text-white transition text-lg"><i class="fas fa-xmark"></i></button>
+        </div>
+
+        <div class="flex border-b border-slate-100 shrink-0">
+            <button class="settings-tab active" data-tab="profile">
+                <i class="fas fa-user"></i> <span data-i18n="settings_tab_profile">Profile</span>
+            </button>
+            <button class="settings-tab" data-tab="security">
+                <i class="fas fa-shield-halved"></i> <span data-i18n="settings_tab_security">Security</span>
+            </button>
+        </div>
+
+        <div class="overflow-y-auto flex-1">
+            <div id="tab-profile" class="tab-pane active p-6 space-y-5">
+                <div class="flex items-center gap-4 p-4 rounded-xl bg-slate-50">
+                    <div id="settingsAvatar"
+                         class="w-16 h-16 rounded-full flex items-center justify-center text-lg font-black border-4 border-white shadow-md shrink-0 text-white"
+                         style="background: #9B26B6;">--</div>
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-600" data-i18n="settings_avatar_hint">Avatar initials auto-generated</p>
+                        <p class="text-[9px] font-bold text-slate-500 mt-1" data-i18n="settings_avatar_sub">Based on your full name below</p>
+                    </div>
+                </div>
+                <div><label class="field-label" data-i18n="settings_name">Full Name</label><input id="setName" type="text" class="field-input" placeholder="Enter your full name"></div>
+                <div><label class="field-label" data-i18n="settings_program">Programme</label><input id="setProgram" type="text" class="field-input" placeholder="e.g. BEng (Hons) Chemical Engineering"></div>
+                <div><label class="field-label" data-i18n="settings_email">Email</label><input id="setEmail" type="email" class="field-input" placeholder="student@student.uitm.edu.my"></div>
+                <div><label class="field-label" data-i18n="settings_semester">Current Semester</label><input id="setSemester" type="text" class="field-input" placeholder="e.g. Semester 6"></div>
+                <div><label class="field-label" data-i18n="settings_studentid">Student ID (Read-only)</label><input id="setStudentId" type="text" class="field-input" disabled></div>
+            </div>
+
+            <div id="tab-security" class="tab-pane p-6 space-y-5">
+                <div class="info-banner flex gap-3 p-4">
+                    <i class="fas fa-circle-info text-purple-600 mt-0.5"></i>
+                    <div>
+                        <p class="text-[11px] font-black uppercase tracking-wider text-purple-800 mb-1" data-i18n="pwd_info_title">Change Your Password</p>
+                        <p class="text-[10px] font-medium text-purple-700 leading-relaxed" data-i18n="pwd_info_sub">Choose a strong password you don't use anywhere else.</p>
+                    </div>
+                </div>
+                <div>
+                    <label class="field-label" data-i18n="settings_current_pwd">Current Password</label>
+                    <div class="pwd-wrap">
+                        <input id="currentPwd" type="password" class="field-input" placeholder="Enter current password" autocomplete="current-password">
+                        <button type="button" class="pwd-toggle" data-target="currentPwd"><i class="fas fa-eye"></i></button>
+                    </div>
+                </div>
+                <div>
+                    <label class="field-label" data-i18n="settings_new_pwd">New Password</label>
+                    <div class="pwd-wrap">
+                        <input id="newPwd" type="password" class="field-input" placeholder="Enter new password" autocomplete="new-password">
+                        <button type="button" class="pwd-toggle" data-target="newPwd"><i class="fas fa-eye"></i></button>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400" data-i18n="pwd_strength_label">Strength</span>
+                            <span id="strengthText" class="strength-text" data-i18n="pwd_strength_none">—</span>
+                        </div>
+                        <div class="strength-bar">
+                            <div class="strength-seg" id="seg1"></div>
+                            <div class="strength-seg" id="seg2"></div>
+                            <div class="strength-seg" id="seg3"></div>
+                            <div class="strength-seg" id="seg4"></div>
+                        </div>
+                        <p class="text-[9px] font-bold text-slate-400 mt-2 leading-relaxed" data-i18n="pwd_hint">Minimum 8 characters · at least 1 uppercase · 1 lowercase · 1 number</p>
+                    </div>
+                </div>
+                <div>
+                    <label class="field-label" data-i18n="settings_confirm_pwd">Confirm New Password</label>
+                    <div class="pwd-wrap">
+                        <input id="confirmPwd" type="password" class="field-input" placeholder="Re-enter new password" autocomplete="new-password">
+                        <button type="button" class="pwd-toggle" data-target="confirmPwd"><i class="fas fa-eye"></i></button>
+                    </div>
+                </div>
+                <div id="pwdError" class="error-box"></div>
+            </div>
+        </div>
+
+        <div class="flex gap-3 px-6 py-5 border-t border-slate-100 shrink-0 bg-slate-50">
+            <div id="footerProfile" class="flex gap-3 w-full">
+                <button id="settingsCancel" type="button" class="flex-1 py-3 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-white hover:text-p655c transition"><span data-i18n="settings_cancel">Cancel</span></button>
+                <button id="settingsSave" type="button" class="flex-1 btn-gold py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"><i class="fas fa-check"></i> <span data-i18n="settings_save">Save Changes</span></button>
+            </div>
+            <div id="footerSecurity" class="hidden flex gap-3 w-full">
+                <button id="pwdCancel" type="button" class="flex-1 py-3 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-white hover:text-p655c transition"><span data-i18n="settings_cancel">Cancel</span></button>
+                <button id="pwdUpdate" type="button" class="flex-1 btn-gold py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"><i class="fas fa-key"></i> <span data-i18n="btn_update_pwd">Update Password</span></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="toast">
+    <i class="fas fa-circle-check"></i>
+    <span id="toastMsg" data-i18n="toast_saved">Settings Saved</span>
+</div>
+
+<script>
+(function () {
+
+    /* =========================================================
+       CONSTANTS & STATE
+    ========================================================== */
+    const DEFAULT_STUDENT = {
+        id: '2023123456',
+        name: 'Ahmad Danial bin Ismail',
+        program: 'BEng (Hons) Chemical Engineering',
+        semester: 'Semester 6',
+        email: 'ahmad.danial@student.uitm.edu.my',
+        initials: 'AI',
+        loginAt: new Date().toISOString()
+    };
+
+    const DEMO_PASSWORD = 'student123';
+    const SESSION_KEY = 'fkkStudentUser';
+    const ACTIVITY_KEY= 'fkkStudentActivityTrail';
+    const ACTIVITY_LIMIT = 40;
+
+    let currentLang = 'en';
+    let student = null;
+    let charts = { grade: null, att: null, cred: null, gpaTrend: null };
+    let activities = [];
+
+    /* Static quick links (read-only) — 3 SOLID colours only */
+    const QUICK_LINKS = [
+        { href: 'https://elearning.uitm.edu.my',  icon: 'fa-graduation-cap',      color: 'ql-navy',   labelKey: 'stu_link_elearning' },
+        { href: 'https://istudent.uitm.edu.my',   icon: 'fa-user-graduate',       color: 'ql-purple', labelKey: 'stu_link_istudent' },
+        { href: 'https://library.uitm.edu.my',    icon: 'fa-book-open',           color: 'ql-gold',   labelKey: 'stu_link_library' },
+        { href: 'https://exam.uitm.edu.my',       icon: 'fa-file-pen',            color: 'ql-navy',   labelKey: 'stu_link_exam' },
+        { href: 'https://ir.uitm.edu.my',         icon: 'fa-file-lines',          color: 'ql-purple', labelKey: 'stu_link_results' },
+        { href: 'https://finance.uitm.edu.my',    icon: 'fa-file-invoice-dollar', color: 'ql-gold',   labelKey: 'stu_link_fees' },
+        { href: 'https://library.uitm.edu.my',    icon: 'fa-database',            color: 'ql-navy',   labelKey: 'stu_link_repository' },
+        { href: 'https://helpdesk.uitm.edu.my',   icon: 'fa-headset',             color: 'ql-purple', labelKey: 'stu_link_helpdesk' }
+    ];
+
+    /* Activity type meta — SOLID colours */
+    const ACTIVITY_TYPES = {
+        login:           { icon: 'fa-right-to-bracket',           bg: '#002D62', en: 'Signed in to portal',    ms: 'Log masuk ke portal' },
+        link_click:      { icon: 'fa-arrow-up-right-from-square', bg: '#002D62', en: 'Opened quick link',      ms: 'Buka pautan pantas' },
+        profile_update:  { icon: 'fa-user-pen',                   bg: '#9B26B6', en: 'Updated profile',        ms: 'Kemas kini profil' },
+        password_change: { icon: 'fa-key',                        bg: '#9B26B6', en: 'Changed password',       ms: 'Tukar kata laluan' },
+        settings_open:   { icon: 'fa-gear',                       bg: '#FDB913', en: 'Opened settings',        ms: 'Buka tetapan' },
+        activity_clear:  { icon: 'fa-broom',                      bg: '#002D62', en: 'Cleared activity trail', ms: 'Kosongkan jejak aktiviti' }
+    };
+
+    /* =========================================================
+       i18n
+    ========================================================== */
+    const i18n = {
+        en: {
+            nav_faculty: "FAKULTI", nav_dept: "KEJURUTERAAN KIMIA", ph_search: "Search portal...",
+            menu_settings: "Settings", menu_logout: "Sign Out",
+            /* Student Dashboard */
+            stu_dash_online: "Semester Active", stu_dash_welcome: "Welcome back,",
+            stu_dash_today: "Today", stu_dash_lastlogin: "Last Login",
+            stu_stat_cgpa: "Current CGPA", stu_stat_courses: "Enrolled Courses",
+            stu_stat_credits: "Total Credits", stu_stat_assignments: "Pending Assignments",
+            stu_stat_sem: "This Sem", stu_stat_due: "Due",
+            /* Quick Links */
+            stu_quick_links_label: "Quick Menu", stu_quick_links_title: "Student Quick Links", stu_quick_links_hint: "Opens in new tab",
+            stu_link_elearning: "E-Learning", stu_link_istudent: "iStudent",
+            stu_link_library: "Library", stu_link_exam: "Exam Unit",
+            stu_link_results: "Results", stu_link_fees: "Fees",
+            stu_link_repository: "Repository", stu_link_helpdesk: "IT Helpdesk",
+            /* Achievement */
+            stu_ach_tag: "Academic Performance", stu_ach_title: "My Progress",
+            stu_ach_sub: "Grades, attendance & credit progress · FKK Johor", stu_ach_trend: "Improving",
+            stu_grades: "Grades", stu_grades_sub: "Current CGPA (out of 4.00)",
+            stu_grade_a: "A / A-", stu_grade_b: "B+ / B", stu_grade_c: "B- / C+", stu_grade_d: "C & below",
+            stu_attendance: "Attendance", stu_attendance_sub: "Overall attendance rate",
+            stu_att_present: "Present", stu_att_mc: "Medical / Leave",
+            stu_att_absent: "Absent", stu_att_total: "Total Sessions",
+            stu_credits: "Credits", stu_credits_sub: "Credits completed / required",
+            stu_cred_core: "Core", stu_cred_elect: "Electives",
+            stu_cred_mpu: "MPU", stu_cred_remaining: "Remaining",
+            stu_cred_progress: "Degree Progress",
+            stu_yearly_label: "GPA Trend", stu_yearly_title: "Semester GPA (Sem 1 – Sem 6)",
+            stu_legend_gpa: "GPA", stu_legend_cgpa: "CGPA",
+            /* Schedule */
+            stu_sched_label: "Schedule", stu_sched_title: "Today's Classes",
+            stu_view_all: "View All",
+            stu_sched_lecture: "Lecture", stu_sched_lab: "Lab", stu_sched_practical: "Practical",
+            stu_sched_office: "Supervisor Office", stu_sched_meeting: "Meeting",
+            stu_sched_lecturer: "Lecturer",
+            /* Deadlines */
+            stu_deadline_label: "Due Soon", stu_deadline_title: "Upcoming Deadlines",
+            stu_dl_1: "CHE423 Lab Report 3", stu_dl_2: "CHE215 Midterm Exam",
+            stu_dl_3: "CHE499 FYP Progress Report", stu_dl_days: "days left",
+            /* Activity */
+            activity_label: "Jejak Aktiviti", activity_title: "Activity Trail",
+            stu_activity_sub: "Recent actions on your account",
+            activity_clear: "Clear", activity_records: "records",
+            activity_empty: "No activity recorded yet",
+            activity_confirm_clear: "Clear the entire activity trail?",
+            /* News */
+            stu_news_tag: "Latest Updates", stu_news_title: "Campus News & Events",
+            stu_btn_archive: "View Archive",
+            stu_news_1_title: "Final Examination Timetable Released for Semester 2.",
+            stu_news_2_title: "ChemE Career Fair 2026: Meet 30+ Industry Partners.",
+            stu_news_3_title: "Yayasan UiTM Scholarship Applications Now Open.",
+            /* Settings */
+            settings_title: "Profile Settings", settings_sub: "Update your profile information",
+            settings_tab_profile: "Profile", settings_tab_security: "Security",
+            settings_avatar_hint: "Avatar initials auto-generated",
+            settings_avatar_sub: "Based on your full name below",
+            settings_name: "Full Name", settings_program: "Programme",
+            settings_email: "Email", settings_semester: "Current Semester",
+            settings_studentid: "Student ID (Read-only)",
+            settings_cancel: "Cancel", settings_save: "Save Changes",
+            toast_saved: "Settings Saved",
+            pwd_info_title: "Change Your Password",
+            pwd_info_sub: "Choose a strong password you don't use anywhere else.",
+            settings_current_pwd: "Current Password",
+            settings_new_pwd: "New Password", settings_confirm_pwd: "Confirm New Password",
+            pwd_strength_label: "Strength", pwd_strength_none: "—",
+            pwd_strength_weak: "Weak", pwd_strength_medium: "Medium", pwd_strength_strong: "Strong",
+            pwd_hint: "Minimum 8 characters · at least 1 uppercase · 1 lowercase · 1 number",
+            btn_update_pwd: "Update Password", toast_pwd: "Password Updated",
+            toast_activity_cleared: "Activity Cleared",
+            err_current_wrong: "Current password is incorrect.",
+            err_pwd_short: "Password must be at least 8 characters.",
+            err_pwd_upper: "Password must contain an uppercase letter.",
+            err_pwd_lower: "Password must contain a lowercase letter.",
+            err_pwd_number: "Password must contain a number.",
+            err_pwd_match: "New password and confirmation do not match.",
+            err_pwd_same: "New password must be different from the current one.",
+            err_pwd_empty: "Please fill in all password fields.",
+            /* Footer */
+            footer_desc: "Universiti Teknologi MARA (UiTM) Cawangan Johor, Kampus Pasir Gudang. Dedicated to academic excellence and industrial innovation.",
+            footer_quick_links: "Quick Links",
+            footer_student_dir: "Student Directory",
+            footer_exam_unit: "Exam Unit",
+            footer_library: "Library",
+            footer_alumni: "Alumni",
+            footer_contact: "Contact",
+            footer_contact_heading: "UiTM Cawangan Johor",
+            footer_address: "Kampus Pasir Gudang, Jalan Purnama<br>81750 Masai, Johor",
+            footer_copyright: "© 2026 FKK UiTM Johor. All Rights Reserved.",
+            footer_privacy: "Privacy Policy",
+            footer_terms: "Terms of Use"
+        },
+        ms: {
+            nav_faculty: "FAKULTI", nav_dept: "KEJURUTERAAN KIMIA", ph_search: "Cari dalam portal...",
+            menu_settings: "Tetapan", menu_logout: "Log Keluar",
+            stu_dash_online: "Semester Aktif", stu_dash_welcome: "Selamat kembali,",
+            stu_dash_today: "Hari Ini", stu_dash_lastlogin: "Log Masuk Terakhir",
+            stu_stat_cgpa: "PNGK Semasa", stu_stat_courses: "Kursus Berdaftar",
+            stu_stat_credits: "Jumlah Kredit", stu_stat_assignments: "Tugasan Tertunggak",
+            stu_stat_sem: "Sem Ini", stu_stat_due: "Perlu",
+            stu_quick_links_label: "Menu Pantas", stu_quick_links_title: "Pautan Pantas Pelajar", stu_quick_links_hint: "Buka dalam tab baharu",
+            stu_link_elearning: "E-Pembelajaran", stu_link_istudent: "iStudent",
+            stu_link_library: "Perpustakaan", stu_link_exam: "Unit Peperiksaan",
+            stu_link_results: "Keputusan", stu_link_fees: "Yuran",
+            stu_link_repository: "Repositori", stu_link_helpdesk: "Helpdesk IT",
+            stu_ach_tag: "Prestasi Akademik", stu_ach_title: "Kemajuan Saya",
+            stu_ach_sub: "Gred, kehadiran & kemajuan kredit · FKK Johor", stu_ach_trend: "Meningkat",
+            stu_grades: "Gred", stu_grades_sub: "PNGK semasa (daripada 4.00)",
+            stu_grade_a: "A / A-", stu_grade_b: "B+ / B", stu_grade_c: "B- / C+", stu_grade_d: "C & ke bawah",
+            stu_attendance: "Kehadiran", stu_attendance_sub: "Kadar kehadiran keseluruhan",
+            stu_att_present: "Hadir", stu_att_mc: "Cuti Sakit / Rehat",
+            stu_att_absent: "Tidak Hadir", stu_att_total: "Jumlah Sesi",
+            stu_credits: "Kredit", stu_credits_sub: "Kredit selesai / diperlukan",
+            stu_cred_core: "Teras", stu_cred_elect: "Elektif",
+            stu_cred_mpu: "MPU", stu_cred_remaining: "Baki",
+            stu_cred_progress: "Kemajuan Ijazah",
+            stu_yearly_label: "Trend PNGK", stu_yearly_title: "PNGK Semester (Sem 1 – Sem 6)",
+            stu_legend_gpa: "GPA", stu_legend_cgpa: "PNGK",
+            stu_sched_label: "Jadual", stu_sched_title: "Kelas Hari Ini",
+            stu_view_all: "Lihat Semua",
+            stu_sched_lecture: "Kuliah", stu_sched_lab: "Makmal", stu_sched_practical: "Amali",
+            stu_sched_office: "Pejabat Penyelia", stu_sched_meeting: "Mesyuarat",
+            stu_sched_lecturer: "Pensyarah",
+            stu_deadline_label: "Akan Tiba", stu_deadline_title: "Tarikh Akhir Akan Datang",
+            stu_dl_1: "CHE423 Laporan Makmal 3", stu_dl_2: "CHE215 Peperiksaan Pertengahan",
+            stu_dl_3: "CHE499 Laporan Kemajuan FYP", stu_dl_days: "hari lagi",
+            activity_label: "Jejak Aktiviti", activity_title: "Jejak Aktiviti",
+            stu_activity_sub: "Tindakan terkini pada akaun anda",
+            activity_clear: "Kosongkan", activity_records: "rekod",
+            activity_empty: "Tiada aktiviti direkodkan lagi",
+            activity_confirm_clear: "Kosongkan keseluruhan jejak aktiviti?",
+            stu_news_tag: "Terkini", stu_news_title: "Berita & Acara Kampus",
+            stu_btn_archive: "Lihat Arkib",
+            stu_news_1_title: "Jadual Peperiksaan Akhir Semester 2 Dikeluarkan.",
+            stu_news_2_title: "Karnival Kerjaya ChemE 2026: Temui 30+ Rakan Industri.",
+            stu_news_3_title: "Permohonan Biasiswa Yayasan UiTM Kini Dibuka.",
+            settings_title: "Tetapan Profil", settings_sub: "Kemas kini maklumat profil anda",
+            settings_tab_profile: "Profil", settings_tab_security: "Keselamatan",
+            settings_avatar_hint: "Inisial avatar dijana automatik",
+            settings_avatar_sub: "Berdasarkan nama penuh anda di bawah",
+            settings_name: "Nama Penuh", settings_program: "Program",
+            settings_email: "E-mel", settings_semester: "Semester Semasa",
+            settings_studentid: "ID Pelajar (Baca sahaja)",
+            settings_cancel: "Batal", settings_save: "Simpan Perubahan",
+            toast_saved: "Tetapan Disimpan",
+            pwd_info_title: "Tukar Kata Laluan Anda",
+            pwd_info_sub: "Pilih kata laluan yang kukuh dan tidak digunakan di tempat lain.",
+            settings_current_pwd: "Kata Laluan Semasa",
+            settings_new_pwd: "Kata Laluan Baharu", settings_confirm_pwd: "Sahkan Kata Laluan Baharu",
+            pwd_strength_label: "Kekuatan", pwd_strength_none: "—",
+            pwd_strength_weak: "Lemah", pwd_strength_medium: "Sederhana", pwd_strength_strong: "Kukuh",
+            pwd_hint: "Minimum 8 aksara · sekurang-kurangnya 1 huruf besar · 1 huruf kecil · 1 nombor",
+            btn_update_pwd: "Kemas Kini Kata Laluan", toast_pwd: "Kata Laluan Dikemas Kini",
+            toast_activity_cleared: "Aktiviti Dikosongkan",
+            err_current_wrong: "Kata laluan semasa tidak betul.",
+            err_pwd_short: "Kata laluan mestilah sekurang-kurangnya 8 aksara.",
+            err_pwd_upper: "Kata laluan mesti mengandungi huruf besar.",
+            err_pwd_lower: "Kata laluan mesti mengandungi huruf kecil.",
+            err_pwd_number: "Kata laluan mesti mengandungi nombor.",
+            err_pwd_match: "Kata laluan baharu dan pengesahan tidak sepadan.",
+            err_pwd_same: "Kata laluan baharu mestilah berbeza daripada kata laluan semasa.",
+            err_pwd_empty: "Sila isi semua medan kata laluan.",
+            footer_desc: "Universiti Teknologi MARA (UiTM) Cawangan Johor, Kampus Pasir Gudang. Berdedikasi untuk kecemerlangan akademik dan inovasi industri.",
+            footer_quick_links: "Pautan Pantas",
+            footer_student_dir: "Direktori Pelajar",
+            footer_exam_unit: "Unit Peperiksaan",
+            footer_library: "Perpustakaan",
+            footer_alumni: "Alumni",
+            footer_contact: "Hubungi",
+            footer_contact_heading: "UiTM Cawangan Johor",
+            footer_address: "Kampus Pasir Gudang, Jalan Purnama<br>81750 Masai, Johor",
+            footer_copyright: "© 2026 FKK UiTM Johor. Hak Cipta Terpelihara.",
+            footer_privacy: "Dasar Privasi",
+            footer_terms: "Terma Penggunaan"
+        }
+    };
+
+    /* =========================================================
+       UTILITIES
+    ========================================================== */
+    function escapeHtml(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, m => ({
+            '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+        }[m]));
+    }
+
+    function makeInitials(name) {
+        if (!name) return '--';
+        const parts = name.trim().split(/\s+/).filter(w => !/^(bin|binti|bin\.|binti\.|bt|a\/l|a\/p)$/i.test(w));
+        if (parts.length === 0) return '--';
+        if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    function relativeTime(iso) {
+        const diff = Date.now() - new Date(iso).getTime();
+        const sec = Math.max(0, Math.floor(diff / 1000));
+        if (sec < 45) return currentLang === 'ms' ? 'Baru sahaja' : 'Just now';
+        const min = Math.floor(sec / 60);
+        if (min < 60) return min + (currentLang === 'ms' ? ' min lalu' : 'm ago');
+        const hr = Math.floor(min / 60);
+        if (hr < 24) return hr + (currentLang === 'ms' ? ' jam lalu' : 'h ago');
+        const day = Math.floor(hr / 24);
+        if (day < 7) return day + (currentLang === 'ms' ? ' hari lalu' : 'd ago');
+        return new Date(iso).toLocaleDateString(currentLang === 'ms' ? 'ms-MY' : 'en-GB',
+            { day: '2-digit', month: 'short' });
+    }
+
+    /* =========================================================
+       LANGUAGE
+    ========================================================== */
+    window.switchLanguage = function (lang) {
+        currentLang = lang;
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (i18n[lang] && i18n[lang][key] !== undefined) el.innerHTML = i18n[lang][key];
+        });
+        document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+            const key = el.getAttribute('data-i18n-ph');
+            if (i18n[lang] && i18n[lang][key]) el.setAttribute('placeholder', i18n[lang][key]);
+        });
+        document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+        document.getElementById('btn-ms').classList.toggle('active', lang === 'ms');
+
+        if (student) fillStudent(student);
+        renderQuickLinks();
+        renderActivities();
+        updateStrength();
+    };
+
+    /* =========================================================
+       STUDENT
+    ========================================================== */
+    function fillStudent(s) {
+        const initials = s.initials || makeInitials(s.name);
+        const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+        set('navName', s.name); set('navRole', s.semester || ''); set('navAvatar', initials);
+        set('ddName', s.name); set('ddEmail', s.email || ''); set('bannerName', s.name);
+        set('studentIdChip', s.id || '');
+        set('studentProgramChip', s.program || '');
+
+        const loginEl = document.getElementById('lastLogin');
+        if (loginEl) {
+            const d = new Date(s.loginAt || Date.now());
+            loginEl.textContent = d.toLocaleString(currentLang === 'ms' ? 'ms-MY' : 'en-GB',
+                { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+        const todayEl = document.getElementById('todayDate');
+        if (todayEl) {
+            todayEl.textContent = new Date().toLocaleDateString(currentLang === 'ms' ? 'ms-MY' : 'en-GB',
+                { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+        }
+        const sAvatar = document.getElementById('settingsAvatar');
+        if (sAvatar) sAvatar.textContent = initials;
+    }
+
+    /* =========================================================
+       QUICK LINKS
+    ========================================================== */
+    function renderQuickLinks() {
+        const grid = document.getElementById('quickLinksGrid');
+        if (!grid) return;
+
+        grid.innerHTML = QUICK_LINKS.map(link => {
+            const label = i18n[currentLang][link.labelKey] || link.labelKey;
+            return `
+                <a href="${escapeHtml(link.href)}" target="_blank" rel="noopener"
+                   class="quick-link ${link.color}"
+                   data-label-key="${escapeHtml(link.labelKey)}"
+                   data-href="${escapeHtml(link.href)}">
+                    <i class="fas ${escapeHtml(link.icon)}"></i>
+                    <span>${escapeHtml(label)}</span>
+                </a>`;
+        }).join('');
+
+        grid.querySelectorAll('.quick-link').forEach(a => {
+            a.addEventListener('click', () => {
+                const labelKey = a.dataset.labelKey;
+                const href = a.dataset.href;
+                const label = i18n[currentLang][labelKey] || labelKey;
+                logActivity('link_click', label, href);
+            });
+        });
+    }
+
+    /* =========================================================
+       ACTIVITY TRAIL
+    ========================================================== */
+    function loadActivities() {
+        try {
+            const raw = localStorage.getItem(ACTIVITY_KEY);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed)) { activities = parsed; return; }
+            }
+        } catch (e) {}
+        activities = [];
+    }
+
+    function saveActivities() {
+        try { localStorage.setItem(ACTIVITY_KEY, JSON.stringify(activities)); } catch (e) {}
+    }
+
+    function logActivity(type, entity, detail) {
+        const entry = {
+            id: 'a_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+            type, entity: entity || '', detail: detail || '',
+            timestamp: new Date().toISOString()
+        };
+        activities.unshift(entry);
+        if (activities.length > ACTIVITY_LIMIT) activities = activities.slice(0, ACTIVITY_LIMIT);
+        saveActivities();
+        renderActivities();
+    }
+
+    function renderActivities() {
+        const tl = document.getElementById('activityTimeline');
+        const countEl = document.getElementById('activityCount');
+        if (countEl) countEl.textContent = activities.length;
+        if (!tl) return;
+
+        if (!activities.length) {
+            tl.innerHTML = `
+                <div class="activity-empty">
+                    <i class="fas fa-clock-rotate-left"></i>
+                    <p class="text-xs font-bold uppercase tracking-widest">${escapeHtml(i18n[currentLang].activity_empty)}</p>
+                </div>`;
+            return;
+        }
+
+        tl.innerHTML = activities.map(a => {
+            const meta = ACTIVITY_TYPES[a.type] || ACTIVITY_TYPES.login;
+            const label = currentLang === 'ms' ? meta.ms : meta.en;
+            const entityHtml = a.entity
+                ? ` <span class="activity-entity">· ${escapeHtml(a.entity)}</span>`
+                : '';
+            const detailHtml = a.detail
+                ? `<p class="activity-detail">${escapeHtml(a.detail)}</p>`
+                : '';
+            return `
+                <div class="activity-item">
+                    <div class="activity-icon" style="background: ${meta.bg};">
+                        <i class="fas ${meta.icon}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p class="activity-title">${escapeHtml(label)}${entityHtml}</p>
+                        ${detailHtml}
+                        <p class="activity-time"><i class="far fa-clock"></i> ${escapeHtml(relativeTime(a.timestamp))}</p>
+                    </div>
+                </div>`;
+        }).join('');
+    }
+
+    function clearActivities() {
+        if (!activities.length) return;
+        if (!confirm(i18n[currentLang].activity_confirm_clear)) return;
+        activities = [];
+        logActivity('activity_clear', student ? student.name : '', '');
+        showToast(i18n[currentLang].toast_activity_cleared, true);
+    }
+
+    document.getElementById('clearActivityBtn').addEventListener('click', clearActivities);
+
+    /* =========================================================
+       CHART.JS — SOLID colours only
+    ========================================================== */
+    function initCharts() {
+        if (typeof Chart === 'undefined') return;
+
+        Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+        Chart.defaults.font.weight = '700';
+        Chart.defaults.color = '#64748B';
+
+        /* Grades — horizontal bar */
+        const gradeCtx = document.getElementById('gradeChart');
+        if (gradeCtx) {
+            charts.grade = new Chart(gradeCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['A / A-', 'B+ / B', 'B- / C+', 'C & below'],
+                    datasets: [{
+                        data: [14, 8, 3, 1],
+                        backgroundColor: ['#002D62', '#9B26B6', '#FDB913', '#002D62'],
+                        borderRadius: 8, borderSkipped: false, barThickness: 22
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                    animation: { duration: 1200, easing: 'easeOutQuart' },
+                    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#002D62', padding: 10, cornerRadius: 8, titleFont: { size: 11, weight: '800' }, bodyFont: { size: 11, weight: '600' } } },
+                    scales: {
+                        x: { grid: { display: false, drawBorder: false }, ticks: { display: false }, max: 16 },
+                        y: { grid: { display: false, drawBorder: false }, ticks: { color: '#475569', font: { size: 10, weight: '800' } } }
+                    }
+                }
+            });
+        }
+
+        /* Attendance — doughnut */
+        const attCtx = document.getElementById('attChart');
+        if (attCtx) {
+            charts.att = new Chart(attCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Present', 'Medical / Leave', 'Absent'],
+                    datasets: [{
+                        data: [142, 6, 3],
+                        backgroundColor: ['#9B26B6', '#002D62', '#FDB913'],
+                        borderWidth: 3, borderColor: '#fff', hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '62%',
+                    animation: { duration: 1200, easing: 'easeOutQuart' },
+                    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#002D62', padding: 10, cornerRadius: 8, titleFont: { size: 11, weight: '800' }, bodyFont: { size: 11, weight: '600' } } }
+                }
+            });
+        }
+
+        /* Credits — vertical bar */
+        const credCtx = document.getElementById('credChart');
+        if (credCtx) {
+            charts.cred = new Chart(credCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Core', 'Electives', 'MPU', 'Remaining'],
+                    datasets: [{
+                        data: [62, 18, 10, 27],
+                        backgroundColor: ['#002D62', '#9B26B6', '#FDB913', '#002D62'],
+                        borderRadius: 8, borderSkipped: false, barThickness: 30
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    animation: { duration: 1200, easing: 'easeOutQuart', delay: (ctx) => ctx.dataIndex * 120 },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#002D62', padding: 10, cornerRadius: 8,
+                            titleFont: { size: 11, weight: '800' }, bodyFont: { size: 11, weight: '600' },
+                            callbacks: { label: (ctx) => ctx.parsed.y + ' credits' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            grid: { color: '#F1F5F9', drawBorder: false },
+                            ticks: { color: '#94A3B8', font: { size: 9, weight: '700' } }
+                        },
+                        x: { grid: { display: false, drawBorder: false }, ticks: { color: '#475569', font: { size: 10, weight: '800' } } }
+                    }
+                }
+            });
+        }
+
+        /* GPA Trend — line, solid colours */
+        const gpaCtx = document.getElementById('gpaTrendChart');
+        if (gpaCtx) {
+            charts.gpaTrend = new Chart(gpaCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6'],
+                    datasets: [
+                        { label: 'GPA',  data: [3.42, 3.58, 3.65, 3.55, 3.70, 3.72], borderColor: '#002D62', backgroundColor: 'rgba(0, 45, 98, 0.08)', borderWidth: 3, pointBackgroundColor: '#fff', pointBorderColor: '#002D62', pointBorderWidth: 3, pointRadius: 6, pointHoverRadius: 9, fill: false, tension: 0.4 },
+                        { label: 'CGPA', data: [3.42, 3.50, 3.55, 3.55, 3.60, 3.72], borderColor: '#9B26B6', backgroundColor: 'rgba(155, 38, 182, 0.08)', borderWidth: 3, pointBackgroundColor: '#fff', pointBorderColor: '#9B26B6', pointBorderWidth: 3, pointRadius: 6, pointHoverRadius: 9, fill: false, tension: 0.4, borderDash: [6, 4] }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    interaction: { intersect: false, mode: 'index' },
+                    animation: { duration: 1400, easing: 'easeOutQuart' },
+                    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#002D62', padding: 12, cornerRadius: 10, titleFont: { size: 12, weight: '800' }, bodyFont: { size: 11, weight: '600' }, bodySpacing: 6 } },
+                    scales: {
+                        y: { beginAtZero: false, min: 3.0, max: 4.0, grid: { color: '#F1F5F9', drawBorder: false }, ticks: { color: '#94A3B8', font: { size: 10, weight: '700' }, callback: (v) => v.toFixed(2) }, title: { display: true, text: 'GPA / CGPA', color: '#94A3B8', font: { size: 9, weight: '800' } } },
+                        x: { grid: { display: false, drawBorder: false }, ticks: { color: '#475569', font: { size: 11, weight: '800' } } }
+                    }
+                }
+            });
+        }
+    }
+
+    /* =========================================================
+       DROPDOWN
+    ========================================================== */
+    const profileToggle = document.getElementById('profileToggle');
+    const profileDropdown = document.getElementById('profileDropdown');
+    function closeDropdown() { profileDropdown.classList.remove('open'); }
+    profileToggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        profileDropdown.classList.toggle('open');
+    });
+    document.addEventListener('click', function (e) {
+        if (!profileDropdown.contains(e.target) && !profileToggle.contains(e.target)) closeDropdown();
+    });
+
+    /* =========================================================
+       SETTINGS MODAL
+    ========================================================== */
+    const settingsModal = document.getElementById('settingsModal');
+    const settingsAvatar = document.getElementById('settingsAvatar');
+    const setName = document.getElementById('setName');
+    const setProgram = document.getElementById('setProgram');
+    const setEmail = document.getElementById('setEmail');
+    const setSemester = document.getElementById('setSemester');
+    const setStudentId = document.getElementById('setStudentId');
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.settings-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id === 'tab-' + tabName));
+        document.getElementById('footerProfile').classList.toggle('hidden', tabName !== 'profile');
+        document.getElementById('footerSecurity').classList.toggle('hidden', tabName !== 'security');
+    }
+    document.querySelectorAll('.settings-tab').forEach(tab => {
+        tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+    });
+
+    function openSettings() {
+        closeDropdown();
+        setName.value = student.name || '';
+        setProgram.value = student.program || '';
+        setEmail.value = student.email || '';
+        setSemester.value = student.semester || '';
+        setStudentId.value = student.id || '';
+        settingsAvatar.textContent = student.initials || makeInitials(student.name);
+        switchTab('profile');
+        clearPwdFields();
+        hidePwdError();
+        settingsModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        logActivity('settings_open', student.name, '');
+    }
+    function closeSettings() {
+        settingsModal.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+    document.getElementById('settingsBtn').addEventListener('click', openSettings);
+    document.getElementById('settingsClose').addEventListener('click', closeSettings);
+    document.getElementById('settingsCancel').addEventListener('click', closeSettings);
+    document.getElementById('pwdCancel').addEventListener('click', closeSettings);
+    settingsModal.addEventListener('click', function (e) { if (e.target === settingsModal) closeSettings(); });
+    setName.addEventListener('input', function () {
+        settingsAvatar.textContent = makeInitials(this.value) || '--';
+    });
+
+    document.getElementById('settingsSave').addEventListener('click', function () {
+        const newName = setName.value.trim();
+        const newProg = setProgram.value.trim();
+        const newMail = setEmail.value.trim();
+        const newSem  = setSemester.value.trim();
+        if (!newName) { setName.focus(); return; }
+
+        const oldName = student.name;
+        const oldProg = student.program;
+        const oldMail = student.email;
+        const oldSem  = student.semester;
+
+        student.name = newName; student.program = newProg;
+        student.email = newMail; student.semester = newSem;
+        student.initials = makeInitials(newName);
+
+        persistStudent(); fillStudent(student); closeSettings();
+        showToast(i18n[currentLang].toast_saved, false);
+
+        const changes = [];
+        if (oldName !== newName) changes.push('name');
+        if (oldProg !== newProg) changes.push('programme');
+        if (oldMail !== newMail) changes.push('email');
+        if (oldSem  !== newSem)  changes.push('semester');
+        const detail = changes.length ? 'Changed: ' + changes.join(', ') : 'Profile saved';
+        logActivity('profile_update', newName, detail);
+    });
+
+    /* =========================================================
+       PASSWORD
+    ========================================================== */
+    const currentPwd = document.getElementById('currentPwd');
+    const newPwd = document.getElementById('newPwd');
+    const confirmPwd = document.getElementById('confirmPwd');
+    const pwdError = document.getElementById('pwdError');
+
+    function clearPwdFields() {
+        [currentPwd, newPwd, confirmPwd].forEach(f => {
+            if (f) { f.value = ''; f.type = 'password'; f.classList.remove('is-invalid'); }
+        });
+        document.querySelectorAll('.pwd-toggle i').forEach(ic => {
+            ic.classList.remove('fa-eye-slash'); ic.classList.add('fa-eye');
+        });
+        updateStrength();
+    }
+
+    document.querySelectorAll('.pwd-toggle').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const target = document.getElementById(this.dataset.target);
+            const icon = this.querySelector('i');
+            const isHidden = target.type === 'password';
+            target.type = isHidden ? 'text' : 'password';
+            icon.classList.toggle('fa-eye', !isHidden);
+            icon.classList.toggle('fa-eye-slash', isHidden);
+        });
+    });
+
+    const strengthText = document.getElementById('strengthText');
+    const segs = [document.getElementById('seg1'), document.getElementById('seg2'), document.getElementById('seg3'), document.getElementById('seg4')];
+
+    function scorePassword(pwd) {
+        if (!pwd) return 0;
+        let s = 0;
+        if (pwd.length >= 8) s++;
+        if (/[A-Z]/.test(pwd)) s++;
+        if (/[a-z]/.test(pwd)) s++;
+        if (/[0-9]/.test(pwd)) s++;
+        if (/[^A-Za-z0-9]/.test(pwd)) s++;
+        return Math.min(s, 4);
+    }
+
+    function updateStrength() {
+        const pwd = newPwd ? newPwd.value : '';
+        const score = scorePassword(pwd);
+        segs.forEach(s => s.className = 'strength-seg');
+        if (!pwd) {
+            strengthText.className = 'strength-text';
+            strengthText.textContent = i18n[currentLang].pwd_strength_none;
+            return;
+        }
+        let level, label;
+        if (score <= 1) { level = 'weak'; label = i18n[currentLang].pwd_strength_weak; }
+        else if (score <= 3) { level = 'medium'; label = i18n[currentLang].pwd_strength_medium; }
+        else { level = 'strong'; label = i18n[currentLang].pwd_strength_strong; }
+        for (let i = 0; i < score; i++) segs[i].classList.add('on-' + level);
+        strengthText.className = 'strength-text ' + level;
+        strengthText.textContent = label;
+    }
+
+    newPwd.addEventListener('input', function () {
+        updateStrength(); hidePwdError();
+        [newPwd, confirmPwd].forEach(f => f.classList.remove('is-invalid'));
+    });
+    [currentPwd, confirmPwd].forEach(f => {
+        f.addEventListener('input', function () { hidePwdError(); f.classList.remove('is-invalid'); });
+    });
+
+    function showPwdError(messages) {
+        pwdError.innerHTML = '<ul>' + messages.map(m => `<li>${m}</li>`).join('') + '</ul>';
+        pwdError.classList.add('show');
+    }
+    function hidePwdError() { pwdError.classList.remove('show'); }
+
+    document.getElementById('pwdUpdate').addEventListener('click', function () {
+        hidePwdError();
+        const cur = currentPwd.value, np = newPwd.value, cp = confirmPwd.value;
+        const T = i18n[currentLang];
+        [currentPwd, newPwd, confirmPwd].forEach(f => f.classList.remove('is-invalid'));
+
+        if (!cur || !np || !cp) {
+            showPwdError([T.err_pwd_empty]);
+            if (!cur) currentPwd.classList.add('is-invalid');
+            if (!np) newPwd.classList.add('is-invalid');
+            if (!cp) confirmPwd.classList.add('is-invalid');
+            return;
+        }
+
+        const errors = [];
+        if (cur !== DEMO_PASSWORD) { errors.push(T.err_current_wrong); currentPwd.classList.add('is-invalid'); }
+        if (np.length < 8) { errors.push(T.err_pwd_short); newPwd.classList.add('is-invalid'); }
+        if (!/[A-Z]/.test(np)) { errors.push(T.err_pwd_upper); newPwd.classList.add('is-invalid'); }
+        if (!/[a-z]/.test(np)) { errors.push(T.err_pwd_lower); newPwd.classList.add('is-invalid'); }
+        if (!/[0-9]/.test(np)) { errors.push(T.err_pwd_number); newPwd.classList.add('is-invalid'); }
+        if (np === cur && cur) { errors.push(T.err_pwd_same); newPwd.classList.add('is-invalid'); }
+        if (np !== cp) { errors.push(T.err_pwd_match); confirmPwd.classList.add('is-invalid'); }
+
+        if (errors.length > 0) { showPwdError(errors); return; }
+
+        persistStudent(); closeSettings();
+        showToast(i18n[currentLang].toast_pwd, true);
+        logActivity('password_change', student.name, 'Password successfully updated');
+    });
+
+    function persistStudent() {
+        try {
+            const raw = JSON.stringify(student);
+            if (localStorage.getItem(SESSION_KEY)) localStorage.setItem(SESSION_KEY, raw);
+            else sessionStorage.setItem(SESSION_KEY, raw);
+        } catch (e) {}
+    }
+
+    /* =========================================================
+       TOAST
+    ========================================================== */
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toastMsg');
+    let toastTimer = null;
+    function showToast(message, purple) {
+        toastMsg.innerHTML = message;
+        toast.classList.toggle('toast-blue', !!purple);
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
+    }
+
+    /* =========================================================
+       LOGOUT
+    ========================================================== */
+    document.getElementById('logoutBtn').addEventListener('click', function () {
+        localStorage.removeItem(SESSION_KEY);
+        sessionStorage.removeItem(SESSION_KEY);
+        window.location.href = 'loginstudent.html';
+    });
+
+    /* =========================================================
+       INIT
+    ========================================================== */
+    document.addEventListener('DOMContentLoaded', function () {
+        let saved = null;
+        try {
+            saved = JSON.parse(localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY) || 'null');
+        } catch (e) { saved = null; }
+        student = (saved && saved.name) ? saved : DEFAULT_STUDENT;
+
+        loadActivities();
+
+        switchLanguage('en');
+        fillStudent(student);
+
+        setTimeout(initCharts, 150);
+
+        if (!sessionStorage.getItem('fkkStudentLoginLogged')) {
+            sessionStorage.setItem('fkkStudentLoginLogged', '1');
+            setTimeout(() => {
+                if (student) logActivity('login', student.name, student.email || '');
+            }, 600);
+        }
+    });
+
+})();
+</script>
+</body>
+</html>

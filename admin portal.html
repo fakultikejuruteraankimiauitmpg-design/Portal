@@ -1,0 +1,2773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Control Centre | Fakulti Kejuruteraan Kimia | UiTM Cawangan Johor</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+    /* ===== PALETTE: 3 SOLID COLOURS ONLY =====
+       NAVY   #002D62
+       PURPLE #9B26B6
+       GOLD   #FDB913
+       + neutral slate/white/black
+    */
+    :root {
+        --navy:   #002D62;
+        --purple: #9B26B6;
+        --gold:   #FDB913;
+        --p655c: #002D62;
+        --p254c: #9B26B6;
+        --p130c: #FDB913;
+    }
+
+    * { -webkit-tap-highlight-color: transparent; }
+
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        scroll-behavior: smooth;
+        background: #F8FAFC;
+        background-attachment: fixed;
+    }
+
+    .faculty-logo { display: flex; align-items: center; gap: 14px; }
+    .logo-bar {
+        width: 3px; height: 42px;
+        background: #FDB913;
+        border-radius: 2px;
+    }
+    .logo-text { display: flex; flex-direction: column; line-height: 1.1; font-weight: 800; text-transform: uppercase; letter-spacing: -0.01em; }
+    .logo-text .line-small { font-size: 0.62rem; letter-spacing: 0.2em; color: var(--gold); margin-bottom: 2px; }
+    .logo-text .line-large { font-size: 0.95rem; color: #fff; }
+
+    .glass-nav {
+        background: #002D62;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 4px 30px -10px rgba(0, 45, 98, 0.45);
+    }
+
+    .lang-toggle-wrapper {
+        background: rgba(255,255,255,.12);
+        border: 1px solid rgba(255,255,255,.2);
+        border-radius: 9999px; padding: 3px;
+        display: inline-flex; gap: 2px;
+    }
+    .lang-btn {
+        padding: 5px 11px; border-radius: 9999px;
+        font-size: 10px; font-weight: 800; cursor: pointer;
+        transition: all .2s cubic-bezier(.4,0,.2,1);
+        opacity: .7; color: #fff;
+        display: flex; align-items: center; gap: 5px;
+    }
+    .lang-btn:hover { opacity: 1; background: rgba(255,255,255,.1); }
+    .lang-btn.active {
+        opacity: 1;
+        background: #FDB913;
+        color: #002D62;
+        box-shadow: 0 4px 14px rgba(253,185,19,.5);
+    }
+
+    .card {
+        background: #fff;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        transition: all .3s cubic-bezier(.4,0,.2,1);
+        position: relative;
+        overflow: hidden;
+    }
+    .card-hover:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 24px 42px -16px rgba(0,45,98,.28);
+        border-color: rgba(155, 38, 182, 0.3);
+    }
+
+    /* Stat cards — SOLID colours */
+    .stat-card {
+        position: relative; overflow: hidden; color: #fff;
+        border: none !important;
+        box-shadow: 0 14px 30px -12px rgba(0,0,0,.25);
+    }
+    .stat-card::before {
+        content: ''; position: absolute;
+        right: -30px; top: -30px;
+        width: 130px; height: 130px; border-radius: 50%;
+        background: rgba(255,255,255,0.12); pointer-events: none;
+    }
+    .stat-navy   { background: #002D62; }
+    .stat-purple { background: #9B26B6; }
+    .stat-gold   { background: #FDB913; }
+    .stat-deep   { background: #002D62; }
+
+    .stat-card .stat-icon-box {
+        width: 44px; height: 44px; border-radius: 12px;
+        background: rgba(255,255,255,0.20);
+        display: flex; align-items: center; justify-content: center;
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+    .stat-card .stat-icon-box i { color: #fff; font-size: 16px; }
+
+    .btn-gold {
+        background: #FDB913;
+        color: #fff;
+        transition: all .25s cubic-bezier(.4,0,.2,1);
+        box-shadow: 0 10px 22px -8px rgba(253,185,19,.6);
+    }
+    .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 16px 30px -10px rgba(253, 185, 19, .7); }
+
+    .text-p655c { color: var(--navy); }
+    .text-p254c { color: var(--purple); }
+    .text-p130c { color: var(--gold); }
+
+    .section-label {
+        font-size: 10px; font-weight: 800; letter-spacing: .2em;
+        text-transform: uppercase;
+        color: #9B26B6;
+    }
+
+    .chip {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 5px 12px; font-size: 10px; font-weight: 800;
+        letter-spacing: .08em; text-transform: uppercase;
+        border-radius: 9999px;
+    }
+    .chip-gold   { background: rgba(253,185,19,.18); color: #B45309; border: 1px solid rgba(253,185,19,.4); }
+    .chip-purple { background: rgba(155,38,182,.12); color: #9B26B6; border: 1px solid rgba(155,38,182,.3); }
+    .chip-navy   { background: rgba(0,45,98,.10); color: #002D62; border: 1px solid rgba(0,45,98,.25); }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    .anim-up { animation: fadeUp .45s cubic-bezier(.4,0,.2,1) both; }
+
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    .float-anim { animation: float 5s ease-in-out infinite; }
+
+    .dropdown { opacity: 0; visibility: hidden; transform: translateY(-8px); transition: all .22s cubic-bezier(.4,0,.2,1); }
+    .dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
+
+    /* Hero — SOLID navy */
+    .hero-banner {
+        background: #002D62;
+        position: relative; overflow: hidden;
+        box-shadow: 0 20px 45px -18px rgba(0, 45, 98, .55);
+    }
+    .hero-banner::before {
+        content: ''; position: absolute; inset: 0;
+        background-image: radial-gradient(rgba(255,255,255,.18) 1px, transparent 1px);
+        background-size: 26px 26px; opacity: .35;
+    }
+
+    /* Quick Links — SOLID colours */
+    .quick-link {
+        position: relative; overflow: hidden;
+        border-radius: 14px; color: #fff;
+        transition: all .28s cubic-bezier(.4,0,.2,1);
+        box-shadow: 0 8px 20px -10px rgba(0,0,0,.25);
+        display: flex; flex-direction: column; align-items: center; gap: 8px;
+        padding: 20px 12px; text-align: center; text-decoration: none;
+    }
+    .quick-link::before {
+        content: ''; position: absolute;
+        top: -30px; right: -30px;
+        width: 90px; height: 90px; border-radius: 50%;
+        background: rgba(255,255,255,0.14); transition: transform .35s;
+    }
+    .quick-link:hover { transform: translateY(-6px) scale(1.03); box-shadow: 0 20px 34px -14px rgba(0,0,0,.35); }
+    .quick-link:hover::before { transform: scale(1.4); }
+    .quick-link i { font-size: 22px; position: relative; z-index: 1; }
+    .quick-link span {
+        font-size: 10px; font-weight: 800; letter-spacing: .1em;
+        text-transform: uppercase; line-height: 1.25; position: relative; z-index: 1;
+        word-break: break-word;
+    }
+    .ql-navy   { background: #002D62; }
+    .ql-purple { background: #9B26B6; }
+    .ql-gold   { background: #FDB913; }
+
+    /* Activity Trail */
+    .activity-timeline { position: relative; }
+    .activity-timeline::before {
+        content: ''; position: absolute;
+        left: 19px; top: 22px; bottom: 22px;
+        width: 2px;
+        background: #E2E8F0;
+    }
+    .activity-item {
+        display: flex; gap: 16px; padding: 12px 0;
+        position: relative;
+    }
+    .activity-icon {
+        width: 40px; height: 40px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; flex-shrink: 0; z-index: 1;
+        box-shadow: 0 6px 16px -6px rgba(0,0,0,.35);
+        border: 2px solid #fff;
+    }
+    .activity-icon i { font-size: 14px; }
+    .activity-content { flex: 1; min-width: 0; padding-top: 2px; }
+    .activity-title {
+        font-size: 12px; font-weight: 800;
+        color: var(--navy); line-height: 1.4;
+    }
+    .activity-entity { color: var(--purple); font-weight: 900; }
+    .activity-detail {
+        font-size: 11px; font-weight: 500;
+        color: #64748B; margin-top: 3px;
+        line-height: 1.5;
+        word-break: break-word;
+    }
+    .activity-time {
+        font-size: 9px; font-weight: 800;
+        letter-spacing: .12em; text-transform: uppercase;
+        color: #94A3B8; margin-top: 5px;
+        display: inline-flex; align-items: center; gap: 5px;
+    }
+    .activity-empty { text-align: center; padding: 36px 20px; color: #94A3B8; }
+    .activity-empty i { font-size: 30px; margin-bottom: 12px; display: block; opacity: .4; }
+
+    /* Metric cards */
+    .ach-card {
+        background: #fff;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 18px 40px -20px rgba(0,45,98,.25);
+        border: 1px solid rgba(226,232,240,.7);
+        transition: all .3s cubic-bezier(.4,0,.2,1);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+    .ach-card:hover { transform: translateY(-6px); box-shadow: 0 28px 50px -22px rgba(0,45,98,.35); }
+
+    .ach-header { padding: 22px 24px 20px; color: #fff; position: relative; overflow: hidden; }
+    .ach-header::before {
+        content: ''; position: absolute; top: -40px; right: -40px;
+        width: 160px; height: 160px; border-radius: 50%;
+        background: rgba(255,255,255,0.10); pointer-events: none;
+    }
+    .ach-header-pub  { background: #002D62; }
+    .ach-header-inv  { background: #9B26B6; }
+    .ach-header-grt  { background: #FDB913; }
+
+    .ach-icon-box {
+        width: 46px; height: 46px; border-radius: 14px;
+        background: rgba(255,255,255,0.20);
+        border: 1px solid rgba(255,255,255,0.3);
+        display: flex; align-items: center; justify-content: center;
+    }
+    .ach-icon-box i { color: #fff; font-size: 18px; }
+
+    .ach-badge {
+        font-size: 10px; font-weight: 900;
+        padding: 4px 10px; border-radius: 9999px;
+        background: rgba(255,255,255,0.25);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: #fff; letter-spacing: .06em;
+        display: inline-flex; align-items: center; gap: 4px;
+    }
+
+    .ach-big-number {
+        font-size: 2.6rem; font-weight: 900; line-height: 1;
+        color: #fff; letter-spacing: -0.02em;
+    }
+    .ach-big-number small { font-size: 0.95rem; font-weight: 800; opacity: .85; margin-right: 4px; }
+    .ach-sub {
+        font-size: 10px; font-weight: 800; letter-spacing: .16em;
+        text-transform: uppercase; color: rgba(255,255,255,.8); margin-top: 6px;
+    }
+
+    .ach-body { padding: 18px 22px 22px; flex: 1; display: flex; flex-direction: column; }
+    .ach-chart-wrap { position: relative; height: 150px; margin-bottom: 16px; }
+
+    .ach-legend-row {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 8px 0; border-bottom: 1px dashed #E2E8F0;
+        font-size: 11px; font-weight: 700;
+    }
+    .ach-legend-row:last-child { border-bottom: none; }
+    .ach-legend-label {
+        display: flex; align-items: center; gap: 8px;
+        color: #475569; text-transform: uppercase;
+        letter-spacing: .04em; font-weight: 800; font-size: 10px;
+    }
+    .ach-dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex-shrink: 0; }
+    .ach-legend-value { font-weight: 900; color: var(--navy); font-size: 13px; }
+
+    .ach-progress-wrap { margin-top: 14px; padding-top: 14px; border-top: 1px dashed #E2E8F0; }
+    .ach-progress-track { height: 8px; background: #F1F5F9; border-radius: 9999px; overflow: hidden; margin-top: 6px; }
+    .ach-progress-fill { height: 100%; border-radius: 9999px; transition: width 1.2s cubic-bezier(.4,0,.2,1); }
+    .fill-navy   { background: #002D62; }
+    .fill-purple { background: #9B26B6; }
+    .fill-gold   { background: #FDB913; }
+
+    .trend-wrap {
+        background: #fff; border-radius: 24px; padding: 24px;
+        border: 1px solid rgba(226,232,240,.7);
+        box-shadow: 0 18px 40px -22px rgba(0,45,98,.25);
+        position: relative; overflow: hidden;
+    }
+    .trend-wrap::before {
+        content: ''; position: absolute; top: 0; left: 0; right: 0;
+        height: 4px; background: #9B26B6;
+    }
+
+    .news-card {
+        background: #fff; border: 1px solid rgba(226,232,240,.8);
+        transition: all .3s cubic-bezier(.4,0,.2,1);
+        cursor: pointer; overflow: hidden; border-radius: 16px;
+        box-shadow: 0 8px 24px -14px rgba(0,45,98,.15);
+    }
+    .news-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 26px 40px -18px rgba(155, 38, 182, .35);
+        border-color: rgba(155, 38, 182, .3);
+    }
+    .news-card .news-img { height: 180px; overflow: hidden; position: relative; }
+    .news-card .news-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .7s ease; }
+    .news-card:hover .news-img img { transform: scale(1.08); }
+    .news-badge {
+        position: absolute; top: 12px; left: 12px;
+        padding: 5px 14px; font-size: 9px; font-weight: 900;
+        text-transform: uppercase; letter-spacing: .1em;
+        color: #fff; border-radius: 9999px;
+        box-shadow: 0 4px 12px rgba(0,0,0,.2);
+    }
+    .badge-safety    { background: #002D62; }
+    .badge-equipment { background: #9B26B6; }
+    .badge-training  { background: #FDB913; }
+
+    .modal-backdrop {
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(6px);
+        opacity: 0; visibility: hidden; transition: all .25s ease;
+        z-index: 100;
+    }
+    .modal-backdrop.open { opacity: 1; visibility: visible; }
+    .modal-box { transform: translateY(18px) scale(.97); transition: all .3s cubic-bezier(.4,0,.2,1); border-radius: 16px; overflow: hidden; }
+    .modal-backdrop.open .modal-box { transform: translateY(0) scale(1); }
+    .modal-header-gradient { background: #002D62; color: #fff; }
+
+    .settings-tab {
+        flex: 1; padding: 14px 16px;
+        font-size: 10px; font-weight: 800;
+        letter-spacing: .18em; text-transform: uppercase;
+        color: #94A3B8; border-bottom: 3px solid transparent;
+        transition: all .2s ease; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        background: #F8FAFC;
+    }
+    .settings-tab:hover { color: var(--navy); }
+    .settings-tab.active { color: var(--navy); border-bottom-color: #9B26B6; background: #fff; }
+    .settings-tab.active i { color: #9B26B6; }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; animation: fadeUp .3s cubic-bezier(.4,0,.2,1) both; }
+
+    .field-label {
+        display: block; font-size: 9px; font-weight: 800;
+        letter-spacing: .18em; text-transform: uppercase;
+        color: #94A3B8; margin-bottom: 6px;
+    }
+    .field-input {
+        width: 100%; padding: 12px 14px;
+        font-size: 13px; font-weight: 600;
+        color: var(--navy);
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 10px; outline: none;
+        transition: all .2s ease;
+    }
+    .field-input::placeholder { color: #94A3B8; font-weight: 500; }
+    .field-input:focus { background: #fff; border-color: #9B26B6; box-shadow: 0 0 0 4px rgba(155, 38, 182, .12); }
+    .field-input:disabled { background: #F1F5F9; color: #64748B; cursor: not-allowed; }
+    .field-input.is-invalid { border-color: #9B26B6; background: #FAF5FF; }
+
+    select.field-input { appearance: none; cursor: pointer; }
+
+    .pwd-wrap { position: relative; }
+    .pwd-wrap .field-input { padding-right: 44px; }
+    .pwd-toggle {
+        position: absolute; right: 14px; top: 50%;
+        transform: translateY(-50%);
+        color: #94A3B8; font-size: 12px; cursor: pointer;
+        transition: color .2s; background: none; border: none; padding: 0;
+    }
+    .pwd-toggle:hover { color: #9B26B6; }
+
+    .strength-bar { height: 5px; display: flex; gap: 4px; }
+    .strength-seg { flex: 1; background: #E2E8F0; border-radius: 3px; transition: background .3s ease; }
+    .strength-seg.on-weak   { background: #FDB913; }
+    .strength-seg.on-medium { background: #9B26B6; }
+    .strength-seg.on-strong { background: #002D62; }
+    .strength-text { font-size: 9px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+    .strength-text.weak   { color: #B45309; }
+    .strength-text.medium { color: #9B26B6; }
+    .strength-text.strong { color: #002D62; }
+
+    .error-box {
+        display: none; padding: 12px 14px;
+        background: #FAF5FF; border-left: 4px solid #9B26B6;
+        border-radius: 8px; font-size: 11px; color: #6B21A8;
+        font-weight: 600; line-height: 1.5;
+    }
+    .error-box.show { display: block; animation: fadeUp .25s cubic-bezier(.4,0,.2,1) both; }
+    .error-box ul { list-style: disc; padding-left: 16px; }
+
+    .toast {
+        position: fixed; bottom: 24px; left: 50%;
+        transform: translateX(-50%) translateY(80px);
+        background: #FDB913; color: #fff;
+        padding: 14px 22px; border-radius: 9999px;
+        font-size: 11px; font-weight: 800;
+        letter-spacing: .1em; text-transform: uppercase;
+        box-shadow: 0 18px 40px -12px rgba(253,185,19,.6);
+        display: flex; align-items: center; gap: 10px;
+        z-index: 200; opacity: 0;
+        transition: all .35s cubic-bezier(.4,0,.2,1);
+        max-width: 90vw; text-align: center;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .toast.toast-blue { background: #002D62; box-shadow: 0 18px 40px -12px rgba(0,45,98,.6); }
+
+    .info-banner { background: #EFF6FF; border-left: 4px solid #9B26B6; border-radius: 10px; }
+
+    .dot-gold   { background: #FDB913; }
+    .dot-purple { background: #9B26B6; }
+    .dot-navy   { background: #002D62; }
+
+    /* Status badge */
+    .status-badge {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 4px 10px; border-radius: 9999px;
+        font-size: 9px; font-weight: 900;
+        letter-spacing: .08em; text-transform: uppercase;
+        white-space: nowrap;
+    }
+    .status-ok      { background: rgba(0,45,98,.10); color: #002D62; border: 1px solid rgba(0,45,98,.25); }
+    .status-warn    { background: rgba(253,185,19,.18); color: #B45309; border: 1px solid rgba(253,185,19,.4); }
+    .status-alert   { background: rgba(155,38,182,.12); color: #9B26B6; border: 1px solid rgba(155,38,182,.3); }
+
+    /* ============================================================
+       DATA TABLE
+    ============================================================ */
+    .tbl-scroll { overflow-x: auto; }
+    .tbl { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 780px; }
+    .tbl thead th {
+        font-size: 9px; font-weight: 900; letter-spacing: .16em;
+        text-transform: uppercase; color: #94A3B8;
+        padding: 12px 14px; text-align: left;
+        border-bottom: 1px solid #E2E8F0; white-space: nowrap;
+        background: #F8FAFC;
+    }
+    .tbl tbody td {
+        padding: 13px 14px; border-bottom: 1px solid #F1F5F9;
+        font-size: 12px; font-weight: 600; color: #334155;
+        vertical-align: middle;
+    }
+    .tbl tbody tr { transition: background .2s ease; }
+    .tbl tbody tr:hover { background: #F8FAFC; }
+    .tbl tbody tr:last-child td { border-bottom: none; }
+
+    .tbl-avatar {
+        width: 34px; height: 34px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 11px; font-weight: 900; color: #fff; flex-shrink: 0;
+        letter-spacing: .02em;
+    }
+    .tbl-user { display: flex; align-items: center; gap: 11px; }
+    .tbl-user-name { font-size: 12px; font-weight: 800; color: var(--navy); line-height: 1.3; }
+    .tbl-user-mail { font-size: 10px; font-weight: 600; color: #94A3B8; margin-top: 1px; }
+
+    .icon-btn {
+        width: 32px; height: 32px; border-radius: 9px;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 11px; transition: all .2s ease; cursor: pointer;
+        border: 1px solid #E2E8F0; background: #fff; color: #64748B;
+    }
+    .icon-btn:hover { border-color: #9B26B6; color: #9B26B6; background: #FAF5FF; }
+    .icon-btn.ok:hover { border-color: #002D62; color: #002D62; background: #EFF6FF; }
+
+    /* ============================================================
+       APPROVAL ITEMS
+    ============================================================ */
+    .appr-item {
+        display: flex; gap: 14px; align-items: flex-start;
+        padding: 14px 16px; border-radius: 14px;
+        background: #F8FAFC; border-left: 4px solid;
+        transition: all .25s cubic-bezier(.4,0,.2,1);
+    }
+    .appr-item:hover {
+        background: #fff;
+        box-shadow: 0 12px 26px -14px rgba(0,45,98,.2);
+        transform: translateX(2px);
+    }
+    .appr-navy   { border-left-color: #002D62; }
+    .appr-purple { border-left-color: #9B26B6; }
+    .appr-gold   { border-left-color: #FDB913; }
+
+    .mini-btn {
+        padding: 6px 12px; border-radius: 8px;
+        font-size: 9px; font-weight: 900; letter-spacing: .1em;
+        text-transform: uppercase; cursor: pointer;
+        transition: all .2s ease; border: 1px solid transparent;
+        display: inline-flex; align-items: center; gap: 5px;
+    }
+    .mini-approve { background: #002D62; color: #fff; }
+    .mini-approve:hover { transform: translateY(-1px); box-shadow: 0 8px 18px -8px rgba(0,45,98,.6); }
+    .mini-reject { background: #fff; color: #9B26B6; border-color: rgba(155,38,182,.35); }
+    .mini-reject:hover { background: #FAF5FF; }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    .site-footer { background: #002D62; color: #fff; margin-top: 40px; position: relative; }
+    .site-footer::before {
+        content: ''; position: absolute; top: 0; left: 0; right: 0;
+        height: 4px; background: #FDB913;
+    }
+    .footer-inner { max-width: 80rem; margin: 0 auto; padding: 56px 24px 0; }
+    .footer-grid {
+        display: grid; grid-template-columns: 1fr; gap: 40px;
+        padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
+    @media (min-width: 768px) { .footer-grid { grid-template-columns: 1.4fr 1fr 1.2fr; gap: 48px; } }
+
+    .footer-logo { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+    .footer-logo .logo-bar { width: 3px; height: 42px; background: #FDB913; border-radius: 2px; }
+    .footer-logo .logo-text { display: flex; flex-direction: column; line-height: 1.1; font-weight: 800; text-transform: uppercase; }
+    .footer-logo .line-small { font-size: 0.62rem; letter-spacing: 0.2em; color: #FDB913; margin-bottom: 2px; }
+    .footer-logo .line-large { font-size: 0.95rem; color: #fff; }
+
+    .footer-desc { font-size: 12px; line-height: 1.7; color: rgba(255,255,255,0.75); font-weight: 500; max-width: 380px; }
+    .footer-heading {
+        font-size: 10px; font-weight: 900; letter-spacing: 0.2em;
+        text-transform: uppercase; color: #FDB913; margin-bottom: 18px;
+    }
+    .footer-links { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a {
+        color: rgba(255,255,255,0.8); text-decoration: none;
+        font-size: 12px; font-weight: 600;
+        transition: color .2s ease, padding-left .2s ease;
+        display: inline-flex; align-items: center; gap: 8px;
+    }
+    .footer-links a::before {
+        content: ''; width: 4px; height: 4px; border-radius: 50%;
+        background: #9B26B6; display: inline-block; transition: background .2s ease;
+    }
+    .footer-links a:hover { color: #FDB913; padding-left: 4px; }
+    .footer-links a:hover::before { background: #FDB913; }
+
+    .footer-contact { display: flex; flex-direction: column; gap: 14px; }
+    .footer-contact-item {
+        display: flex; gap: 12px; align-items: flex-start;
+        font-size: 12px; color: rgba(255,255,255,0.8);
+        font-weight: 500; line-height: 1.6;
+    }
+    .footer-contact-item i { color: #FDB913; font-size: 13px; margin-top: 3px; width: 16px; flex-shrink: 0; }
+    .footer-contact-item a { color: rgba(255,255,255,0.85); text-decoration: none; transition: color .2s ease; }
+    .footer-contact-item a:hover { color: #FDB913; }
+
+    .footer-bottom {
+        padding: 22px 0; display: flex; flex-direction: column;
+        gap: 12px; align-items: center; justify-content: space-between;
+    }
+    @media (min-width: 640px) { .footer-bottom { flex-direction: row; } }
+
+    .footer-copy { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.65); letter-spacing: 0.03em; }
+    .footer-legal { display: flex; align-items: center; gap: 20px; }
+    .footer-legal a {
+        font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.75);
+        text-decoration: none; letter-spacing: 0.05em; transition: color .2s ease;
+    }
+    .footer-legal a:hover { color: #FDB913; }
+</style>
+</head>
+<body class="text-slate-900">
+
+<!-- ============================================================
+     TOP NAVIGATION
+============================================================= -->
+<nav class="glass-nav sticky top-0 z-50">
+    <div class="px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-[70px]">
+
+            <a href="admin.html" class="faculty-logo">
+                <div class="logo-bar"></div>
+                <div class="logo-text">
+                    <span class="line-small" data-i18n="nav_faculty">FAKULTI</span>
+                    <span class="line-large" data-i18n="nav_dept">KEJURUTERAAN KIMIA</span>
+                </div>
+            </a>
+
+            <div class="flex items-center gap-3 sm:gap-4">
+                <div class="hidden md:flex items-center gap-3 bg-white/12 border border-white/20 px-4 py-2 w-64 rounded-full">
+                    <i class="fas fa-magnifying-glass text-white/60 text-xs"></i>
+                    <input type="text" placeholder="Search portal..."
+                           data-i18n-ph="ph_search"
+                           class="bg-transparent border-none outline-none text-white text-xs placeholder-white/60 w-full font-medium">
+                </div>
+
+                <div class="lang-toggle-wrapper">
+                    <button class="lang-btn active" id="btn-en" onclick="switchLanguage('en')">
+                        <img src="https://flagcdn.com/w20/gb.png" class="w-3.5 h-auto rounded-[2px]" alt="EN"> EN
+                    </button>
+                    <button class="lang-btn" id="btn-ms" onclick="switchLanguage('ms')">
+                        <img src="https://flagcdn.com/w20/my.png" class="w-3.5 h-auto rounded-[2px]" alt="BM"> BM
+                    </button>
+                </div>
+
+                <button class="relative text-white/80 hover:text-white transition p-2 rounded-full hover:bg-white/10">
+                    <i class="fas fa-bell text-sm"></i>
+                    <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-yellow-300"></span>
+                </button>
+
+                <div class="relative">
+                    <button id="profileToggle" class="flex items-center gap-3 pl-3 sm:pl-4 border-l border-white/20">
+                        <div class="hidden sm:block text-right leading-tight">
+                            <p id="navName" class="text-[11px] font-black text-white uppercase tracking-wide">—</p>
+                            <p id="navRole" class="text-[9px] font-bold text-p130c uppercase tracking-widest">—</p>
+                        </div>
+                        <div id="navAvatar"
+                             class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-black border-2 border-white/40 text-white"
+                             style="background: #FDB913;">--</div>
+                        <i class="fas fa-chevron-down text-white/50 text-[10px] hidden sm:block"></i>
+                    </button>
+
+                    <div id="profileDropdown"
+                         class="dropdown absolute right-0 top-[calc(100%+14px)] w-64 bg-white shadow-2xl border border-slate-200 z-50 rounded-2xl overflow-hidden">
+                        <div class="p-5 border-b border-slate-100 bg-slate-50">
+                            <p id="ddName" class="text-sm font-black text-p655c leading-tight">—</p>
+                            <p id="ddEmail" class="text-[10px] font-bold text-slate-500 mt-1 truncate">—</p>
+                            <span class="chip chip-purple mt-3"><i class="fas fa-user-shield"></i> <span data-i18n="role_admin">Administrator</span></span>
+                        </div>
+                        <div class="py-2">
+                            <button id="settingsBtn" class="w-full flex items-center gap-3 px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-600 hover:bg-purple-50 hover:text-p254c transition">
+                                <i class="fas fa-gear w-4 text-p254c"></i> <span data-i18n="menu_settings">Settings</span>
+                            </button>
+                            <button id="auditJumpBtn" class="w-full flex items-center gap-3 px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-600 hover:bg-purple-50 hover:text-p254c transition">
+                                <i class="fas fa-clipboard-list w-4 text-p254c"></i> <span data-i18n="menu_audit">Audit Log</span>
+                            </button>
+                        </div>
+                        <div class="border-t border-slate-100 py-2">
+                            <button id="logoutBtn" class="w-full flex items-center gap-3 px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-p254c hover:bg-purple-50 transition">
+                                <i class="fas fa-arrow-right-from-bracket w-4"></i> <span data-i18n="menu_logout">Sign Out</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- ============================================================
+     MAIN CONTENT
+============================================================= -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+    <!-- Welcome banner -->
+    <div class="hero-banner p-8 sm:p-10 mb-6 rounded-3xl anim-up">
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+                <span class="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.25em] text-yellow-300 mb-3">
+                    <span class="w-2 h-2 rounded-full bg-yellow-300 animate-pulse"></span>
+                    <span data-i18n="admin_hero_tag">System Operational</span>
+                </span>
+
+                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-tight tracking-tight drop-shadow-lg">
+                    <span data-i18n="admin_hero_welcome">Welcome back,</span><br>
+                    <span id="bannerName" class="text-yellow-300">—</span>
+                </h1>
+
+                <div class="mt-4 flex flex-wrap items-center gap-2">
+                    <span class="chip chip-gold"><i class="fas fa-id-badge"></i> <span id="adminIdChip">—</span></span>
+                    <span class="chip chip-purple"><i class="fas fa-user-shield"></i> <span data-i18n="role_admin">Administrator</span></span>
+                    <span class="chip chip-navy" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);">
+                        <i class="fas fa-building-columns"></i> <span id="adminScopeChip">—</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="shrink-0">
+                <div class="bg-white/15 border border-white/25 p-5 min-w-[200px] rounded-2xl float-anim">
+                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-yellow-300 mb-1" data-i18n="admin_today">Today</p>
+                    <p id="todayDate" class="text-white font-bold text-sm">—</p>
+                    <div class="h-px bg-white/25 my-3"></div>
+                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-yellow-300 mb-1" data-i18n="admin_lastlogin">Last Login</p>
+                    <p id="lastLogin" class="text-white font-bold text-xs">—</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="card p-6 mb-6 anim-up rounded-3xl">
+        <div class="mb-5 pb-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <span class="section-label" data-i18n="admin_quick_label">Quick Menu</span>
+                <h3 class="text-lg font-black text-p655c mt-1" data-i18n="admin_quick_title">Admin Quick Links</h3>
+            </div>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest" data-i18n="admin_quick_hint">Opens in new tab</span>
+        </div>
+
+        <div id="quickLinksGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            <!-- rendered by JS -->
+        </div>
+    </div>
+
+    <!-- Admin stat cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
+        <div class="stat-card stat-navy card-hover p-6 rounded-2xl">
+            <div class="flex items-start justify-between mb-4 relative z-10">
+                <div class="stat-icon-box"><i class="fas fa-users"></i></div>
+                <span class="text-[10px] font-black uppercase tracking-widest bg-white/25 px-2 py-1 rounded-full" data-i18n="admin_stat_all">All Users</span>
+            </div>
+            <p id="statTotalUsers" class="text-3xl font-black leading-none mb-2 relative z-10">0</p>
+            <p class="text-[10px] font-black uppercase tracking-widest text-blue-100 relative z-10" data-i18n="admin_stat_users">Registered Accounts</p>
+        </div>
+
+        <div class="stat-card stat-purple card-hover p-6 rounded-2xl">
+            <div class="flex items-start justify-between mb-4 relative z-10">
+                <div class="stat-icon-box"><i class="fas fa-inbox"></i></div>
+                <span class="text-[10px] font-black uppercase tracking-widest bg-white/25 px-2 py-1 rounded-full" data-i18n="admin_stat_action">Action</span>
+            </div>
+            <p id="statPending" class="text-3xl font-black leading-none mb-2 relative z-10">0</p>
+            <p class="text-[10px] font-black uppercase tracking-widest text-purple-100 relative z-10" data-i18n="admin_stat_pending">Pending Approvals</p>
+        </div>
+
+        <div class="stat-card stat-gold card-hover p-6 rounded-2xl">
+            <div class="flex items-start justify-between mb-4 relative z-10">
+                <div class="stat-icon-box"><i class="fas fa-flask-vial"></i></div>
+                <span class="text-[10px] font-black uppercase tracking-widest bg-white/25 px-2 py-1 rounded-full" data-i18n="admin_stat_live">Live</span>
+            </div>
+            <p class="text-3xl font-black leading-none mb-2 relative z-10">8</p>
+            <p class="text-[10px] font-black uppercase tracking-widest text-yellow-100 relative z-10" data-i18n="admin_stat_labs">Active Laboratories</p>
+        </div>
+
+        <div class="stat-card stat-deep card-hover p-6 rounded-2xl">
+            <div class="flex items-start justify-between mb-4 relative z-10">
+                <div class="stat-icon-box"><i class="fas fa-server"></i></div>
+                <span class="text-[10px] font-black uppercase tracking-widest bg-white/25 px-2 py-1 rounded-full">2026</span>
+            </div>
+            <p class="text-3xl font-black leading-none mb-2 relative z-10">99.8<small style="font-size:1.2rem;">%</small></p>
+            <p class="text-[10px] font-black uppercase tracking-widest text-blue-100 relative z-10" data-i18n="admin_stat_uptime">System Uptime</p>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         ADMIN ANALYTICS DASHBOARD
+    ============================================================ -->
+    <section class="mb-8 anim-up">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 border-b border-slate-200 pb-4">
+            <div>
+                <span class="section-label" data-i18n="admin_dash_tag">Oversight</span>
+                <h2 class="text-2xl sm:text-3xl font-black text-p655c mt-2" data-i18n="admin_dash_title">System Analytics</h2>
+                <p class="text-xs text-slate-500 font-medium mt-1" data-i18n="admin_dash_sub">Users, approvals &amp; laboratory operations · FKK Johor</p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <span class="chip chip-gold"><i class="fas fa-calendar"></i> 2023 – 2026</span>
+                <span class="chip chip-purple"><i class="fas fa-arrow-trend-up"></i> <span data-i18n="admin_dash_trend">Growing</span></span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <!-- USER ROLES -->
+            <div class="ach-card">
+                <div class="ach-header ach-header-pub">
+                    <div class="flex items-center justify-between mb-5 relative z-10">
+                        <div class="flex items-center gap-3">
+                            <div class="ach-icon-box"><i class="fas fa-users-gear"></i></div>
+                            <div>
+                                <p class="text-[9px] uppercase tracking-[0.2em] font-black text-white/70">Pengguna</p>
+                                <p class="text-sm font-black text-white uppercase tracking-wide" data-i18n="admin_roles">User Roles</p>
+                            </div>
+                        </div>
+                        <span class="ach-badge"><i class="fas fa-arrow-up text-[8px]"></i> +18</span>
+                    </div>
+                    <div class="relative z-10">
+                        <p class="ach-big-number" id="rolesBigNumber">248</p>
+                        <p class="ach-sub" data-i18n="admin_roles_sub">Total accounts on portal</p>
+                    </div>
+                </div>
+                <div class="ach-body">
+                    <div class="ach-chart-wrap"><canvas id="rolesChart"></canvas></div>
+                    <div id="rolesLegend">
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #002D62;"></span><span data-i18n="admin_role_students">Students</span></span>
+                            <span class="ach-legend-value">148</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #9B26B6;"></span><span data-i18n="admin_role_lecturers">Lecturers</span></span>
+                            <span class="ach-legend-value">62</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #FDB913;"></span><span data-i18n="admin_role_staff">Lab Staff</span></span>
+                            <span class="ach-legend-value">32</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #002D62;"></span><span data-i18n="admin_role_admins">Administrators</span></span>
+                            <span class="ach-legend-value">6</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- APPROVALS -->
+            <div class="ach-card">
+                <div class="ach-header ach-header-inv">
+                    <div class="flex items-center justify-between mb-5 relative z-10">
+                        <div class="flex items-center gap-3">
+                            <div class="ach-icon-box"><i class="fas fa-file-circle-check"></i></div>
+                            <div>
+                                <p class="text-[9px] uppercase tracking-[0.2em] font-black text-white/70">Kelulusan</p>
+                                <p class="text-sm font-black text-white uppercase tracking-wide" data-i18n="admin_approvals">Approvals</p>
+                            </div>
+                        </div>
+                        <span class="ach-badge"><i class="fas fa-clock text-[8px]"></i> <span id="apprBadgeCount">0</span> <span data-i18n="admin_appr_waiting">waiting</span></span>
+                    </div>
+                    <div class="relative z-10">
+                        <p class="ach-big-number" id="apprBigNumber">94<small style="font-size:1.4rem;">%</small></p>
+                        <p class="ach-sub" data-i18n="admin_approvals_sub">Requests processed this term</p>
+                    </div>
+                </div>
+                <div class="ach-body">
+                    <div class="ach-chart-wrap"><canvas id="approvalChart"></canvas></div>
+                    <div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #9B26B6;"></span><span data-i18n="admin_appr_approved">Approved</span></span>
+                            <span class="ach-legend-value">142</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #FDB913;"></span><span data-i18n="admin_appr_pending">Pending</span></span>
+                            <span class="ach-legend-value" id="apprPendingLegend">0</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #002D62;"></span><span data-i18n="admin_appr_rejected">Rejected</span></span>
+                            <span class="ach-legend-value">9</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #002D62;"></span><span data-i18n="admin_appr_total">Total Requests</span></span>
+                            <span class="ach-legend-value">151</span>
+                        </div>
+                    </div>
+                    <div class="ach-progress-wrap">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-500" data-i18n="admin_appr_sla">SLA Compliance (48h)</span>
+                            <span class="text-[11px] font-black text-p254c">94%</span>
+                        </div>
+                        <div class="ach-progress-track"><div class="ach-progress-fill fill-purple" style="width: 94%"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LAB UTILISATION -->
+            <div class="ach-card">
+                <div class="ach-header ach-header-grt">
+                    <div class="flex items-center justify-between mb-5 relative z-10">
+                        <div class="flex items-center gap-3">
+                            <div class="ach-icon-box"><i class="fas fa-flask"></i></div>
+                            <div>
+                                <p class="text-[9px] uppercase tracking-[0.2em] font-black text-white/80">Makmal</p>
+                                <p class="text-sm font-black text-white uppercase tracking-wide" data-i18n="admin_labs">Laboratories</p>
+                            </div>
+                        </div>
+                        <span class="ach-badge"><i class="fas fa-building text-[8px]"></i> 8 <span data-i18n="admin_labs_active">active</span></span>
+                    </div>
+                    <div class="relative z-10">
+                        <p class="ach-big-number">86<small style="font-size:1.4rem;">%</small></p>
+                        <p class="ach-sub" data-i18n="admin_labs_sub">Average utilisation rate</p>
+                    </div>
+                </div>
+                <div class="ach-body">
+                    <div class="ach-chart-wrap"><canvas id="labChart"></canvas></div>
+                    <div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #002D62;"></span><span data-i18n="admin_lab_analytical">Analytical</span></span>
+                            <span class="ach-legend-value">94%</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #9B26B6;"></span><span data-i18n="admin_lab_organic">Organic</span></span>
+                            <span class="ach-legend-value">88%</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #FDB913;"></span><span data-i18n="admin_lab_thermo">Thermodynamics</span></span>
+                            <span class="ach-legend-value">82%</span>
+                        </div>
+                        <div class="ach-legend-row">
+                            <span class="ach-legend-label"><span class="ach-dot" style="background: #002D62;"></span><span data-i18n="admin_lab_process">Process</span></span>
+                            <span class="ach-legend-value">80%</span>
+                        </div>
+                    </div>
+                    <div class="ach-progress-wrap">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-500" data-i18n="admin_labs_capacity">Capacity Utilisation</span>
+                            <span class="text-[11px] font-black text-p130c">86%</span>
+                        </div>
+                        <div class="ach-progress-track"><div class="ach-progress-fill fill-gold" style="width: 86%"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Platform trend -->
+        <div class="trend-wrap">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 pb-4 border-b border-slate-100">
+                <div>
+                    <span class="section-label" data-i18n="admin_yearly_label">Yearly Trend</span>
+                    <h3 class="text-lg font-black text-p655c mt-1" data-i18n="admin_yearly_title">Portal Logins, Requests &amp; Approvals (2023 – 2026)</h3>
+                </div>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <span class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                        <span class="w-3 h-3 rounded" style="background: #002D62;"></span>
+                        <span data-i18n="admin_legend_logins">Portal Logins</span>
+                    </span>
+                    <span class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                        <span class="w-3 h-3 rounded" style="background: #9B26B6;"></span>
+                        <span data-i18n="admin_legend_requests">Requests Submitted</span>
+                    </span>
+                    <span class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                        <span class="w-3 h-3 rounded" style="background: #FDB913;"></span>
+                        <span data-i18n="admin_legend_approvals">Approval Rate (%)</span>
+                    </span>
+                </div>
+            </div>
+            <div style="position: relative; height: 260px;">
+                <canvas id="adminTrendChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         PENDING APPROVALS + SYSTEM NOTICES
+    ============================================================ -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
+
+        <div class="xl:col-span-2 card p-6 rounded-3xl">
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                <div>
+                    <span class="section-label" data-i18n="admin_pending_label">Action Required</span>
+                    <h3 class="text-lg font-black text-p655c mt-1" data-i18n="admin_pending_title">Pending Approvals</h3>
+                </div>
+                <span class="chip chip-purple"><i class="fas fa-hourglass-half"></i> <span id="pendingCountChip">0</span></span>
+            </div>
+
+            <div id="approvalList" class="space-y-3">
+                <!-- rendered by JS -->
+            </div>
+        </div>
+
+        <div class="card p-6 rounded-3xl">
+            <div class="mb-5 pb-4 border-b border-slate-100">
+                <span class="section-label" data-i18n="admin_notice_label">Notices</span>
+                <h3 class="text-lg font-black text-p655c mt-1" data-i18n="admin_notice_title">System Notices</h3>
+            </div>
+            <ul class="space-y-4">
+                <li class="flex gap-3">
+                    <span class="w-2 h-2 rounded-full dot-gold mt-2 shrink-0"></span>
+                    <div>
+                        <p class="text-xs font-bold text-p655c leading-snug" data-i18n="admin_notice_1">Scheduled maintenance: Sunday 02:00 – 04:00</p>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">1 <span data-i18n="admin_hour">hour ago</span></p>
+                    </div>
+                </li>
+                <li class="flex gap-3">
+                    <span class="w-2 h-2 rounded-full dot-purple mt-2 shrink-0"></span>
+                    <div>
+                        <p class="text-xs font-bold text-p655c leading-snug" data-i18n="admin_notice_2">12 new account requests awaiting verification</p>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">4 <span data-i18n="admin_hours">hours ago</span></p>
+                    </div>
+                </li>
+                <li class="flex gap-3">
+                    <span class="w-2 h-2 rounded-full dot-navy mt-2 shrink-0"></span>
+                    <div>
+                        <p class="text-xs font-bold text-p655c leading-snug" data-i18n="admin_notice_3">Quarterly access review report is ready</p>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">2 <span data-i18n="admin_days">days ago</span></p>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="mt-6 pt-5 border-t border-slate-100">
+                <div class="info-banner flex gap-3 p-4">
+                    <i class="fas fa-triangle-exclamation text-purple-600 mt-0.5"></i>
+                    <div>
+                        <p class="text-[11px] font-black uppercase tracking-wider text-purple-800 mb-1" data-i18n="admin_alert_title">Security Reminder</p>
+                        <p class="text-[10px] font-medium text-purple-700 leading-relaxed" data-i18n="admin_alert_sub">Review inactive accounts older than 180 days and revoke unused lab access.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         USER MANAGEMENT
+    ============================================================ -->
+    <section class="card p-6 rounded-3xl mb-6 anim-up">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-5 pb-4 border-b border-slate-100">
+            <div>
+                <span class="section-label" data-i18n="admin_users_label">User Management</span>
+                <h3 class="text-lg font-black text-p655c mt-1" data-i18n="admin_users_title">Portal Accounts</h3>
+                <p class="text-xs text-slate-500 font-medium mt-1" data-i18n="admin_users_sub">Create, edit and manage access for all portal users</p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+                <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl">
+                    <i class="fas fa-magnifying-glass text-slate-400 text-[11px]"></i>
+                    <input id="userSearch" type="text"
+                           placeholder="Search name, email or ID..."
+                           data-i18n-ph="admin_users_search_ph"
+                           class="bg-transparent border-none outline-none text-[11px] font-semibold text-p655c placeholder-slate-400 w-44">
+                </div>
+
+                <select id="roleFilter" class="field-input" style="width:auto;padding:9px 12px;font-size:11px;">
+                    <option value="all" data-i18n="admin_filter_all">All Roles</option>
+                    <option value="student" data-i18n="admin_role_students">Students</option>
+                    <option value="lecturer" data-i18n="admin_role_lecturers">Lecturers</option>
+                    <option value="staff" data-i18n="admin_role_staff">Lab Staff</option>
+                    <option value="admin" data-i18n="admin_role_admins">Administrators</option>
+                </select>
+
+                <button id="addUserBtn" class="btn-gold px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                    <i class="fas fa-user-plus"></i> <span data-i18n="admin_add_user">Add User</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="tbl-scroll">
+            <table class="tbl">
+                <thead>
+                    <tr>
+                        <th data-i18n="admin_th_user">User</th>
+                        <th data-i18n="admin_th_role">Role</th>
+                        <th data-i18n="admin_th_lab">Laboratory / Dept</th>
+                        <th data-i18n="admin_th_status">Status</th>
+                        <th data-i18n="admin_th_last">Last Active</th>
+                        <th style="text-align:right;" data-i18n="admin_th_actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTbody">
+                    <!-- rendered by JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-3 mt-4 pt-4 border-t border-slate-100">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                <span data-i18n="admin_showing">Showing</span>
+                <span id="shownCount" class="text-p655c">0</span>
+                <span data-i18n="admin_of">of</span>
+                <span id="totalCount" class="text-p655c">0</span>
+                <span data-i18n="admin_accounts">accounts</span>
+            </p>
+            <button id="resetUsersBtn" class="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-p254c transition px-3 py-2">
+                <i class="fas fa-rotate-left"></i> <span data-i18n="admin_reset">Reset Demo Data</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         AUDIT LOG / ACTIVITY TRAIL
+    ============================================================ -->
+    <section id="auditSection" class="card p-6 rounded-3xl mb-10 anim-up">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-5 pb-4 border-b border-slate-100">
+            <div>
+                <span class="section-label" data-i18n="admin_audit_label">Jejak Audit</span>
+                <h3 class="text-lg font-black text-p655c mt-1" data-i18n="admin_audit_title">Audit Log</h3>
+                <p class="text-xs text-slate-500 font-medium mt-1" data-i18n="admin_audit_sub">Recent administrative actions on this account</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="chip chip-purple">
+                    <i class="fas fa-clock-rotate-left"></i>
+                    <span id="activityCount">0</span>
+                    <span data-i18n="admin_audit_records">records</span>
+                </span>
+                <button id="clearActivityBtn"
+                        class="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-p254c transition px-3 py-2">
+                    <i class="fas fa-broom"></i> <span data-i18n="admin_audit_clear">Clear</span>
+                </button>
+            </div>
+        </div>
+        <div id="activityTimeline" class="activity-timeline">
+            <!-- rendered by JS -->
+        </div>
+    </section>
+
+    <!-- Newsroom & Events -->
+    <section class="mb-10">
+        <div class="flex justify-between items-end mb-6 border-b border-slate-200 pb-4">
+            <div>
+                <span class="section-label" data-i18n="admin_news_tag">Latest Updates</span>
+                <h2 class="text-2xl sm:text-3xl font-black text-p655c mt-2" data-i18n="admin_news_title">Admin News &amp; Events</h2>
+            </div>
+            <a href="#" class="text-xs font-black uppercase tracking-widest text-p254c hover:text-p655c transition flex items-center gap-2">
+                <span data-i18n="admin_news_archive">View Archive</span> <i class="fas fa-chevron-right text-[10px]"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <article class="news-card group">
+                <div class="news-img">
+                    <img src="https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&q=80&w=800" alt="System">
+                    <div class="news-badge badge-safety">System</div>
+                </div>
+                <div class="p-5">
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-2">March 15, 2026</div>
+                    <h3 class="text-base font-bold text-p655c mb-3 leading-snug group-hover:text-p254c transition" data-i18n="admin_news_1_title">
+                        Portal v3.2 Rollout — New Role &amp; Permission Module.
+                    </h3>
+                    <a href="#" class="text-[10px] font-black uppercase tracking-widest text-p130c mt-2 inline-block" data-i18n="admin_read_more">Read More</a>
+                </div>
+            </article>
+
+            <article class="news-card group">
+                <div class="news-img">
+                    <img src="https://images.unsplash.com/photo-1554475901-4538ddfbccc2?auto=format&fit=crop&q=80&w=800" alt="Compliance">
+                    <div class="news-badge badge-equipment">Compliance</div>
+                </div>
+                <div class="p-5">
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-2">March 10, 2026</div>
+                    <h3 class="text-base font-bold text-p655c mb-3 leading-snug group-hover:text-p254c transition" data-i18n="admin_news_2_title">
+                        Annual Access Review — Action Required by All Admins.
+                    </h3>
+                    <a href="#" class="text-[10px] font-black uppercase tracking-widest text-p130c mt-2 inline-block" data-i18n="admin_read_more">Read More</a>
+                </div>
+            </article>
+
+            <article class="news-card group">
+                <div class="news-img">
+                    <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=800" alt="Training">
+                    <div class="news-badge badge-training">Training</div>
+                </div>
+                <div class="p-5">
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-2">March 05, 2026</div>
+                    <h3 class="text-base font-bold text-p655c mb-3 leading-snug group-hover:text-p254c transition" data-i18n="admin_news_3_title">
+                        Administrator Workshop: Data Governance &amp; Audit Trails.
+                    </h3>
+                    <a href="#" class="text-[10px] font-black uppercase tracking-widest text-p130c mt-2 inline-block" data-i18n="admin_read_more">Read More</a>
+                </div>
+            </article>
+        </div>
+    </section>
+
+</main>
+
+<!-- ============================================================
+     FOOTER
+============================================================= -->
+<footer class="site-footer">
+    <div class="footer-inner">
+
+        <div class="footer-grid">
+            <div>
+                <div class="footer-logo">
+                    <div class="logo-bar"></div>
+                    <div class="logo-text">
+                        <span class="line-small">FAKULTI</span>
+                        <span class="line-large">KEJURUTERAAN KIMIA</span>
+                    </div>
+                </div>
+                <p class="footer-desc" data-i18n="footer_desc">
+                    Universiti Teknologi MARA (UiTM) Cawangan Johor, Kampus Pasir Gudang.
+                    Dedicated to academic excellence and industrial innovation.
+                </p>
+            </div>
+
+            <div>
+                <h4 class="footer-heading" data-i18n="footer_quick_links">Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="#" data-i18n="footer_lab_dir">Lab Directory</a></li>
+                    <li><a href="#" data-i18n="footer_safety_manual">Safety Manual</a></li>
+                    <li><a href="#" data-i18n="footer_equipment_log">Equipment Log</a></li>
+                    <li><a href="#" data-i18n="footer_chemical_db">Chemical Database</a></li>
+                    <li><a href="#" data-i18n="footer_contact">Contact</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="footer-heading" data-i18n="footer_contact_heading">UiTM Cawangan Johor</h4>
+                <div class="footer-contact">
+                    <div class="footer-contact-item">
+                        <i class="fas fa-location-dot"></i>
+                        <span data-i18n="footer_address">Kampus Pasir Gudang, Jalan Purnama<br>81750 Masai, Johor</span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fas fa-phone"></i>
+                        <a href="tel:+6073818000">+607-381 8000</a>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <a href="mailto:korporat@uitm.edu.my">korporat@uitm.edu.my</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p class="footer-copy" data-i18n="footer_copyright">© 2026 FKK UiTM Johor. All Rights Reserved.</p>
+            <div class="footer-legal">
+                <a href="#" data-i18n="footer_privacy">Privacy Policy</a>
+                <a href="#" data-i18n="footer_terms">Terms of Use</a>
+            </div>
+        </div>
+
+    </div>
+</footer>
+
+<!-- ============================================================
+     SETTINGS MODAL
+============================================================= -->
+<div id="settingsModal" class="modal-backdrop fixed inset-0 flex items-center justify-center p-4">
+    <div class="modal-box bg-white w-full max-w-lg shadow-2xl max-h-[92vh] overflow-hidden flex flex-col">
+
+        <div class="modal-header-gradient flex items-center justify-between px-6 py-5 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-white/20 border border-white/30">
+                    <i class="fas fa-gear text-white text-sm"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-black leading-none" data-i18n="settings_title">Profile Settings</h3>
+                    <p class="text-[9px] font-bold text-white/70 uppercase tracking-widest mt-1" data-i18n="settings_sub">Update your profile information</p>
+                </div>
+            </div>
+            <button id="settingsClose" class="text-white/70 hover:text-white transition text-lg"><i class="fas fa-xmark"></i></button>
+        </div>
+
+        <div class="flex border-b border-slate-100 shrink-0">
+            <button class="settings-tab active" data-tab="profile">
+                <i class="fas fa-user"></i> <span data-i18n="settings_tab_profile">Profile</span>
+            </button>
+            <button class="settings-tab" data-tab="security">
+                <i class="fas fa-shield-halved"></i> <span data-i18n="settings_tab_security">Security</span>
+            </button>
+        </div>
+
+        <div class="overflow-y-auto flex-1">
+            <div id="tab-profile" class="tab-pane active p-6 space-y-5">
+                <div class="flex items-center gap-4 p-4 rounded-xl bg-slate-50">
+                    <div id="settingsAvatar"
+                         class="w-16 h-16 rounded-full flex items-center justify-center text-lg font-black border-4 border-white shadow-md shrink-0 text-white"
+                         style="background: #9B26B6;">--</div>
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-600" data-i18n="settings_avatar_hint">Avatar initials auto-generated</p>
+                        <p class="text-[9px] font-bold text-slate-500 mt-1" data-i18n="settings_avatar_sub">Based on your full name below</p>
+                    </div>
+                </div>
+                <div><label class="field-label" data-i18n="settings_name">Full Name</label><input id="setName" type="text" class="field-input" placeholder="Enter your full name"></div>
+                <div><label class="field-label" data-i18n="settings_position">Position</label><input id="setPosition" type="text" class="field-input" placeholder="e.g. System Administrator"></div>
+                <div><label class="field-label" data-i18n="settings_email">Email</label><input id="setEmail" type="email" class="field-input" placeholder="name@uitm.edu.my"></div>
+                <div><label class="field-label" data-i18n="settings_scope">Administration Scope</label><input id="setLab" type="text" class="field-input" placeholder="e.g. FKK Lab Operations"></div>
+                <div><label class="field-label" data-i18n="settings_staffid">Admin ID (Read-only)</label><input id="setStaffId" type="text" class="field-input" disabled></div>
+            </div>
+
+            <div id="tab-security" class="tab-pane p-6 space-y-5">
+                <div class="info-banner flex gap-3 p-4">
+                    <i class="fas fa-circle-info text-purple-600 mt-0.5"></i>
+                    <div>
+                        <p class="text-[11px] font-black uppercase tracking-wider text-purple-800 mb-1" data-i18n="pwd_info_title">Change Your Password</p>
+                        <p class="text-[10px] font-medium text-purple-700 leading-relaxed" data-i18n="pwd_info_sub">Choose a strong password you don't use anywhere else.</p>
+                    </div>
+                </div>
+                <div>
+                    <label class="field-label" data-i18n="settings_current_pwd">Current Password</label>
+                    <div class="pwd-wrap">
+                        <input id="currentPwd" type="password" class="field-input" placeholder="Enter current password" autocomplete="current-password">
+                        <button type="button" class="pwd-toggle" data-target="currentPwd"><i class="fas fa-eye"></i></button>
+                    </div>
+                </div>
+                <div>
+                    <label class="field-label" data-i18n="settings_new_pwd">New Password</label>
+                    <div class="pwd-wrap">
+                        <input id="newPwd" type="password" class="field-input" placeholder="Enter new password" autocomplete="new-password">
+                        <button type="button" class="pwd-toggle" data-target="newPwd"><i class="fas fa-eye"></i></button>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400" data-i18n="pwd_strength_label">Strength</span>
+                            <span id="strengthText" class="strength-text" data-i18n="pwd_strength_none">—</span>
+                        </div>
+                        <div class="strength-bar">
+                            <div class="strength-seg" id="seg1"></div>
+                            <div class="strength-seg" id="seg2"></div>
+                            <div class="strength-seg" id="seg3"></div>
+                            <div class="strength-seg" id="seg4"></div>
+                        </div>
+                        <p class="text-[9px] font-bold text-slate-400 mt-2 leading-relaxed" data-i18n="pwd_hint">Minimum 8 characters · at least 1 uppercase · 1 lowercase · 1 number</p>
+                    </div>
+                </div>
+                <div>
+                    <label class="field-label" data-i18n="settings_confirm_pwd">Confirm New Password</label>
+                    <div class="pwd-wrap">
+                        <input id="confirmPwd" type="password" class="field-input" placeholder="Re-enter new password" autocomplete="new-password">
+                        <button type="button" class="pwd-toggle" data-target="confirmPwd"><i class="fas fa-eye"></i></button>
+                    </div>
+                </div>
+                <div id="pwdError" class="error-box"></div>
+            </div>
+        </div>
+
+        <div class="flex gap-3 px-6 py-5 border-t border-slate-100 shrink-0 bg-slate-50">
+            <div id="footerProfile" class="flex gap-3 w-full">
+                <button id="settingsCancel" type="button" class="flex-1 py-3 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-white hover:text-p655c transition"><span data-i18n="settings_cancel">Cancel</span></button>
+                <button id="settingsSave" type="button" class="flex-1 btn-gold py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"><i class="fas fa-check"></i> <span data-i18n="settings_save">Save Changes</span></button>
+            </div>
+            <div id="footerSecurity" class="hidden flex gap-3 w-full">
+                <button id="pwdCancel" type="button" class="flex-1 py-3 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-white hover:text-p655c transition"><span data-i18n="settings_cancel">Cancel</span></button>
+                <button id="pwdUpdate" type="button" class="flex-1 btn-gold py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"><i class="fas fa-key"></i> <span data-i18n="btn_update_pwd">Update Password</span></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     USER MODAL (ADD / EDIT)
+============================================================= -->
+<div id="userModal" class="modal-backdrop fixed inset-0 flex items-center justify-center p-4">
+    <div class="modal-box bg-white w-full max-w-lg shadow-2xl max-h-[92vh] overflow-hidden flex flex-col">
+
+        <div class="modal-header-gradient flex items-center justify-between px-6 py-5 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-white/20 border border-white/30">
+                    <i class="fas fa-user-gear text-white text-sm"></i>
+                </div>
+                <div>
+                    <h3 id="userModalTitle" class="text-base font-black leading-none" data-i18n="admin_user_modal_add">Add New User</h3>
+                    <p class="text-[9px] font-bold text-white/70 uppercase tracking-widest mt-1" data-i18n="admin_user_modal_sub">Manage portal account details</p>
+                </div>
+            </div>
+            <button id="userModalClose" class="text-white/70 hover:text-white transition text-lg"><i class="fas fa-xmark"></i></button>
+        </div>
+
+        <div class="overflow-y-auto flex-1 p-6 space-y-5">
+            <div class="flex items-center gap-4 p-4 rounded-xl bg-slate-50">
+                <div id="userModalAvatar"
+                     class="w-16 h-16 rounded-full flex items-center justify-center text-lg font-black border-4 border-white shadow-md shrink-0 text-white"
+                     style="background: #002D62;">--</div>
+                <div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-600" data-i18n="settings_avatar_hint">Avatar initials auto-generated</p>
+                    <p class="text-[9px] font-bold text-slate-500 mt-1" data-i18n="admin_user_avatar_sub">Preview updates as you type</p>
+                </div>
+            </div>
+
+            <div><label class="field-label" data-i18n="admin_user_name">Full Name</label><input id="uName" type="text" class="field-input" placeholder="Enter full name"></div>
+            <div><label class="field-label" data-i18n="admin_user_email">Email</label><input id="uEmail" type="email" class="field-input" placeholder="name@uitm.edu.my"></div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="field-label" data-i18n="admin_user_role">Role</label>
+                    <select id="uRole" class="field-input">
+                        <option value="student" data-i18n="admin_role_students">Students</option>
+                        <option value="lecturer" data-i18n="admin_role_lecturers">Lecturers</option>
+                        <option value="staff" data-i18n="admin_role_staff">Lab Staff</option>
+                        <option value="admin" data-i18n="admin_role_admins">Administrators</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="field-label" data-i18n="admin_user_status">Status</label>
+                    <select id="uStatus" class="field-input">
+                        <option value="active" data-i18n="admin_status_active">Active</option>
+                        <option value="inactive" data-i18n="admin_status_inactive">Inactive</option>
+                        <option value="suspended" data-i18n="admin_status_suspended">Suspended</option>
+                    </select>
+                </div>
+            </div>
+
+            <div><label class="field-label" data-i18n="admin_user_lab">Laboratory / Department</label><input id="uLab" type="text" class="field-input" placeholder="e.g. Analytical Chemistry Lab"></div>
+            <div><label class="field-label" data-i18n="admin_user_id">User ID (Read-only)</label><input id="uId" type="text" class="field-input" disabled></div>
+
+            <div id="userError" class="error-box"></div>
+        </div>
+
+        <div class="flex gap-3 px-6 py-5 border-t border-slate-100 shrink-0 bg-slate-50">
+            <button id="userCancel" type="button" class="flex-1 py-3 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-white hover:text-p655c transition"><span data-i18n="settings_cancel">Cancel</span></button>
+            <button id="userSave" type="button" class="flex-1 btn-gold py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"><i class="fas fa-check"></i> <span data-i18n="admin_user_save">Save User</span></button>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="toast">
+    <i class="fas fa-circle-check"></i>
+    <span id="toastMsg" data-i18n="toast_saved">Settings Saved</span>
+</div>
+
+<script>
+(function () {
+
+    /* =========================================================
+       CONSTANTS & STATE
+    ========================================================== */
+    const DEFAULT_ADMIN = {
+        id: 'ADM-1001',
+        name: 'Dr. Nurul Aisyah binti Hassan',
+        position: 'System Administrator',
+        lab: 'FKK Lab Operations',
+        email: 'nurul.aisyah@uitm.edu.my',
+        initials: 'NH',
+        loginAt: new Date().toISOString()
+    };
+
+    const DEMO_PASSWORD = 'admin123';
+    const SESSION_KEY  = 'fkkAdminUser';
+    const ACTIVITY_KEY = 'fkkAdminActivityTrail';
+    const USERS_KEY    = 'fkkAdminUsers';
+    const APPR_KEY     = 'fkkAdminApprovals';
+    const ACTIVITY_LIMIT = 60;
+
+    let currentLang = 'en';
+    let admin = null;
+    let charts = { roles: null, approval: null, lab: null, trend: null };
+    let activities = [];
+    let users = [];
+    let approvals = [];
+    let editingUserId = null;
+
+    /* Static quick links (3 SOLID colours only) */
+    const QUICK_LINKS = [
+        { href: 'https://istudent.uitm.edu.my',  icon: 'fa-users-gear',           color: 'ql-navy',   labelKey: 'admin_link_users' },
+        { href: 'https://elearning.uitm.edu.my', icon: 'fa-flask-vial',           color: 'ql-purple', labelKey: 'admin_link_labs' },
+        { href: 'https://ir.uitm.edu.my',        icon: 'fa-file-circle-check',    color: 'ql-gold',   labelKey: 'admin_link_approvals' },
+        { href: 'https://research.uitm.edu.my',  icon: 'fa-chart-pie',            color: 'ql-navy',   labelKey: 'admin_link_reports' },
+        { href: 'https://hr.uitm.edu.my',        icon: 'fa-clipboard-list',       color: 'ql-purple', labelKey: 'admin_link_audit' },
+        { href: 'https://library.uitm.edu.my',   icon: 'fa-bullhorn',             color: 'ql-gold',   labelKey: 'admin_link_announce' },
+        { href: 'https://finance.uitm.edu.my',   icon: 'fa-sliders',              color: 'ql-navy',   labelKey: 'admin_link_settings' },
+        { href: 'https://helpdesk.uitm.edu.my',  icon: 'fa-headset',              color: 'ql-purple', labelKey: 'admin_link_helpdesk' }
+    ];
+
+    /* Activity type meta — SOLID colours */
+    const ACTIVITY_TYPES = {
+        login:           { icon: 'fa-right-to-bracket',           bg: '#002D62', en: 'Signed in to admin portal', ms: 'Log masuk ke portal admin' },
+        link_click:      { icon: 'fa-arrow-up-right-from-square', bg: '#002D62', en: 'Opened quick link',        ms: 'Buka pautan pantas' },
+        profile_update:  { icon: 'fa-user-pen',                   bg: '#9B26B6', en: 'Updated profile',          ms: 'Kemas kini profil' },
+        password_change: { icon: 'fa-key',                        bg: '#9B26B6', en: 'Changed password',         ms: 'Tukar kata laluan' },
+        settings_open:   { icon: 'fa-gear',                       bg: '#FDB913', en: 'Opened settings',          ms: 'Buka tetapan' },
+        activity_clear:  { icon: 'fa-broom',                      bg: '#002D62', en: 'Cleared audit log',        ms: 'Kosongkan log audit' },
+        user_add:        { icon: 'fa-user-plus',                  bg: '#002D62', en: 'Created user account',     ms: 'Cipta akaun pengguna' },
+        user_edit:       { icon: 'fa-user-pen',                   bg: '#9B26B6', en: 'Updated user account',     ms: 'Kemas kini akaun pengguna' },
+        user_delete:     { icon: 'fa-user-minus',                 bg: '#9B26B6', en: 'Deleted user account',     ms: 'Padam akaun pengguna' },
+        user_status:     { icon: 'fa-toggle-on',                  bg: '#FDB913', en: 'Changed account status',   ms: 'Tukar status akaun' },
+        approve:         { icon: 'fa-circle-check',               bg: '#002D62', en: 'Approved request',         ms: 'Luluskan permohonan' },
+        reject:          { icon: 'fa-circle-xmark',               bg: '#9B26B6', en: 'Rejected request',         ms: 'Tolak permohonan' },
+        users_reset:     { icon: 'fa-rotate-left',                bg: '#FDB913', en: 'Reset demo user data',     ms: 'Set semula data demo' }
+    };
+
+    const ROLE_META = {
+        student:  { i18n: 'admin_role_students',  bg: '#002D62', chip: 'chip-navy' },
+        lecturer: { i18n: 'admin_role_lecturers', bg: '#9B26B6', chip: 'chip-purple' },
+        staff:    { i18n: 'admin_role_staff',     bg: '#FDB913', chip: 'chip-gold' },
+        admin:    { i18n: 'admin_role_admins',    bg: '#002D62', chip: 'chip-navy' }
+    };
+
+    const STATUS_META = {
+        active:    { i18n: 'admin_status_active',    cls: 'status-ok' },
+        inactive:  { i18n: 'admin_status_inactive',  cls: 'status-warn' },
+        suspended: { i18n: 'admin_status_suspended', cls: 'status-alert' }
+    };
+
+    const APPR_TYPE_META = {
+        equipment: { i18n: 'admin_appr_type_equipment', cls: 'appr-purple', chip: 'chip-purple', icon: 'fa-microscope' },
+        chemical:  { i18n: 'admin_appr_type_chemical',  cls: 'appr-gold',   chip: 'chip-gold',   icon: 'fa-vial' },
+        access:    { i18n: 'admin_appr_type_access',    cls: 'appr-navy',   chip: 'chip-navy',   icon: 'fa-door-open' },
+        training:  { i18n: 'admin_appr_type_training',  cls: 'appr-purple', chip: 'chip-purple', icon: 'fa-graduation-cap' }
+    };
+
+    /* =========================================================
+       SEED DATA
+    ========================================================== */
+    function seedUsers() {
+        return [
+            { id: 'USR-3041', name: 'Ahmad Zaki bin Ismail',      email: 'zaki.ismail@uitm.edu.my',     role: 'student',  lab: 'FKK · Semester 5',           status: 'active',    lastActive: '2026-03-16T08:20:00' },
+            { id: 'USR-3042', name: 'Nurul Izzati binti Kamal',   email: 'izzati.kamal@uitm.edu.my',    role: 'student',  lab: 'FKK · Semester 3',           status: 'active',    lastActive: '2026-03-16T07:45:00' },
+            { id: 'USR-2110', name: 'Dr. Faizal bin Rahman',      email: 'faizal.rahman@uitm.edu.my',   role: 'lecturer', lab: 'Jabatan Kejuruteraan Kimia', status: 'active',    lastActive: '2026-03-15T16:10:00' },
+            { id: 'USR-2111', name: 'Dr. Lim Wei Sheng',          email: 'lim.weisheng@uitm.edu.my',    role: 'lecturer', lab: 'Jabatan Kejuruteraan Kimia', status: 'active',    lastActive: '2026-03-15T14:02:00' },
+            { id: 'USR-2045', name: 'Mohd Hafiz bin Abdullah',    email: 'mohd.hafiz@uitm.edu.my',      role: 'staff',    lab: 'Analytical Chemistry Lab',   status: 'active',    lastActive: '2026-03-16T09:05:00' },
+            { id: 'USR-2046', name: 'Siti Rohana binti Yusof',    email: 'rohana.yusof@uitm.edu.my',    role: 'staff',    lab: 'Organic Chemistry Lab',      status: 'active',    lastActive: '2026-03-16T08:55:00' },
+            { id: 'USR-2047', name: 'Kumaravel a/l Raju',         email: 'kumaravel.raju@uitm.edu.my',  role: 'staff',    lab: 'Thermodynamics Lab',         status: 'inactive',  lastActive: '2026-02-28T11:30:00' },
+            { id: 'USR-3090', name: 'Farah Nadia binti Othman',   email: 'farah.nadia@uitm.edu.my',     role: 'student',  lab: 'FKK · Semester 7',           status: 'active',    lastActive: '2026-03-16T06:40:00' },
+            { id: 'USR-3091', name: 'Tan Mei Ling',               email: 'meiling.tan@uitm.edu.my',     role: 'student',  lab: 'FKK · Semester 5',           status: 'suspended', lastActive: '2026-01-22T13:15:00' },
+            { id: 'USR-2120', name: 'Dr. Suresh a/l Maniam',      email: 'suresh.maniam@uitm.edu.my',   role: 'lecturer', lab: 'Jabatan Kejuruteraan Kimia', status: 'active',    lastActive: '2026-03-14T10:25:00' },
+            { id: 'USR-2050', name: 'Nurul Aina binti Salleh',    email: 'aina.salleh@uitm.edu.my',     role: 'staff',    lab: 'Microbiology Lab',           status: 'active',    lastActive: '2026-03-15T17:40:00' },
+            { id: 'USR-1002', name: 'En. Rosli bin Ahmad',        email: 'rosli.ahmad@uitm.edu.my',     role: 'admin',    lab: 'FKK Lab Operations',         status: 'active',    lastActive: '2026-03-16T09:30:00' }
+        ];
+    }
+
+    function seedApprovals() {
+        return [
+            { id: 'APR-9001', type: 'equipment', requester: 'Dr. Faizal bin Rahman',   lab: 'Analytical Lab',
+              title_en: 'High-speed centrifuge purchase request', title_ms: 'Permohonan pembelian mesin sentrifus berkelajuan tinggi',
+              date: '2026-03-14', status: 'pending' },
+            { id: 'APR-9002', type: 'chemical',  requester: 'Mohd Hafiz bin Abdullah',  lab: 'Organic Lab',
+              title_en: 'Benzene procurement — 5 litres', title_ms: 'Perolehan benzena — 5 liter',
+              date: '2026-03-15', status: 'pending' },
+            { id: 'APR-9003', type: 'access',    requester: 'Farah Nadia binti Othman', lab: 'Thermodynamics Lab',
+              title_en: 'After-hours lab access — Final year project', title_ms: 'Akses makmal luar waktu — Projek tahun akhir',
+              date: '2026-03-15', status: 'pending' },
+            { id: 'APR-9004', type: 'training',  requester: 'Tan Mei Ling',             lab: 'Microbiology Lab',
+              title_en: 'Chemical handling certification enrolment', title_ms: 'Pendaftaran pensijilan pengendalian kimia',
+              date: '2026-03-16', status: 'pending' },
+            { id: 'APR-9005', type: 'equipment', requester: 'Dr. Lim Wei Sheng',        lab: 'Process Lab',
+              title_en: 'FTIR spectrometer calibration service', title_ms: 'Servis kalibrasi spektrometer FTIR',
+              date: '2026-03-13', status: 'pending' }
+        ];
+    }
+
+    /* =========================================================
+       i18n
+    ========================================================== */
+    const i18n = {
+        en: {
+            nav_faculty: "FAKULTI", nav_dept: "KEJURUTERAAN KIMIA", ph_search: "Search portal...",
+            menu_settings: "Settings", menu_logout: "Sign Out", menu_audit: "Audit Log",
+            role_admin: "Administrator",
+
+            /* Hero */
+            admin_hero_tag: "System Operational", admin_hero_welcome: "Welcome back,",
+            admin_today: "Today", admin_lastlogin: "Last Login",
+
+            /* Stats */
+            admin_stat_all: "All Users", admin_stat_users: "Registered Accounts",
+            admin_stat_action: "Action", admin_stat_pending: "Pending Approvals",
+            admin_stat_live: "Live", admin_stat_labs: "Active Laboratories",
+            admin_stat_uptime: "System Uptime",
+
+            /* Quick links */
+            admin_quick_label: "Quick Menu", admin_quick_title: "Admin Quick Links", admin_quick_hint: "Opens in new tab",
+            admin_link_users: "User Management", admin_link_labs: "Lab Registry",
+            admin_link_approvals: "Approvals", admin_link_reports: "Reports",
+            admin_link_audit: "Audit Log", admin_link_announce: "Announcements",
+            admin_link_settings: "System Settings", admin_link_helpdesk: "IT Helpdesk",
+
+            /* Dashboard */
+            admin_dash_tag: "Oversight", admin_dash_title: "System Analytics",
+            admin_dash_sub: "Users, approvals &amp; laboratory operations · FKK Johor", admin_dash_trend: "Growing",
+
+            admin_roles: "User Roles", admin_roles_sub: "Total accounts on portal",
+            admin_role_students: "Students", admin_role_lecturers: "Lecturers",
+            admin_role_staff: "Lab Staff", admin_role_admins: "Administrators",
+
+            admin_approvals: "Approvals", admin_approvals_sub: "Requests processed this term",
+            admin_appr_waiting: "waiting",
+            admin_appr_approved: "Approved", admin_appr_pending: "Pending",
+            admin_appr_rejected: "Rejected", admin_appr_total: "Total Requests",
+            admin_appr_sla: "SLA Compliance (48h)",
+
+            admin_labs: "Laboratories", admin_labs_sub: "Average utilisation rate",
+            admin_labs_active: "active", admin_labs_capacity: "Capacity Utilisation",
+            admin_lab_analytical: "Analytical", admin_lab_organic: "Organic",
+            admin_lab_thermo: "Thermodynamics", admin_lab_process: "Process",
+
+            admin_yearly_label: "Yearly Trend",
+            admin_yearly_title: "Portal Logins, Requests &amp; Approvals (2023 – 2026)",
+            admin_legend_logins: "Portal Logins", admin_legend_requests: "Requests Submitted",
+            admin_legend_approvals: "Approval Rate (%)",
+
+            /* Pending approvals */
+            admin_pending_label: "Action Required", admin_pending_title: "Pending Approvals",
+            admin_appr_type_equipment: "Equipment", admin_appr_type_chemical: "Chemical",
+            admin_appr_type_access: "Access", admin_appr_type_training: "Training",
+            admin_appr_approve: "Approve", admin_appr_reject: "Reject",
+            admin_appr_empty: "No pending approvals — all caught up!",
+            admin_appr_none_left: "All requests have been processed",
+
+            /* Notices */
+            admin_notice_label: "Notices", admin_notice_title: "System Notices",
+            admin_notice_1: "Scheduled maintenance: Sunday 02:00 – 04:00",
+            admin_notice_2: "12 new account requests awaiting verification",
+            admin_notice_3: "Quarterly access review report is ready",
+            admin_hour: "hour ago", admin_hours: "hours ago", admin_days: "days ago",
+            admin_alert_title: "Security Reminder",
+            admin_alert_sub: "Review inactive accounts older than 180 days and revoke unused lab access.",
+
+            /* Users */
+            admin_users_label: "User Management", admin_users_title: "Portal Accounts",
+            admin_users_sub: "Create, edit and manage access for all portal users",
+            admin_users_search_ph: "Search name, email or ID...",
+            admin_filter_all: "All Roles",
+            admin_add_user: "Add User",
+            admin_th_user: "User", admin_th_role: "Role", admin_th_lab: "Laboratory / Dept",
+            admin_th_status: "Status", admin_th_last: "Last Active", admin_th_actions: "Actions",
+            admin_status_active: "Active", admin_status_inactive: "Inactive", admin_status_suspended: "Suspended",
+            admin_showing: "Showing", admin_of: "of", admin_accounts: "accounts",
+            admin_reset: "Reset Demo Data",
+            admin_no_results: "No accounts match your filters",
+            admin_confirm_delete: "Delete this user account permanently?",
+            admin_confirm_reset: "Reset all user data back to the demo set?",
+
+            /* User modal */
+            admin_user_modal_add: "Add New User", admin_user_modal_sub: "Manage portal account details",
+            admin_user_modal_edit: "Edit User",
+            admin_user_avatar_sub: "Preview updates as you type",
+            admin_user_name: "Full Name", admin_user_email: "Email",
+            admin_user_role: "Role", admin_user_status: "Status",
+            admin_user_lab: "Laboratory / Department", admin_user_id: "User ID (Read-only)",
+            admin_user_save: "Save User",
+            admin_err_name: "Please enter the user's full name.",
+            admin_err_email: "Please enter a valid email address.",
+
+            /* Audit */
+            admin_audit_label: "Jejak Audit", admin_audit_title: "Audit Log",
+            admin_audit_sub: "Recent administrative actions on this account",
+            admin_audit_records: "records", admin_audit_clear: "Clear",
+            admin_audit_empty: "No activity recorded yet",
+            admin_audit_confirm_clear: "Clear the entire audit log?",
+
+            /* News */
+            admin_news_tag: "Latest Updates", admin_news_title: "Admin News &amp; Events",
+            admin_news_archive: "View Archive", admin_read_more: "Read More",
+            admin_news_1_title: "Portal v3.2 Rollout — New Role &amp; Permission Module.",
+            admin_news_2_title: "Annual Access Review — Action Required by All Admins.",
+            admin_news_3_title: "Administrator Workshop: Data Governance &amp; Audit Trails.",
+
+            /* Settings */
+            settings_title: "Profile Settings", settings_sub: "Update your profile information",
+            settings_tab_profile: "Profile", settings_tab_security: "Security",
+            settings_avatar_hint: "Avatar initials auto-generated",
+            settings_avatar_sub: "Based on your full name below",
+            settings_name: "Full Name", settings_position: "Position",
+            settings_email: "Email", settings_scope: "Administration Scope",
+            settings_staffid: "Admin ID (Read-only)",
+            settings_cancel: "Cancel", settings_save: "Save Changes",
+            toast_saved: "Settings Saved",
+            pwd_info_title: "Change Your Password",
+            pwd_info_sub: "Choose a strong password you don't use anywhere else.",
+            settings_current_pwd: "Current Password",
+            settings_new_pwd: "New Password", settings_confirm_pwd: "Confirm New Password",
+            pwd_strength_label: "Strength", pwd_strength_none: "—",
+            pwd_strength_weak: "Weak", pwd_strength_medium: "Medium", pwd_strength_strong: "Strong",
+            pwd_hint: "Minimum 8 characters · at least 1 uppercase · 1 lowercase · 1 number",
+            btn_update_pwd: "Update Password", toast_pwd: "Password Updated",
+
+            /* Toasts */
+            toast_user_added: "User Created",
+            toast_user_updated: "User Updated",
+            toast_user_deleted: "User Deleted",
+            toast_status_changed: "Status Updated",
+            toast_approved: "Request Approved",
+            toast_rejected: "Request Rejected",
+            toast_activity_cleared: "Audit Log Cleared",
+            toast_users_reset: "Demo Data Restored",
+
+            /* Errors */
+            err_current_wrong: "Current password is incorrect.",
+            err_pwd_short: "Password must be at least 8 characters.",
+            err_pwd_upper: "Password must contain an uppercase letter.",
+            err_pwd_lower: "Password must contain a lowercase letter.",
+            err_pwd_number: "Password must contain a number.",
+            err_pwd_match: "New password and confirmation do not match.",
+            err_pwd_same: "New password must be different from the current one.",
+            err_pwd_empty: "Please fill in all password fields.",
+
+            /* Footer */
+            footer_desc: "Universiti Teknologi MARA (UiTM) Cawangan Johor, Kampus Pasir Gudang. Dedicated to academic excellence and industrial innovation.",
+            footer_quick_links: "Quick Links",
+            footer_lab_dir: "Lab Directory",
+            footer_safety_manual: "Safety Manual",
+            footer_equipment_log: "Equipment Log",
+            footer_chemical_db: "Chemical Database",
+            footer_contact: "Contact",
+            footer_contact_heading: "UiTM Cawangan Johor",
+            footer_address: "Kampus Pasir Gudang, Jalan Purnama<br>81750 Masai, Johor",
+            footer_copyright: "© 2026 FKK UiTM Johor. All Rights Reserved.",
+            footer_privacy: "Privacy Policy",
+            footer_terms: "Terms of Use"
+        },
+        ms: {
+            nav_faculty: "FAKULTI", nav_dept: "KEJURUTERAAN KIMIA", ph_search: "Cari dalam portal...",
+            menu_settings: "Tetapan", menu_logout: "Log Keluar", menu_audit: "Log Audit",
+            role_admin: "Pentadbir",
+
+            admin_hero_tag: "Sistem Beroperasi", admin_hero_welcome: "Selamat kembali,",
+            admin_today: "Hari Ini", admin_lastlogin: "Log Masuk Terakhir",
+
+            admin_stat_all: "Semua Pengguna", admin_stat_users: "Akaun Berdaftar",
+            admin_stat_action: "Tindakan", admin_stat_pending: "Kelulusan Menunggu",
+            admin_stat_live: "Aktif", admin_stat_labs: "Makmal Aktif",
+            admin_stat_uptime: "Masa Operasi Sistem",
+
+            admin_quick_label: "Menu Pantas", admin_quick_title: "Pautan Pantas Admin", admin_quick_hint: "Buka dalam tab baharu",
+            admin_link_users: "Pengurusan Pengguna", admin_link_labs: "Daftar Makmal",
+            admin_link_approvals: "Kelulusan", admin_link_reports: "Laporan",
+            admin_link_audit: "Log Audit", admin_link_announce: "Pengumuman",
+            admin_link_settings: "Tetapan Sistem", admin_link_helpdesk: "Helpdesk IT",
+
+            admin_dash_tag: "Pemantauan", admin_dash_title: "Analitik Sistem",
+            admin_dash_sub: "Pengguna, kelulusan &amp; operasi makmal · FKK Johor", admin_dash_trend: "Berkembang",
+
+            admin_roles: "Peranan Pengguna", admin_roles_sub: "Jumlah akaun dalam portal",
+            admin_role_students: "Pelajar", admin_role_lecturers: "Pensyarah",
+            admin_role_staff: "Staf Makmal", admin_role_admins: "Pentadbir",
+
+            admin_approvals: "Kelulusan", admin_approvals_sub: "Permohonan diproses sesi ini",
+            admin_appr_waiting: "menunggu",
+            admin_appr_approved: "Diluluskan", admin_appr_pending: "Menunggu",
+            admin_appr_rejected: "Ditolak", admin_appr_total: "Jumlah Permohonan",
+            admin_appr_sla: "Pematuhan SLA (48j)",
+
+            admin_labs: "Makmal", admin_labs_sub: "Kadar penggunaan purata",
+            admin_labs_active: "aktif", admin_labs_capacity: "Penggunaan Kapasiti",
+            admin_lab_analytical: "Analitikal", admin_lab_organic: "Organik",
+            admin_lab_thermo: "Termodinamik", admin_lab_process: "Proses",
+
+            admin_yearly_label: "Trend Tahunan",
+            admin_yearly_title: "Log Masuk, Permohonan &amp; Kelulusan Portal (2023 – 2026)",
+            admin_legend_logins: "Log Masuk Portal", admin_legend_requests: "Permohonan Dihantar",
+            admin_legend_approvals: "Kadar Kelulusan (%)",
+
+            admin_pending_label: "Tindakan Diperlukan", admin_pending_title: "Kelulusan Menunggu",
+            admin_appr_type_equipment: "Peralatan", admin_appr_type_chemical: "Kimia",
+            admin_appr_type_access: "Akses", admin_appr_type_training: "Latihan",
+            admin_appr_approve: "Lulus", admin_appr_reject: "Tolak",
+            admin_appr_empty: "Tiada kelulusan menunggu — semua selesai!",
+            admin_appr_none_left: "Semua permohonan telah diproses",
+
+            admin_notice_label: "Notis", admin_notice_title: "Notis Sistem",
+            admin_notice_1: "Penyelenggaraan berjadual: Ahad 02:00 – 04:00",
+            admin_notice_2: "12 permohonan akaun baharu menunggu pengesahan",
+            admin_notice_3: "Laporan semakan akses suku tahunan telah sedia",
+            admin_hour: "jam lalu", admin_hours: "jam lalu", admin_days: "hari lalu",
+            admin_alert_title: "Peringatan Keselamatan",
+            admin_alert_sub: "Semak akaun tidak aktif melebihi 180 hari dan batalkan akses makmal yang tidak digunakan.",
+
+            admin_users_label: "Pengurusan Pengguna", admin_users_title: "Akaun Portal",
+            admin_users_sub: "Cipta, sunting dan urus akses semua pengguna portal",
+            admin_users_search_ph: "Cari nama, e-mel atau ID...",
+            admin_filter_all: "Semua Peranan",
+            admin_add_user: "Tambah Pengguna",
+            admin_th_user: "Pengguna", admin_th_role: "Peranan", admin_th_lab: "Makmal / Jabatan",
+            admin_th_status: "Status", admin_th_last: "Terakhir Aktif", admin_th_actions: "Tindakan",
+            admin_status_active: "Aktif", admin_status_inactive: "Tidak Aktif", admin_status_suspended: "Digantung",
+            admin_showing: "Memaparkan", admin_of: "daripada", admin_accounts: "akaun",
+            admin_reset: "Set Semula Data Demo",
+            admin_no_results: "Tiada akaun sepadan dengan penapis anda",
+            admin_confirm_delete: "Padam akaun pengguna ini secara kekal?",
+            admin_confirm_reset: "Set semula semua data pengguna kepada set demo?",
+
+            admin_user_modal_add: "Tambah Pengguna Baharu", admin_user_modal_sub: "Urus butiran akaun portal",
+            admin_user_modal_edit: "Sunting Pengguna",
+            admin_user_avatar_sub: "Pratonton dikemas kini semasa anda menaip",
+            admin_user_name: "Nama Penuh", admin_user_email: "E-mel",
+            admin_user_role: "Peranan", admin_user_status: "Status",
+            admin_user_lab: "Makmal / Jabatan", admin_user_id: "ID Pengguna (Baca sahaja)",
+            admin_user_save: "Simpan Pengguna",
+            admin_err_name: "Sila masukkan nama penuh pengguna.",
+            admin_err_email: "Sila masukkan alamat e-mel yang sah.",
+
+            admin_audit_label: "Jejak Audit", admin_audit_title: "Log Audit",
+            admin_audit_sub: "Tindakan pentadbiran terkini pada akaun ini",
+            admin_audit_records: "rekod", admin_audit_clear: "Kosongkan",
+            admin_audit_empty: "Tiada aktiviti direkodkan lagi",
+            admin_audit_confirm_clear: "Kosongkan keseluruhan log audit?",
+
+            admin_news_tag: "Terkini", admin_news_title: "Berita &amp; Acara Admin",
+            admin_news_archive: "Lihat Arkib", admin_read_more: "Baca Lagi",
+            admin_news_1_title: "Pelancaran Portal v3.2 — Modul Peranan &amp; Kebenaran Baharu.",
+            admin_news_2_title: "Semakan Akses Tahunan — Tindakan Diperlukan Semua Admin.",
+            admin_news_3_title: "Bengkel Pentadbir: Tadbir Urus Data &amp; Jejak Audit.",
+
+            settings_title: "Tetapan Profil", settings_sub: "Kemas kini maklumat profil anda",
+            settings_tab_profile: "Profil", settings_tab_security: "Keselamatan",
+            settings_avatar_hint: "Inisial avatar dijana automatik",
+            settings_avatar_sub: "Berdasarkan nama penuh anda di bawah",
+            settings_name: "Nama Penuh", settings_position: "Jawatan",
+            settings_email: "E-mel", settings_scope: "Skop Pentadbiran",
+            settings_staffid: "ID Admin (Baca sahaja)",
+            settings_cancel: "Batal", settings_save: "Simpan Perubahan",
+            toast_saved: "Tetapan Disimpan",
+            pwd_info_title: "Tukar Kata Laluan Anda",
+            pwd_info_sub: "Pilih kata laluan yang kukuh dan tidak digunakan di tempat lain.",
+            settings_current_pwd: "Kata Laluan Semasa",
+            settings_new_pwd: "Kata Laluan Baharu", settings_confirm_pwd: "Sahkan Kata Laluan Baharu",
+            pwd_strength_label: "Kekuatan", pwd_strength_none: "—",
+            pwd_strength_weak: "Lemah", pwd_strength_medium: "Sederhana", pwd_strength_strong: "Kukuh",
+            pwd_hint: "Minimum 8 aksara · sekurang-kurangnya 1 huruf besar · 1 huruf kecil · 1 nombor",
+            btn_update_pwd: "Kemas Kini Kata Laluan", toast_pwd: "Kata Laluan Dikemas Kini",
+
+            toast_user_added: "Pengguna Dicipta",
+            toast_user_updated: "Pengguna Dikemas Kini",
+            toast_user_deleted: "Pengguna Dipadam",
+            toast_status_changed: "Status Dikemas Kini",
+            toast_approved: "Permohonan Diluluskan",
+            toast_rejected: "Permohonan Ditolak",
+            toast_activity_cleared: "Log Audit Dikosongkan",
+            toast_users_reset: "Data Demo Dipulihkan",
+
+            err_current_wrong: "Kata laluan semasa tidak betul.",
+            err_pwd_short: "Kata laluan mestilah sekurang-kurangnya 8 aksara.",
+            err_pwd_upper: "Kata laluan mesti mengandungi huruf besar.",
+            err_pwd_lower: "Kata laluan mesti mengandungi huruf kecil.",
+            err_pwd_number: "Kata laluan mesti mengandungi nombor.",
+            err_pwd_match: "Kata laluan baharu dan pengesahan tidak sepadan.",
+            err_pwd_same: "Kata laluan baharu mestilah berbeza daripada kata laluan semasa.",
+            err_pwd_empty: "Sila isi semua medan kata laluan.",
+
+            footer_desc: "Universiti Teknologi MARA (UiTM) Cawangan Johor, Kampus Pasir Gudang. Berdedikasi untuk kecemerlangan akademik dan inovasi industri.",
+            footer_quick_links: "Pautan Pantas",
+            footer_lab_dir: "Direktori Makmal",
+            footer_safety_manual: "Manual Keselamatan",
+            footer_equipment_log: "Log Peralatan",
+            footer_chemical_db: "Pangkalan Data Kimia",
+            footer_contact: "Hubungi",
+            footer_contact_heading: "UiTM Cawangan Johor",
+            footer_address: "Kampus Pasir Gudang, Jalan Purnama<br>81750 Masai, Johor",
+            footer_copyright: "© 2026 FKK UiTM Johor. Hak Cipta Terpelihara.",
+            footer_privacy: "Dasar Privasi",
+            footer_terms: "Terma Penggunaan"
+        }
+    };
+
+    /* =========================================================
+       UTILITIES
+    ========================================================== */
+    function t(key) { return (i18n[currentLang] && i18n[currentLang][key]) || key; }
+
+    function escapeHtml(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, m => ({
+            '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+        }[m]));
+    }
+
+    function makeInitials(name) {
+        if (!name) return '--';
+        const parts = name.trim().split(/\s+/).filter(w =>
+            !/^(bin|binti|bin\.|binti\.|bt|a\/l|a\/p|dr\.?|en\.?|pn\.?|ir\.?)$/i.test(w));
+        if (parts.length === 0) return '--';
+        if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    function relativeTime(iso) {
+        const diff = Date.now() - new Date(iso).getTime();
+        const sec = Math.max(0, Math.floor(diff / 1000));
+        if (sec < 45) return currentLang === 'ms' ? 'Baru sahaja' : 'Just now';
+        const min = Math.floor(sec / 60);
+        if (min < 60) return min + (currentLang === 'ms' ? ' min lalu' : 'm ago');
+        const hr = Math.floor(min / 60);
+        if (hr < 24) return hr + (currentLang === 'ms' ? ' jam lalu' : 'h ago');
+        const day = Math.floor(hr / 24);
+        if (day < 7) return day + (currentLang === 'ms' ? ' hari lalu' : 'd ago');
+        return new Date(iso).toLocaleDateString(currentLang === 'ms' ? 'ms-MY' : 'en-GB',
+            { day: '2-digit', month: 'short' });
+    }
+
+    /* =========================================================
+       LANGUAGE
+    ========================================================== */
+    window.switchLanguage = function (lang) {
+        currentLang = lang;
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (i18n[lang] && i18n[lang][key] !== undefined) el.innerHTML = i18n[lang][key];
+        });
+        document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+            const key = el.getAttribute('data-i18n-ph');
+            if (i18n[lang] && i18n[lang][key]) el.setAttribute('placeholder', i18n[lang][key]);
+        });
+        document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+        document.getElementById('btn-ms').classList.toggle('active', lang === 'ms');
+
+        if (admin) fillAdmin(admin);
+        renderQuickLinks();
+        renderActivities();
+        renderApprovals();
+        renderUsers();
+        updateStrength();
+    };
+
+    /* =========================================================
+       ADMIN PROFILE
+    ========================================================== */
+    function fillAdmin(a) {
+        const initials = a.initials || makeInitials(a.name);
+        const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+        set('navName', a.name); set('navRole', a.position || ''); set('navAvatar', initials);
+        set('ddName', a.name); set('ddEmail', a.email || ''); set('bannerName', a.name);
+        set('adminIdChip', a.id || '');
+        set('adminScopeChip', a.lab || '');
+
+        const loginEl = document.getElementById('lastLogin');
+        if (loginEl) {
+            const d = new Date(a.loginAt || Date.now());
+            loginEl.textContent = d.toLocaleString(currentLang === 'ms' ? 'ms-MY' : 'en-GB',
+                { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+        const todayEl = document.getElementById('todayDate');
+        if (todayEl) {
+            todayEl.textContent = new Date().toLocaleDateString(currentLang === 'ms' ? 'ms-MY' : 'en-GB',
+                { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+        }
+        const sAvatar = document.getElementById('settingsAvatar');
+        if (sAvatar) sAvatar.textContent = initials;
+    }
+
+    /* =========================================================
+       QUICK LINKS
+    ========================================================== */
+    function renderQuickLinks() {
+        const grid = document.getElementById('quickLinksGrid');
+        if (!grid) return;
+
+        grid.innerHTML = QUICK_LINKS.map(link => {
+            const label = t(link.labelKey);
+            return `
+                <a href="${escapeHtml(link.href)}" target="_blank" rel="noopener"
+                   class="quick-link ${link.color}"
+                   data-label-key="${escapeHtml(link.labelKey)}"
+                   data-href="${escapeHtml(link.href)}">
+                    <i class="fas ${escapeHtml(link.icon)}"></i>
+                    <span>${escapeHtml(label)}</span>
+                </a>`;
+        }).join('');
+
+        grid.querySelectorAll('.quick-link').forEach(a => {
+            a.addEventListener('click', () => {
+                logActivity('link_click', t(a.dataset.labelKey), a.dataset.href);
+            });
+        });
+    }
+
+    /* =========================================================
+       ACTIVITY TRAIL
+    ========================================================== */
+    function loadActivities() {
+        try {
+            const raw = localStorage.getItem(ACTIVITY_KEY);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed)) { activities = parsed; return; }
+            }
+        } catch (e) {}
+        activities = [];
+    }
+
+    function saveActivities() {
+        try { localStorage.setItem(ACTIVITY_KEY, JSON.stringify(activities)); } catch (e) {}
+    }
+
+    function logActivity(type, entity, detail) {
+        const entry = {
+            id: 'a_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+            type, entity: entity || '', detail: detail || '',
+            timestamp: new Date().toISOString()
+        };
+        activities.unshift(entry);
+        if (activities.length > ACTIVITY_LIMIT) activities = activities.slice(0, ACTIVITY_LIMIT);
+        saveActivities();
+        renderActivities();
+    }
+
+    function renderActivities() {
+        const tl = document.getElementById('activityTimeline');
+        const countEl = document.getElementById('activityCount');
+        if (countEl) countEl.textContent = activities.length;
+        if (!tl) return;
+
+        if (!activities.length) {
+            tl.innerHTML = `
+                <div class="activity-empty">
+                    <i class="fas fa-clock-rotate-left"></i>
+                    <p class="text-xs font-bold uppercase tracking-widest">${escapeHtml(t('admin_audit_empty'))}</p>
+                </div>`;
+            return;
+        }
+
+        tl.innerHTML = activities.map(a => {
+            const meta = ACTIVITY_TYPES[a.type] || ACTIVITY_TYPES.login;
+            const label = currentLang === 'ms' ? meta.ms : meta.en;
+            const entityHtml = a.entity
+                ? ` <span class="activity-entity">· ${escapeHtml(a.entity)}</span>`
+                : '';
+            const detailHtml = a.detail
+                ? `<p class="activity-detail">${escapeHtml(a.detail)}</p>`
+                : '';
+            return `
+                <div class="activity-item">
+                    <div class="activity-icon" style="background: ${meta.bg};">
+                        <i class="fas ${meta.icon}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p class="activity-title">${escapeHtml(label)}${entityHtml}</p>
+                        ${detailHtml}
+                        <p class="activity-time"><i class="far fa-clock"></i> ${escapeHtml(relativeTime(a.timestamp))}</p>
+                    </div>
+                </div>`;
+        }).join('');
+    }
+
+    function clearActivities() {
+        if (!activities.length) return;
+        if (!confirm(t('admin_audit_confirm_clear'))) return;
+        activities = [];
+        logActivity('activity_clear', admin ? admin.name : '', '');
+        showToast(t('toast_activity_cleared'), true);
+    }
+
+    document.getElementById('clearActivityBtn').addEventListener('click', clearActivities);
+
+    /* =========================================================
+       USERS — LOAD / SAVE / RENDER
+    ========================================================== */
+    function loadUsers() {
+        try {
+            const raw = localStorage.getItem(USERS_KEY);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed) && parsed.length) { users = parsed; return; }
+            }
+        } catch (e) {}
+        users = seedUsers();
+        saveUsers();
+    }
+    function saveUsers() {
+        try { localStorage.setItem(USERS_KEY, JSON.stringify(users)); } catch (e) {}
+    }
+
+    function roleLabel(role) { return t((ROLE_META[role] || ROLE_META.student).i18n); }
+    function statusLabel(st) { return t((STATUS_META[st] || STATUS_META.active).i18n); }
+
+    function renderUsers() {
+        const tbody = document.getElementById('usersTbody');
+        if (!tbody) return;
+
+        const q = (document.getElementById('userSearch')?.value || '').trim().toLowerCase();
+        const roleF = document.getElementById('roleFilter')?.value || 'all';
+
+        const filtered = users.filter(u => {
+            const matchQ = !q ||
+                u.name.toLowerCase().includes(q) ||
+                u.email.toLowerCase().includes(q) ||
+                u.id.toLowerCase().includes(q);
+            const matchR = roleF === 'all' || u.role === roleF;
+            return matchQ && matchR;
+        });
+
+        document.getElementById('shownCount').textContent = filtered.length;
+        document.getElementById('totalCount').textContent = users.length;
+        document.getElementById('statTotalUsers').textContent = users.length;
+
+        if (!filtered.length) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:34px;color:#94A3B8;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.12em;">
+                <i class="fas fa-user-slash" style="display:block;font-size:22px;margin-bottom:10px;opacity:.4;"></i>
+                ${escapeHtml(t('admin_no_results'))}
+            </td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = filtered.map(u => {
+            const rm = ROLE_META[u.role] || ROLE_META.student;
+            const sm = STATUS_META[u.status] || STATUS_META.active;
+            const initials = makeInitials(u.name);
+            const nextStatus = u.status === 'active' ? 'inactive' : 'active';
+            return `
+                <tr>
+                    <td>
+                        <div class="tbl-user">
+                            <div class="tbl-avatar" style="background:${rm.bg};">${escapeHtml(initials)}</div>
+                            <div class="min-w-0">
+                                <p class="tbl-user-name">${escapeHtml(u.name)}</p>
+                                <p class="tbl-user-mail">${escapeHtml(u.email)} · ${escapeHtml(u.id)}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="chip ${rm.chip}">${escapeHtml(roleLabel(u.role))}</span></td>
+                    <td style="color:#475569;font-size:11px;font-weight:700;">${escapeHtml(u.lab || '—')}</td>
+                    <td><span class="status-badge ${sm.cls}">${escapeHtml(statusLabel(u.status))}</span></td>
+                    <td style="color:#94A3B8;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;">
+                        ${escapeHtml(relativeTime(u.lastActive || new Date().toISOString()))}
+                    </td>
+                    <td style="text-align:right;white-space:nowrap;">
+                        <button class="icon-btn" title="Edit" data-act="edit" data-id="${escapeHtml(u.id)}"><i class="fas fa-pen"></i></button>
+                        <button class="icon-btn ok" title="Toggle status" data-act="toggle" data-id="${escapeHtml(u.id)}" data-next="${nextStatus}"><i class="fas fa-power-off"></i></button>
+                        <button class="icon-btn" title="Delete" data-act="delete" data-id="${escapeHtml(u.id)}"><i class="fas fa-trash-can"></i></button>
+                    </td>
+                </tr>`;
+        }).join('');
+
+        tbody.querySelectorAll('button[data-act]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const act = btn.dataset.act;
+                const id = btn.dataset.id;
+                if (act === 'edit') openUserModal(id);
+                else if (act === 'toggle') toggleUserStatus(id, btn.dataset.next);
+                else if (act === 'delete') deleteUser(id);
+            });
+        });
+    }
+
+    document.getElementById('userSearch').addEventListener('input', renderUsers);
+    document.getElementById('roleFilter').addEventListener('change', renderUsers);
+
+    function toggleUserStatus(id, next) {
+        const u = users.find(x => x.id === id);
+        if (!u) return;
+        u.status = next;
+        u.lastActive = new Date().toISOString();
+        saveUsers(); renderUsers();
+        logActivity('user_status', u.name, 'Status → ' + statusLabel(next));
+        showToast(t('toast_status_changed'), false);
+    }
+
+    function deleteUser(id) {
+        const u = users.find(x => x.id === id);
+        if (!u) return;
+        if (!confirm(t('admin_confirm_delete'))) return;
+        users = users.filter(x => x.id !== id);
+        saveUsers(); renderUsers();
+        logActivity('user_delete', u.name, u.email);
+        showToast(t('toast_user_deleted'), true);
+    }
+
+    document.getElementById('resetUsersBtn').addEventListener('click', function () {
+        if (!confirm(t('admin_confirm_reset'))) return;
+        users = seedUsers();
+        saveUsers(); renderUsers();
+        logActivity('users_reset', admin ? admin.name : '', users.length + ' accounts restored');
+        showToast(t('toast_users_reset'), false);
+    });
+
+    /* =========================================================
+       USER MODAL
+    ========================================================== */
+    const userModal = document.getElementById('userModal');
+    const uName = document.getElementById('uName');
+    const uEmail = document.getElementById('uEmail');
+    const uRole = document.getElementById('uRole');
+    const uStatus = document.getElementById('uStatus');
+    const uLab = document.getElementById('uLab');
+    const uId = document.getElementById('uId');
+    const userError = document.getElementById('userError');
+    const userModalAvatar = document.getElementById('userModalAvatar');
+    const userModalTitle = document.getElementById('userModalTitle');
+
+    function nextUserId() {
+        const nums = users.map(u => parseInt((u.id.match(/(\d+)$/) || [0, 0])[1], 10)).filter(n => !isNaN(n));
+        const max = nums.length ? Math.max.apply(null, nums) : 3000;
+        return 'USR-' + (max + 1);
+    }
+
+    function openUserModal(id) {
+        editingUserId = id || null;
+        hideUserError();
+        [uName, uEmail, uLab].forEach(f => f.classList.remove('is-invalid'));
+
+        if (id) {
+            const u = users.find(x => x.id === id);
+            if (!u) return;
+            userModalTitle.setAttribute('data-i18n', 'admin_user_modal_edit');
+            userModalTitle.textContent = t('admin_user_modal_edit');
+            uName.value = u.name;
+            uEmail.value = u.email;
+            uRole.value = u.role;
+            uStatus.value = u.status;
+            uLab.value = u.lab || '';
+            uId.value = u.id;
+            userModalAvatar.style.background = (ROLE_META[u.role] || ROLE_META.student).bg;
+            userModalAvatar.textContent = makeInitials(u.name);
+        } else {
+            userModalTitle.setAttribute('data-i18n', 'admin_user_modal_add');
+            userModalTitle.textContent = t('admin_user_modal_add');
+            uName.value = '';
+            uEmail.value = '';
+            uRole.value = 'student';
+            uStatus.value = 'active';
+            uLab.value = '';
+            uId.value = nextUserId();
+            userModalAvatar.style.background = '#002D62';
+            userModalAvatar.textContent = '--';
+        }
+
+        userModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => uName.focus(), 120);
+    }
+
+    function closeUserModal() {
+        userModal.classList.remove('open');
+        document.body.style.overflow = '';
+        editingUserId = null;
+    }
+
+    function showUserError(msg) {
+        userError.innerHTML = '<ul><li>' + escapeHtml(msg) + '</li></ul>';
+        userError.classList.add('show');
+    }
+    function hideUserError() { userError.classList.remove('show'); }
+
+    uName.addEventListener('input', function () {
+        userModalAvatar.textContent = makeInitials(this.value) || '--';
+        this.classList.remove('is-invalid');
+        hideUserError();
+    });
+    uEmail.addEventListener('input', function () { this.classList.remove('is-invalid'); hideUserError(); });
+
+    uRole.addEventListener('change', function () {
+        userModalAvatar.style.background = (ROLE_META[this.value] || ROLE_META.student).bg;
+    });
+
+    document.getElementById('addUserBtn').addEventListener('click', () => openUserModal(null));
+    document.getElementById('userModalClose').addEventListener('click', closeUserModal);
+    document.getElementById('userCancel').addEventListener('click', closeUserModal);
+    userModal.addEventListener('click', e => { if (e.target === userModal) closeUserModal(); });
+
+    document.getElementById('userSave').addEventListener('click', function () {
+        hideUserError();
+        const name = uName.value.trim();
+        const email = uEmail.value.trim();
+
+        let bad = false;
+        if (!name) { uName.classList.add('is-invalid'); showUserError(t('admin_err_name')); bad = true; }
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            uEmail.classList.add('is-invalid');
+            if (!bad) showUserError(t('admin_err_email'));
+            bad = true;
+        }
+        if (bad) return;
+
+        if (editingUserId) {
+            const u = users.find(x => x.id === editingUserId);
+            if (!u) return;
+            u.name = name; u.email = email; u.role = uRole.value;
+            u.status = uStatus.value; u.lab = uLab.value.trim();
+            u.lastActive = new Date().toISOString();
+            saveUsers(); renderUsers(); closeUserModal();
+            logActivity('user_edit', name, 'Role: ' + roleLabel(u.role) + ' · Status: ' + statusLabel(u.status));
+            showToast(t('toast_user_updated'), false);
+        } else {
+            const newUser = {
+                id: uId.value,
+                name, email,
+                role: uRole.value,
+                status: uStatus.value,
+                lab: uLab.value.trim(),
+                lastActive: new Date().toISOString()
+            };
+            users.unshift(newUser);
+            saveUsers(); renderUsers(); closeUserModal();
+            logActivity('user_add', name, 'Role: ' + roleLabel(newUser.role) + ' · ' + email);
+            showToast(t('toast_user_added'), false);
+        }
+    });
+
+    /* =========================================================
+       APPROVALS
+    ========================================================== */
+    function loadApprovals() {
+        try {
+            const raw = localStorage.getItem(APPR_KEY);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed)) { approvals = parsed; return; }
+            }
+        } catch (e) {}
+        approvals = seedApprovals();
+        saveApprovals();
+    }
+    function saveApprovals() {
+        try { localStorage.setItem(APPR_KEY, JSON.stringify(approvals)); } catch (e) {}
+    }
+
+    function renderApprovals() {
+        const list = document.getElementById('approvalList');
+        if (!list) return;
+
+        const pending = approvals.filter(a => a.status === 'pending');
+        const pendingCountEl = document.getElementById('pendingCountChip');
+        const statPendingEl = document.getElementById('statPending');
+        const badgeEl = document.getElementById('apprBadgeCount');
+        const legendEl = document.getElementById('apprPendingLegend');
+
+        if (pendingCountEl) pendingCountEl.textContent = pending.length;
+        if (statPendingEl) statPendingEl.textContent = pending.length;
+        if (badgeEl) badgeEl.textContent = pending.length;
+        if (legendEl) legendEl.textContent = pending.length;
+
+        if (!pending.length) {
+            list.innerHTML = `
+                <div class="activity-empty" style="padding:44px 20px;">
+                    <i class="fas fa-circle-check"></i>
+                    <p class="text-xs font-bold uppercase tracking-widest">${escapeHtml(t('admin_appr_empty'))}</p>
+                </div>`;
+            return;
+        }
+
+        list.innerHTML = pending.map(a => {
+            const tm = APPR_TYPE_META[a.type] || APPR_TYPE_META.equipment;
+            const title = currentLang === 'ms' ? a.title_ms : a.title_en;
+            const dateStr = new Date(a.date).toLocaleDateString(currentLang === 'ms' ? 'ms-MY' : 'en-GB',
+                { day: '2-digit', month: 'short', year: 'numeric' });
+            return `
+                <div class="appr-item ${tm.cls}">
+                    <div class="activity-icon" style="background:${tm.cls === 'appr-gold' ? '#FDB913' : tm.cls === 'appr-purple' ? '#9B26B6' : '#002D62'};">
+                        <i class="fas ${tm.icon}"></i>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <div class="flex flex-wrap items-center gap-2 mb-2">
+                            <span class="chip ${tm.chip}">${escapeHtml(t(tm.i18n))}</span>
+                            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">${escapeHtml(a.id)}</span>
+                        </div>
+                        <p class="text-sm font-bold text-p655c leading-snug">${escapeHtml(title)}</p>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2">
+                            <i class="fas fa-user mr-1" style="color:#9B26B6;"></i> ${escapeHtml(a.requester)}
+                            <span class="mx-2 text-slate-300">|</span>
+                            <i class="fas fa-location-dot mr-1" style="color:#FDB913;"></i> ${escapeHtml(a.lab)}
+                            <span class="mx-2 text-slate-300">|</span>
+                            <i class="fas fa-calendar mr-1"></i> ${escapeHtml(dateStr)}
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            <button class="mini-btn mini-approve" data-act="approve" data-id="${escapeHtml(a.id)}">
+                                <i class="fas fa-check"></i> ${escapeHtml(t('admin_appr_approve'))}
+                            </button>
+                            <button class="mini-btn mini-reject" data-act="reject" data-id="${escapeHtml(a.id)}">
+                                <i class="fas fa-xmark"></i> ${escapeHtml(t('admin_appr_reject'))}
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+        }).join('');
+
+        list.querySelectorAll('button[data-act]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const act = btn.dataset.act;
+                const id = btn.dataset.id;
+                resolveApproval(id, act === 'approve' ? 'approved' : 'rejected');
+            });
+        });
+    }
+
+    function resolveApproval(id, newStatus) {
+        const a = approvals.find(x => x.id === id);
+        if (!a) return;
+        a.status = newStatus;
+        a.resolvedAt = new Date().toISOString();
+        saveApprovals();
+        renderApprovals();
+        updateApprovalChart();
+
+        const title = currentLang === 'ms' ? a.title_ms : a.title_en;
+        logActivity(newStatus === 'approved' ? 'approve' : 'reject', a.requester, title);
+        showToast(newStatus === 'approved' ? t('toast_approved') : t('toast_rejected'),
+                  newStatus !== 'approved');
+    }
+
+    /* =========================================================
+       CHART.JS
+    ========================================================== */
+    function initCharts() {
+        if (typeof Chart === 'undefined') return;
+
+        Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+        Chart.defaults.font.weight = '700';
+        Chart.defaults.color = '#64748B';
+
+        /* User roles — doughnut */
+        const rolesCtx = document.getElementById('rolesChart');
+        if (rolesCtx) {
+            charts.roles = new Chart(rolesCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Students', 'Lecturers', 'Lab Staff', 'Admins'],
+                    datasets: [{
+                        data: [148, 62, 32, 6],
+                        backgroundColor: ['#002D62', '#9B26B6', '#FDB913', '#002D62'],
+                        borderWidth: 3, borderColor: '#fff', hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '62%',
+                    animation: { duration: 1200, easing: 'easeOutQuart' },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#002D62', padding: 10, cornerRadius: 8,
+                            titleFont: { size: 11, weight: '800' }, bodyFont: { size: 11, weight: '600' }
+                        }
+                    }
+                }
+            });
+        }
+
+        /* Approvals — horizontal bar */
+        updateApprovalChart();
+
+        /* Lab utilisation — vertical bar */
+        const labCtx = document.getElementById('labChart');
+        if (labCtx) {
+            charts.lab = new Chart(labCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Analytical', 'Organic', 'Thermo', 'Process'],
+                    datasets: [{
+                        data: [94, 88, 82, 80],
+                        backgroundColor: ['#002D62', '#9B26B6', '#FDB913', '#002D62'],
+                        borderRadius: 8, borderSkipped: false, barThickness: 30
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    animation: { duration: 1200, easing: 'easeOutQuart', delay: (ctx) => ctx.dataIndex * 120 },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#002D62', padding: 10, cornerRadius: 8,
+                            titleFont: { size: 11, weight: '800' }, bodyFont: { size: 11, weight: '600' },
+                            callbacks: { label: (ctx) => ctx.parsed.y + '% utilisation' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true, max: 100,
+                            grid: { color: '#F1F5F9', drawBorder: false },
+                            ticks: { color: '#94A3B8', font: { size: 9, weight: '700' }, callback: v => v + '%' }
+                        },
+                        x: { grid: { display: false, drawBorder: false }, ticks: { color: '#475569', font: { size: 10, weight: '800' } } }
+                    }
+                }
+            });
+        }
+
+        /* Platform trend — line, dual axis */
+        const trendCtx = document.getElementById('adminTrendChart');
+        if (trendCtx) {
+            charts.trend = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['2023', '2024', '2025', '2026'],
+                    datasets: [
+                        { label: 'Portal Logins', data: [4200, 5600, 7100, 8400], borderColor: '#002D62', backgroundColor: 'rgba(0, 45, 98, 0.08)', borderWidth: 3, pointBackgroundColor: '#fff', pointBorderColor: '#002D62', pointBorderWidth: 3, pointRadius: 6, pointHoverRadius: 9, fill: false, tension: 0.4 },
+                        { label: 'Requests Submitted', data: [180, 260, 340, 420], borderColor: '#9B26B6', backgroundColor: 'rgba(155, 38, 182, 0.08)', borderWidth: 3, pointBackgroundColor: '#fff', pointBorderColor: '#9B26B6', pointBorderWidth: 3, pointRadius: 6, pointHoverRadius: 9, fill: false, tension: 0.4, yAxisID: 'y1' },
+                        { label: 'Approval Rate (%)', data: [82, 87, 91, 94], borderColor: '#FDB913', backgroundColor: 'rgba(253, 185, 19, 0.08)', borderWidth: 3, pointBackgroundColor: '#fff', pointBorderColor: '#FDB913', pointBorderWidth: 3, pointRadius: 6, pointHoverRadius: 9, fill: false, tension: 0.4, yAxisID: 'y2' }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    interaction: { intersect: false, mode: 'index' },
+                    animation: { duration: 1400, easing: 'easeOutQuart' },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#002D62', padding: 12, cornerRadius: 10,
+                            titleFont: { size: 12, weight: '800' }, bodyFont: { size: 11, weight: '600' }, bodySpacing: 6
+                        }
+                    },
+                    scales: {
+                        y: {
+                            position: 'left', beginAtZero: true,
+                            grid: { color: '#F1F5F9', drawBorder: false },
+                            ticks: { color: '#94A3B8', font: { size: 10, weight: '700' } },
+                            title: { display: true, text: 'Logins', color: '#94A3B8', font: { size: 9, weight: '800' } }
+                        },
+                        y1: {
+                            position: 'right', beginAtZero: true,
+                            grid: { display: false },
+                            ticks: { color: '#94A3B8', font: { size: 10, weight: '700' } },
+                            title: { display: true, text: 'Requests', color: '#94A3B8', font: { size: 9, weight: '800' } }
+                        },
+                        y2: {
+                            position: 'right', beginAtZero: true, max: 100,
+                            grid: { display: false }, display: false,
+                            ticks: { callback: v => v + '%' }
+                        },
+                        x: { grid: { display: false, drawBorder: false }, ticks: { color: '#475569', font: { size: 11, weight: '800' } } }
+                    }
+                }
+            });
+        }
+    }
+
+    function updateApprovalChart() {
+        const ctx = document.getElementById('approvalChart');
+        if (!ctx || typeof Chart === 'undefined') return;
+
+        const pending = approvals.filter(a => a.status === 'pending').length;
+        const approved = approvals.filter(a => a.status === 'approved').length + 142;
+        const rejected = approvals.filter(a => a.status === 'rejected').length + 9;
+        const data = [approved, pending, rejected];
+
+        if (charts.approval) {
+            charts.approval.data.datasets[0].data = data;
+            charts.approval.update();
+            return;
+        }
+
+        charts.approval = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Approved', 'Pending', 'Rejected'],
+                datasets: [{
+                    data: data,
+                    backgroundColor: ['#9B26B6', '#FDB913', '#002D62'],
+                    borderRadius: 8, borderSkipped: false, barThickness: 22
+                }]
+            },
+            options: {
+                indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                animation: { duration: 1200, easing: 'easeOutQuart' },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#002D62', padding: 10, cornerRadius: 8,
+                        titleFont: { size: 11, weight: '800' }, bodyFont: { size: 11, weight: '600' }
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false, drawBorder: false }, ticks: { display: false } },
+                    y: { grid: { display: false, drawBorder: false }, ticks: { color: '#475569', font: { size: 10, weight: '800' } } }
+                }
+            }
+        });
+    }
+
+    /* =========================================================
+       DROPDOWN
+    ========================================================== */
+    const profileToggle = document.getElementById('profileToggle');
+    const profileDropdown = document.getElementById('profileDropdown');
+    function closeDropdown() { profileDropdown.classList.remove('open'); }
+    profileToggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        profileDropdown.classList.toggle('open');
+    });
+    document.addEventListener('click', function (e) {
+        if (!profileDropdown.contains(e.target) && !profileToggle.contains(e.target)) closeDropdown();
+    });
+
+    document.getElementById('auditJumpBtn').addEventListener('click', function () {
+        closeDropdown();
+        const el = document.getElementById('auditSection');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    /* =========================================================
+       SETTINGS MODAL
+    ========================================================== */
+    const settingsModal = document.getElementById('settingsModal');
+    const settingsAvatar = document.getElementById('settingsAvatar');
+    const setName = document.getElementById('setName');
+    const setPosition = document.getElementById('setPosition');
+    const setEmail = document.getElementById('setEmail');
+    const setLab = document.getElementById('setLab');
+    const setStaffId = document.getElementById('setStaffId');
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.settings-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id === 'tab-' + tabName));
+        document.getElementById('footerProfile').classList.toggle('hidden', tabName !== 'profile');
+        document.getElementById('footerSecurity').classList.toggle('hidden', tabName !== 'security');
+    }
+    document.querySelectorAll('.settings-tab').forEach(tab => {
+        tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+    });
+
+    function openSettings() {
+        closeDropdown();
+        setName.value = admin.name || '';
+        setPosition.value = admin.position || '';
+        setEmail.value = admin.email || '';
+        setLab.value = admin.lab || '';
+        setStaffId.value = admin.id || '';
+        settingsAvatar.textContent = admin.initials || makeInitials(admin.name);
+        switchTab('profile');
+        clearPwdFields();
+        hidePwdError();
+        settingsModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        logActivity('settings_open', admin.name, '');
+    }
+    function closeSettings() {
+        settingsModal.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+    document.getElementById('settingsBtn').addEventListener('click', openSettings);
+    document.getElementById('settingsClose').addEventListener('click', closeSettings);
+    document.getElementById('settingsCancel').addEventListener('click', closeSettings);
+    document.getElementById('pwdCancel').addEventListener('click', closeSettings);
+    settingsModal.addEventListener('click', function (e) { if (e.target === settingsModal) closeSettings(); });
+    setName.addEventListener('input', function () {
+        settingsAvatar.textContent = makeInitials(this.value) || '--';
+    });
+
+    document.getElementById('settingsSave').addEventListener('click', function () {
+        const newName = setName.value.trim();
+        const newPos  = setPosition.value.trim();
+        const newMail = setEmail.value.trim();
+        const newLab  = setLab.value.trim();
+        if (!newName) { setName.focus(); return; }
+
+        const oldName = admin.name, oldPos = admin.position, oldMail = admin.email, oldLab = admin.lab;
+
+        admin.name = newName; admin.position = newPos;
+        admin.email = newMail; admin.lab = newLab;
+        admin.initials = makeInitials(newName);
+
+        persistAdmin(); fillAdmin(admin); closeSettings();
+        showToast(t('toast_saved'), false);
+
+        const changes = [];
+        if (oldName !== newName) changes.push('name');
+        if (oldPos  !== newPos)  changes.push('position');
+        if (oldMail !== newMail) changes.push('email');
+        if (oldLab  !== newLab)  changes.push('scope');
+        logActivity('profile_update', newName, changes.length ? 'Changed: ' + changes.join(', ') : 'Profile saved');
+    });
+
+    /* =========================================================
+       PASSWORD
+    ========================================================== */
+    const currentPwd = document.getElementById('currentPwd');
+    const newPwd = document.getElementById('newPwd');
+    const confirmPwd = document.getElementById('confirmPwd');
+    const pwdError = document.getElementById('pwdError');
+
+    function clearPwdFields() {
+        [currentPwd, newPwd, confirmPwd].forEach(f => {
+            if (f) { f.value = ''; f.type = 'password'; f.classList.remove('is-invalid'); }
+        });
+        document.querySelectorAll('.pwd-toggle i').forEach(ic => {
+            ic.classList.remove('fa-eye-slash'); ic.classList.add('fa-eye');
+        });
+        updateStrength();
+    }
+
+    document.querySelectorAll('.pwd-toggle').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const target = document.getElementById(this.dataset.target);
+            const icon = this.querySelector('i');
+            const isHidden = target.type === 'password';
+            target.type = isHidden ? 'text' : 'password';
+            icon.classList.toggle('fa-eye', !isHidden);
+            icon.classList.toggle('fa-eye-slash', isHidden);
+        });
+    });
+
+    const strengthText = document.getElementById('strengthText');
+    const segs = [document.getElementById('seg1'), document.getElementById('seg2'), document.getElementById('seg3'), document.getElementById('seg4')];
+
+    function scorePassword(pwd) {
+        if (!pwd) return 0;
+        let s = 0;
+        if (pwd.length >= 8) s++;
+        if (/[A-Z]/.test(pwd)) s++;
+        if (/[a-z]/.test(pwd)) s++;
+        if (/[0-9]/.test(pwd)) s++;
+        if (/[^A-Za-z0-9]/.test(pwd)) s++;
+        return Math.min(s, 4);
+    }
+
+    function updateStrength() {
+        const pwd = newPwd ? newPwd.value : '';
+        const score = scorePassword(pwd);
+        segs.forEach(s => s.className = 'strength-seg');
+        if (!pwd) {
+            strengthText.className = 'strength-text';
+            strengthText.textContent = t('pwd_strength_none');
+            return;
+        }
+        let level, label;
+        if (score <= 1) { level = 'weak'; label = t('pwd_strength_weak'); }
+        else if (score <= 3) { level = 'medium'; label = t('pwd_strength_medium'); }
+        else { level = 'strong'; label = t('pwd_strength_strong'); }
+        for (let i = 0; i < score; i++) segs[i].classList.add('on-' + level);
+        strengthText.className = 'strength-text ' + level;
+        strengthText.textContent = label;
+    }
+
+    newPwd.addEventListener('input', function () {
+        updateStrength(); hidePwdError();
+        [newPwd, confirmPwd].forEach(f => f.classList.remove('is-invalid'));
+    });
+    [currentPwd, confirmPwd].forEach(f => {
+        f.addEventListener('input', function () { hidePwdError(); f.classList.remove('is-invalid'); });
+    });
+
+    function showPwdError(messages) {
+        pwdError.innerHTML = '<ul>' + messages.map(m => `<li>${m}</li>`).join('') + '</ul>';
+        pwdError.classList.add('show');
+    }
+    function hidePwdError() { pwdError.classList.remove('show'); }
+
+    document.getElementById('pwdUpdate').addEventListener('click', function () {
+        hidePwdError();
+        const cur = currentPwd.value, np = newPwd.value, cp = confirmPwd.value;
+        [currentPwd, newPwd, confirmPwd].forEach(f => f.classList.remove('is-invalid'));
+
+        if (!cur || !np || !cp) {
+            showPwdError([t('err_pwd_empty')]);
+            if (!cur) currentPwd.classList.add('is-invalid');
+            if (!np) newPwd.classList.add('is-invalid');
+            if (!cp) confirmPwd.classList.add('is-invalid');
+            return;
+        }
+
+        const errors = [];
+        if (cur !== DEMO_PASSWORD) { errors.push(t('err_current_wrong')); currentPwd.classList.add('is-invalid'); }
+        if (np.length < 8) { errors.push(t('err_pwd_short')); newPwd.classList.add('is-invalid'); }
+        if (!/[A-Z]/.test(np)) { errors.push(t('err_pwd_upper')); newPwd.classList.add('is-invalid'); }
+        if (!/[a-z]/.test(np)) { errors.push(t('err_pwd_lower')); newPwd.classList.add('is-invalid'); }
+        if (!/[0-9]/.test(np)) { errors.push(t('err_pwd_number')); newPwd.classList.add('is-invalid'); }
+        if (np === cur && cur) { errors.push(t('err_pwd_same')); newPwd.classList.add('is-invalid'); }
+        if (np !== cp) { errors.push(t('err_pwd_match')); confirmPwd.classList.add('is-invalid'); }
+
+        if (errors.length > 0) { showPwdError(errors); return; }
+
+        persistAdmin(); closeSettings();
+        showToast(t('toast_pwd'), true);
+        logActivity('password_change', admin.name, 'Password successfully updated');
+    });
+
+    function persistAdmin() {
+        try {
+            const raw = JSON.stringify(admin);
+            if (localStorage.getItem(SESSION_KEY)) localStorage.setItem(SESSION_KEY, raw);
+            else sessionStorage.setItem(SESSION_KEY, raw);
+        } catch (e) {}
+    }
+
+    /* =========================================================
+       TOAST
+    ========================================================== */
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toastMsg');
+    let toastTimer = null;
+    function showToast(message, purple) {
+        toastMsg.innerHTML = message;
+        toast.classList.toggle('toast-blue', !!purple);
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
+    }
+
+    /* =========================================================
+       LOGOUT
+========================================================== */
+    document.getElementById('logoutBtn').addEventListener('click', function () {
+        localStorage.removeItem(SESSION_KEY);
+        sessionStorage.removeItem(SESSION_KEY);
+        window.location.href = 'loginadmin.html';
+    });
+
+    /* =========================================================
+       INIT
+    ========================================================== */
+    document.addEventListener('DOMContentLoaded', function () {
+        let saved = null;
+        try {
+            saved = JSON.parse(localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY) || 'null');
+        } catch (e) { saved = null; }
+        admin = (saved && saved.name) ? saved : DEFAULT_ADMIN;
+
+        loadActivities();
+        loadUsers();
+        loadApprovals();
+
+        switchLanguage('en');
+        fillAdmin(admin);
+
+        setTimeout(initCharts, 150);
+
+        if (!sessionStorage.getItem('fkkAdminLoginLogged')) {
+            sessionStorage.setItem('fkkAdminLoginLogged', '1');
+            setTimeout(() => {
+                if (admin) logActivity('login', admin.name, admin.email || '');
+            }, 600);
+        }
+    });
+
+})();
+</script>
+</body>
+</html>
