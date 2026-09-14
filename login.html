@@ -207,7 +207,7 @@
             lab_staff:      "laboratory staff portal.html",
             coordinator:    "coordinator program portal.html",
             admin:          "admin portal.html",
-            guest:          "guest portal.html"   // tukar ikut nama fail pelawat anda
+            guest:          "pelawat.html"   // ← DIUBAH: pelawat pergi ke pelawat.html
         };
 
         /* ============================================================
@@ -302,6 +302,7 @@
                 err_id_required: "Sila masukkan ID anda.",
                 err_pw_required: "Sila masukkan kata laluan anda.",
                 err_name_required: "Sila masukkan nama penuh anda.",
+                err_name_invalid: "Nama hanya boleh mengandungi huruf dan ruang sahaja (tiada nombor atau simbol).",
                 err_invalid: "ID atau kata laluan tidak sah.",
                 err_network: "Ralat sambungan. Sila semak internet anda dan cuba lagi.",
                 err_timeout: "Sambungan tamat masa. Sila cuba sebentar lagi.",
@@ -338,6 +339,7 @@
                 err_id_required: "Please enter your ID.",
                 err_pw_required: "Please enter your password.",
                 err_name_required: "Please enter your full name.",
+                err_name_invalid: "Name may only contain letters and spaces (no numbers or symbols).",
                 err_invalid: "Invalid ID or password.",
                 err_network: "Connection error. Please check your internet and try again.",
                 err_timeout: "Connection timed out. Please try again shortly.",
@@ -441,6 +443,8 @@
 
             if (mode === 'guest') {
                 userIdInput.placeholder = t.placeholder_guest;
+                userIdInput.type = 'text';
+                userIdInput.value = '';               // bersihkan jika ada sisa
                 passwordContainer.classList.add('hidden');
                 passwordInput.required = false;
                 passwordInput.value = '';
@@ -548,10 +552,24 @@
                     userIdInput.focus();
                     return;
                 }
+
+                // Nama sahaja: huruf (termasuk aksen), ruang, titik, sengkang, apostrof
+                // TIDAK dibenarkan: nombor, simbol lain
+                const nameRegex = /^[A-Za-zÀ-ÿ' .\-]+$/;
+                if (!nameRegex.test(inputValue) || !/[A-Za-zÀ-ÿ]/.test(inputValue)) {
+                    showStatus(t.err_name_invalid, "error");
+                    userIdInput.focus();
+                    return;
+                }
+
                 setLoading(true);
-                // Simpan maklumat pelawat (optional) dan terus ke portal pelawat
+
                 try {
-                    sessionStorage.setItem('fms_user', JSON.stringify({ id: inputValue, role: 'guest', name: inputValue }));
+                    sessionStorage.setItem('fms_user', JSON.stringify({
+                        id: inputValue,
+                        role: 'guest',
+                        name: inputValue
+                    }));
                     sessionStorage.setItem('fms_role', 'guest');
                     sessionStorage.setItem('fms_login_at', new Date().toISOString());
                 } catch (e) { /* ignore */ }
@@ -559,7 +577,7 @@
                 showStatus(t.success_guest.replace('{name}', inputValue), "success");
                 logToFirebase(inputValue, 'guest');
                 setTimeout(() => {
-                    goToPortal('guest');
+                    goToPortal('guest');   // → pelawat.html
                 }, 900);
                 return;
             }
@@ -633,6 +651,22 @@
                     showStatus(t.err_network, "error");
                 }
                 setLoading(false);
+            }
+        });
+
+        /* ============================================================
+           5) SEKATAN REAL-TIME: HANYA HURUF DALAM MOD PELAWAT
+           ============================================================ */
+        userIdInput.addEventListener('input', () => {
+            if (currentMode === 'guest') {
+                // Buang sebarang aksara yang bukan huruf/ruang/titik/sengkang/apostrof
+                const cleaned = userIdInput.value.replace(/[^A-Za-zÀ-ÿ' .\-]/g, '');
+                if (cleaned !== userIdInput.value) {
+                    const pos = userIdInput.selectionStart;
+                    userIdInput.value = cleaned;
+                    // Kekalkan posisi kursor
+                    try { userIdInput.setSelectionRange(pos - 1, pos - 1); } catch (_) {}
+                }
             }
         });
 
