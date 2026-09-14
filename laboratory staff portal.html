@@ -10,12 +10,6 @@
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
-    /* ===== PALETTE: 3 SOLID COLOURS ONLY =====
-       NAVY   #002D62
-       PURPLE #9B26B6
-       GOLD   #FDB913
-       + neutral slate/white/black
-    */
     :root {
         --navy:   #002D62;
         --purple: #9B26B6;
@@ -84,7 +78,6 @@
         border-color: rgba(155, 38, 182, 0.3);
     }
 
-    /* Stat cards — SOLID colours */
     .stat-card {
         position: relative; overflow: hidden; color: #fff;
         border: none !important;
@@ -146,7 +139,6 @@
     .dropdown { opacity: 0; visibility: hidden; transform: translateY(-8px); transition: all .22s cubic-bezier(.4,0,.2,1); }
     .dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
 
-    /* Hero — SOLID navy */
     .hero-banner {
         background: #002D62;
         position: relative; overflow: hidden;
@@ -158,7 +150,6 @@
         background-size: 26px 26px; opacity: .35;
     }
 
-    /* Quick Links — SOLID colours */
     .quick-link {
         position: relative; overflow: hidden;
         border-radius: 14px; color: #fff;
@@ -185,7 +176,6 @@
     .ql-purple { background: #9B26B6; }
     .ql-gold   { background: #FDB913; }
 
-    /* Activity Trail */
     .activity-timeline { position: relative; }
     .activity-timeline::before {
         content: ''; position: absolute;
@@ -231,7 +221,6 @@
     }
     .activity-empty i { font-size: 30px; margin-bottom: 12px; display: block; opacity: .4; }
 
-    /* Achievement cards */
     .ach-card {
         background: #fff;
         border-radius: 24px;
@@ -513,7 +502,6 @@
 
     .info-banner { background: #EFF6FF; border-left: 4px solid #9B26B6; border-radius: 10px; }
 
-    /* Schedule / task items */
     .sched-item { border-radius: 12px; transition: all .25s cubic-bezier(.4,0,.2,1); border-left: 4px solid; background: #F8FAFC; }
     .sched-item:hover { background: #fff; box-shadow: 0 12px 26px -14px rgba(0,45,98,.2); transform: translateX(2px); }
     .sched-gold   { border-left-color: #FDB913; }
@@ -524,7 +512,6 @@
     .dot-purple { background: #9B26B6; }
     .dot-navy   { background: #002D62; }
 
-    /* Status badge for equipment */
     .status-badge {
         display: inline-flex;
         align-items: center;
@@ -540,7 +527,6 @@
     .status-warn    { background: rgba(253,185,19,.18); color: #B45309; border: 1px solid rgba(253,185,19,.4); }
     .status-alert   { background: rgba(155,38,182,.12); color: #9B26B6; border: 1px solid rgba(155,38,182,.3); }
 
-    /* Task / checklist row */
     .task-row {
         display: flex; align-items: center; gap: 14px;
         padding: 14px 16px;
@@ -561,9 +547,6 @@
     .task-time .hour { font-size: 15px; font-weight: 900; line-height: 1; }
     .task-time .suffix { font-size: 9px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; margin-top: 2px; }
 
-    /* ============================================================
-       FOOTER
-    ============================================================ */
     .site-footer {
         background: #002D62;
         color: #fff;
@@ -723,7 +706,7 @@
     <div class="px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-[70px]">
 
-            <a href="portal.html" class="faculty-logo">
+            <a href="index.html" class="faculty-logo">
                 <div class="logo-bar"></div>
                 <div class="logo-text">
                     <span class="line-small" data-i18n="nav_faculty">FAKULTI</span>
@@ -1243,8 +1226,6 @@
     <div class="footer-inner">
 
         <div class="footer-grid">
-
-            <!-- Brand block -->
             <div>
                 <div class="footer-logo">
                     <div class="logo-bar"></div>
@@ -1259,7 +1240,6 @@
                 </p>
             </div>
 
-            <!-- Quick Links -->
             <div>
                 <h4 class="footer-heading" data-i18n="footer_quick_links">Quick Links</h4>
                 <ul class="footer-links">
@@ -1271,7 +1251,6 @@
                 </ul>
             </div>
 
-            <!-- Contact -->
             <div>
                 <h4 class="footer-heading" data-i18n="footer_contact_heading">UiTM Cawangan Johor</h4>
                 <div class="footer-contact">
@@ -1289,7 +1268,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
 
         <div class="footer-bottom">
@@ -1413,25 +1391,30 @@
     <span id="toastMsg" data-i18n="toast_saved">Settings Saved</span>
 </div>
 
+<!-- AUTH CHANGE: load cookie session helper BEFORE the main script -->
+<script src="auth.js"></script>
+
 <script>
 (function () {
 
     /* =========================================================
+       AUTH CHANGE: GUARD — lab staff only
+    ========================================================== */
+    const session = FMSAuth.requireAuth(['lab_staff']);
+    if (!session) return;
+
+    // Keep session alive on user activity
+    ['click', 'keydown'].forEach(evt =>
+        document.addEventListener(evt, () => FMSAuth.touch(), { passive: true })
+    );
+    /* ========================================================= */
+
+    /* =========================================================
        CONSTANTS & STATE
     ========================================================== */
-    const DEFAULT_STAFF = {
-        id: 'LAB-2045',
-        name: 'Mohd Hafiz bin Abdullah',
-        position: 'Senior Lab Technologist',
-        lab: 'Analytical Chemistry Lab',
-        email: 'mohd.hafiz@uitm.edu.my',
-        initials: 'HA',
-        loginAt: new Date().toISOString()
-    };
-
+    // AUTH CHANGE: DEFAULT_STAFF removed — data comes from session.
     const DEMO_PASSWORD = 'lab123';
-    const SESSION_KEY = 'fkkLabStaffUser';
-    const ACTIVITY_KEY= 'fkkLabActivityTrail';
+    const ACTIVITY_KEY = 'fkkLabActivityTrail';
     const ACTIVITY_LIMIT = 40;
 
     let currentLang = 'en';
@@ -1468,20 +1451,17 @@
         en: {
             nav_faculty: "FAKULTI", nav_dept: "KEJURUTERAAN KIMIA", ph_search: "Search portal...",
             menu_settings: "Settings", menu_logout: "Sign Out",
-            /* Lab Dashboard */
             lab_dash_online: "Lab Operational", lab_dash_welcome: "Welcome back,",
             lab_dash_today: "Today", lab_dash_lastlogin: "Last Login",
             lab_stat_week: "This Week", lab_stat_sessions: "Lab Sessions",
             lab_stat_active: "Active", lab_stat_equipment: "Equipment Items",
             lab_stat_low: "Low Stock", lab_stat_chemicals: "Chemical Alerts",
             lab_stat_safety: "Safety Compliance",
-            /* Quick Links */
             lab_quick_links_label: "Quick Menu", lab_quick_links_title: "Lab Staff Quick Links", lab_quick_links_hint: "Opens in new tab",
             lab_link_elearning: "E-Learning", lab_link_labinv: "Lab Inventory",
             lab_link_sop: "SOP Manual", lab_link_equip: "Equipment Portal",
             lab_link_orders: "Supply Orders", lab_link_hr: "HR System",
             lab_link_finance: "Finance", lab_link_helpdesk: "IT Helpdesk",
-            /* Achievement */
             lab_ach_tag: "Lab Performance", lab_ach_title: "Laboratory Dashboard",
             lab_ach_sub: "Equipment, safety &amp; operations · FKK Johor", lab_ach_trend: "Improving",
             lab_equipment: "Equipment", lab_equipment_sub: "Overall uptime rate",
@@ -1498,7 +1478,6 @@
             lab_inv_stock: "Stock Health",
             lab_yearly_label: "Yearly Trend", lab_yearly_title: "Lab Utilisation &amp; Sample Processing (2023 – 2026)",
             lab_legend_sessions: "Lab Sessions", lab_legend_samples: "Samples Processed", lab_legend_uptime: "Uptime (%)",
-            /* Schedule */
             lab_sched_label: "Today's Tasks", lab_sched_title: "Lab Duty Schedule", lab_view_all: "View All",
             lab_task_1: "Prepare Lab 3 — Thermodynamics Practical",
             lab_task_1_loc: "Lab 3 · 32 students",
@@ -1506,24 +1485,20 @@
             lab_task_2_loc: "Analytical Lab · Quarterly",
             lab_task_3: "Chemical Inventory Restocking — Solvents",
             lab_task_3_loc: "Store Room · Monthly",
-            /* Alerts */
             lab_alert_label: "Alerts", lab_alert_title: "Lab Notices",
             lab_alert_1: "Low stock: Acetone &amp; Ethanol — reorder soon",
             lab_alert_2: "Autoclave servicing scheduled next Tuesday",
             lab_alert_3: "New safety SOP issued for chemical waste handling",
             lab_alert_hour: "hour ago", lab_alert_hours: "hours ago", lab_alert_days: "days ago",
-            /* Activity */
             activity_label: "Jejak Aktiviti", activity_title: "Activity Trail",
             lab_activity_sub: "Recent actions on your account",
             activity_clear: "Clear", activity_records: "records",
             activity_empty: "No activity recorded yet",
             activity_confirm_clear: "Clear the entire activity trail?",
-            /* News */
             lab_news_tag: "Latest Updates", lab_news_title: "Lab News &amp; Events", lab_btn_archive: "View Archive",
             lab_news_1_title: "Annual Lab Safety Audit Completed Successfully.",
             lab_news_2_title: "New FTIR Spectrometer Now Available for Research Use.",
             lab_news_3_title: "Chemical Handling Certification Course — Register Now.",
-            /* Settings */
             settings_title: "Profile Settings", settings_sub: "Update your profile information",
             settings_tab_profile: "Profile", settings_tab_security: "Security",
             settings_avatar_hint: "Avatar initials auto-generated",
@@ -1550,7 +1525,6 @@
             err_pwd_match: "New password and confirmation do not match.",
             err_pwd_same: "New password must be different from the current one.",
             err_pwd_empty: "Please fill in all password fields.",
-            /* Footer */
             footer_desc: "Universiti Teknologi MARA (UiTM) Cawangan Johor, Kampus Pasir Gudang. Dedicated to academic excellence and industrial innovation.",
             footer_quick_links: "Quick Links",
             footer_lab_dir: "Lab Directory",
@@ -2157,12 +2131,9 @@
         logActivity('password_change', staff.name, 'Password successfully updated');
     });
 
+    /* AUTH CHANGE: persist staff into session cookie */
     function persistStaff() {
-        try {
-            const raw = JSON.stringify(staff);
-            if (localStorage.getItem(SESSION_KEY)) localStorage.setItem(SESSION_KEY, raw);
-            else sessionStorage.setItem(SESSION_KEY, raw);
-        } catch (e) {}
+        FMSAuth.saveSession(staff, 'lab_staff');
     }
 
     /* =========================================================
@@ -2180,23 +2151,26 @@
     }
 
     /* =========================================================
-       LOGOUT
+       LOGOUT — AUTH CHANGE
     ========================================================== */
     document.getElementById('logoutBtn').addEventListener('click', function () {
-        localStorage.removeItem(SESSION_KEY);
-        sessionStorage.removeItem(SESSION_KEY);
-        window.location.href = 'loginlabstaff.html';
+        FMSAuth.clearSession();
+        window.location.href = 'login.html';
     });
 
     /* =========================================================
-       INIT
+       INIT — AUTH CHANGE
     ========================================================== */
     document.addEventListener('DOMContentLoaded', function () {
-        let saved = null;
-        try {
-            saved = JSON.parse(localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY) || 'null');
-        } catch (e) { saved = null; }
-        staff = (saved && saved.name) ? saved : DEFAULT_STAFF;
+        staff = {
+            id:       session.user.id       || '—',
+            name:     session.user.name     || '—',
+            email:    session.user.email    || '',
+            position: session.user.position || 'Lab Technologist',
+            lab:      session.user.lab      || session.user.unit || 'Analytical Chemistry Lab',
+            initials: makeInitials(session.user.name || ''),
+            loginAt:  new Date(session.loginAt).toISOString()
+        };
 
         loadActivities();
 
