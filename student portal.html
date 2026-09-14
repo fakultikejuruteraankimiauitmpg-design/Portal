@@ -10,12 +10,6 @@
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
-    /* ===== PALETTE: 3 SOLID COLOURS ONLY =====
-       NAVY   #002D62
-       PURPLE #9B26B6
-       GOLD   #FDB913
-       + neutral slate/white/black
-    */
     :root {
         --navy:   #002D62;
         --purple: #9B26B6;
@@ -84,7 +78,6 @@
         border-color: rgba(155, 38, 182, 0.3);
     }
 
-    /* Stat cards — SOLID colours */
     .stat-card {
         position: relative; overflow: hidden; color: #fff;
         border: none !important;
@@ -146,7 +139,6 @@
     .dropdown { opacity: 0; visibility: hidden; transform: translateY(-8px); transition: all .22s cubic-bezier(.4,0,.2,1); }
     .dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
 
-    /* Hero — SOLID navy */
     .hero-banner {
         background: #002D62;
         position: relative; overflow: hidden;
@@ -158,7 +150,6 @@
         background-size: 26px 26px; opacity: .35;
     }
 
-    /* Quick Links — SOLID colours */
     .quick-link {
         position: relative; overflow: hidden;
         border-radius: 14px; color: #fff;
@@ -185,7 +176,6 @@
     .ql-purple { background: #9B26B6; }
     .ql-gold   { background: #FDB913; }
 
-    /* Activity Trail */
     .activity-timeline { position: relative; }
     .activity-timeline::before {
         content: ''; position: absolute;
@@ -231,7 +221,6 @@
     }
     .activity-empty i { font-size: 30px; margin-bottom: 12px; display: block; opacity: .4; }
 
-    /* Achievement cards */
     .ach-card {
         background: #fff;
         border-radius: 24px;
@@ -523,7 +512,6 @@
     .dot-purple { background: #9B26B6; }
     .dot-navy   { background: #002D62; }
 
-    /* Deadline row */
     .deadline-row {
         display: flex; align-items: center; gap: 14px;
         padding: 14px 16px;
@@ -544,9 +532,6 @@
     .deadline-date .day { font-size: 18px; font-weight: 900; line-height: 1; }
     .deadline-date .mon { font-size: 9px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; margin-top: 2px; }
 
-    /* ============================================================
-       FOOTER
-    ============================================================ */
     .site-footer {
         background: #002D62;
         color: #fff;
@@ -706,7 +691,7 @@
     <div class="px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-[70px]">
 
-            <a href="portal.html" class="faculty-logo">
+            <a href="index.html" class="faculty-logo">
                 <div class="logo-bar"></div>
                 <div class="logo-text">
                     <span class="line-small" data-i18n="nav_faculty">FAKULTI</span>
@@ -1228,8 +1213,6 @@
     <div class="footer-inner">
 
         <div class="footer-grid">
-
-            <!-- Brand block -->
             <div>
                 <div class="footer-logo">
                     <div class="logo-bar"></div>
@@ -1244,7 +1227,6 @@
                 </p>
             </div>
 
-            <!-- Quick Links -->
             <div>
                 <h4 class="footer-heading" data-i18n="footer_quick_links">Quick Links</h4>
                 <ul class="footer-links">
@@ -1256,7 +1238,6 @@
                 </ul>
             </div>
 
-            <!-- Contact -->
             <div>
                 <h4 class="footer-heading" data-i18n="footer_contact_heading">UiTM Cawangan Johor</h4>
                 <div class="footer-contact">
@@ -1274,7 +1255,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
 
         <div class="footer-bottom">
@@ -1398,25 +1378,30 @@
     <span id="toastMsg" data-i18n="toast_saved">Settings Saved</span>
 </div>
 
+<!-- AUTH CHANGE: load cookie session helper BEFORE the main script -->
+<script src="auth.js"></script>
+
 <script>
 (function () {
 
     /* =========================================================
+       AUTH CHANGE: GUARD — student only
+    ========================================================== */
+    const session = FMSAuth.requireAuth(['student']);
+    if (!session) return;
+
+    // Keep session alive on user activity
+    ['click', 'keydown'].forEach(evt =>
+        document.addEventListener(evt, () => FMSAuth.touch(), { passive: true })
+    );
+    /* ========================================================= */
+
+    /* =========================================================
        CONSTANTS & STATE
     ========================================================== */
-    const DEFAULT_STUDENT = {
-        id: '2023123456',
-        name: 'Ahmad Danial bin Ismail',
-        program: 'BEng (Hons) Chemical Engineering',
-        semester: 'Semester 6',
-        email: 'ahmad.danial@student.uitm.edu.my',
-        initials: 'AI',
-        loginAt: new Date().toISOString()
-    };
-
+    // AUTH CHANGE: DEFAULT_STUDENT removed — data comes from session.
     const DEMO_PASSWORD = 'student123';
-    const SESSION_KEY = 'fkkStudentUser';
-    const ACTIVITY_KEY= 'fkkStudentActivityTrail';
+    const ACTIVITY_KEY = 'fkkStudentActivityTrail';
     const ACTIVITY_LIMIT = 40;
 
     let currentLang = 'en';
@@ -1453,19 +1438,16 @@
         en: {
             nav_faculty: "FAKULTI", nav_dept: "KEJURUTERAAN KIMIA", ph_search: "Search portal...",
             menu_settings: "Settings", menu_logout: "Sign Out",
-            /* Student Dashboard */
             stu_dash_online: "Semester Active", stu_dash_welcome: "Welcome back,",
             stu_dash_today: "Today", stu_dash_lastlogin: "Last Login",
             stu_stat_cgpa: "Current CGPA", stu_stat_courses: "Enrolled Courses",
             stu_stat_credits: "Total Credits", stu_stat_assignments: "Pending Assignments",
             stu_stat_sem: "This Sem", stu_stat_due: "Due",
-            /* Quick Links */
             stu_quick_links_label: "Quick Menu", stu_quick_links_title: "Student Quick Links", stu_quick_links_hint: "Opens in new tab",
             stu_link_elearning: "E-Learning", stu_link_istudent: "iStudent",
             stu_link_library: "Library", stu_link_exam: "Exam Unit",
             stu_link_results: "Results", stu_link_fees: "Fees",
             stu_link_repository: "Repository", stu_link_helpdesk: "IT Helpdesk",
-            /* Achievement */
             stu_ach_tag: "Academic Performance", stu_ach_title: "My Progress",
             stu_ach_sub: "Grades, attendance & credit progress · FKK Johor", stu_ach_trend: "Improving",
             stu_grades: "Grades", stu_grades_sub: "Current CGPA (out of 4.00)",
@@ -1479,29 +1461,24 @@
             stu_cred_progress: "Degree Progress",
             stu_yearly_label: "GPA Trend", stu_yearly_title: "Semester GPA (Sem 1 – Sem 6)",
             stu_legend_gpa: "GPA", stu_legend_cgpa: "CGPA",
-            /* Schedule */
             stu_sched_label: "Schedule", stu_sched_title: "Today's Classes",
             stu_view_all: "View All",
             stu_sched_lecture: "Lecture", stu_sched_lab: "Lab", stu_sched_practical: "Practical",
             stu_sched_office: "Supervisor Office", stu_sched_meeting: "Meeting",
             stu_sched_lecturer: "Lecturer",
-            /* Deadlines */
             stu_deadline_label: "Due Soon", stu_deadline_title: "Upcoming Deadlines",
             stu_dl_1: "CHE423 Lab Report 3", stu_dl_2: "CHE215 Midterm Exam",
             stu_dl_3: "CHE499 FYP Progress Report", stu_dl_days: "days left",
-            /* Activity */
             activity_label: "Jejak Aktiviti", activity_title: "Activity Trail",
             stu_activity_sub: "Recent actions on your account",
             activity_clear: "Clear", activity_records: "records",
             activity_empty: "No activity recorded yet",
             activity_confirm_clear: "Clear the entire activity trail?",
-            /* News */
             stu_news_tag: "Latest Updates", stu_news_title: "Campus News & Events",
             stu_btn_archive: "View Archive",
             stu_news_1_title: "Final Examination Timetable Released for Semester 2.",
             stu_news_2_title: "ChemE Career Fair 2026: Meet 30+ Industry Partners.",
             stu_news_3_title: "Yayasan UiTM Scholarship Applications Now Open.",
-            /* Settings */
             settings_title: "Profile Settings", settings_sub: "Update your profile information",
             settings_tab_profile: "Profile", settings_tab_security: "Security",
             settings_avatar_hint: "Avatar initials auto-generated",
@@ -1528,7 +1505,6 @@
             err_pwd_match: "New password and confirmation do not match.",
             err_pwd_same: "New password must be different from the current one.",
             err_pwd_empty: "Please fill in all password fields.",
-            /* Footer */
             footer_desc: "Universiti Teknologi MARA (UiTM) Cawangan Johor, Kampus Pasir Gudang. Dedicated to academic excellence and industrial innovation.",
             footer_quick_links: "Quick Links",
             footer_student_dir: "Student Directory",
@@ -2126,12 +2102,9 @@
         logActivity('password_change', student.name, 'Password successfully updated');
     });
 
+    /* AUTH CHANGE: persist student into session cookie */
     function persistStudent() {
-        try {
-            const raw = JSON.stringify(student);
-            if (localStorage.getItem(SESSION_KEY)) localStorage.setItem(SESSION_KEY, raw);
-            else sessionStorage.setItem(SESSION_KEY, raw);
-        } catch (e) {}
+        FMSAuth.saveSession(student, 'student');
     }
 
     /* =========================================================
@@ -2149,23 +2122,26 @@
     }
 
     /* =========================================================
-       LOGOUT
+       LOGOUT — AUTH CHANGE
     ========================================================== */
     document.getElementById('logoutBtn').addEventListener('click', function () {
-        localStorage.removeItem(SESSION_KEY);
-        sessionStorage.removeItem(SESSION_KEY);
-        window.location.href = 'loginstudent.html';
+        FMSAuth.clearSession();
+        window.location.href = 'login.html';
     });
 
     /* =========================================================
-       INIT
+       INIT — AUTH CHANGE
     ========================================================== */
     document.addEventListener('DOMContentLoaded', function () {
-        let saved = null;
-        try {
-            saved = JSON.parse(localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY) || 'null');
-        } catch (e) { saved = null; }
-        student = (saved && saved.name) ? saved : DEFAULT_STUDENT;
+        student = {
+            id:       session.user.id       || '—',
+            name:     session.user.name     || '—',
+            email:    session.user.email    || '',
+            program:  session.user.program  || session.user.programme || 'BEng (Hons) Chemical Engineering',
+            semester: session.user.semester || 'Semester 6',
+            initials: makeInitials(session.user.name || ''),
+            loginAt:  new Date(session.loginAt).toISOString()
+        };
 
         loadActivities();
 
