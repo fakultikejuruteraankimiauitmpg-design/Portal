@@ -207,7 +207,7 @@
             lab_staff:      "laboratory staff portal.html",
             coordinator:    "coordinator program portal.html",
             admin:          "admin portal.html",
-            guest:          "guest portal.html"   // tukar ikut nama fail pelawat anda
+            guest:          "pelawat portal.html"   // ✅ nama fail pelawat anda
         };
 
         /* ============================================================
@@ -557,6 +557,7 @@
                 } catch (e) { /* ignore */ }
 
                 showStatus(t.success_guest.replace('{name}', inputValue), "success");
+                console.log("➡️ Guest mode: akan redirect ke:", PORTAL_ROUTES.guest);
                 logToFirebase(inputValue, 'guest');
                 setTimeout(() => {
                     goToPortal('guest');
