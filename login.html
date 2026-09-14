@@ -199,7 +199,6 @@
 
         /* ============================================================
            HALAMAN DESTINASI MENGIKUT PERANAN
-           (nama fail mesti sama dengan fail sebenar dalam folder yang sama)
            ============================================================ */
         const PORTAL_ROUTES = {
             student:        "student portal.html",
@@ -207,20 +206,16 @@
             lab_staff:      "laboratory staff portal.html",
             coordinator:    "coordinator program portal.html",
             admin:          "admin portal.html",
-            guest:          "pelawat portal.html"   // ← Pelawat portal
+            guest:          "pelawat portal.html"   // ✅ PELAWAT → pelawat portal.html
         };
 
         /* ============================================================
            NORMALISASI PERANAN
-           Supaya "Academic Staff", "ACADEMIC_STAFF", "academic-staff",
-           "staf_akademik" semuanya jadi satu kunci yang sama.
            ============================================================ */
         const ROLE_ALIASES = {
-            // Pelajar
             student: 'student',
             pelajar: 'student',
 
-            // Staf Akademik
             academic_staff: 'academic_staff',
             academicstaff: 'academic_staff',
             academic: 'academic_staff',
@@ -228,7 +223,6 @@
             pensyarah: 'academic_staff',
             staf_akademik: 'academic_staff',
 
-            // Staf Makmal
             lab_staff: 'lab_staff',
             labstaff: 'lab_staff',
             laboratory_staff: 'lab_staff',
@@ -236,19 +230,16 @@
             staf_makmal: 'lab_staff',
             makmal: 'lab_staff',
 
-            // Penyelaras Program
             coordinator: 'coordinator',
             coordinator_program: 'coordinator',
             program_coordinator: 'coordinator',
             penyelaras: 'coordinator',
             penyelaras_program: 'coordinator',
 
-            // Admin
             admin: 'admin',
             administrator: 'admin',
             pentadbir: 'admin',
 
-            // Pelawat
             guest: 'guest',
             visitor: 'guest',
             pelawat: 'guest'
@@ -260,7 +251,6 @@
             return ROLE_ALIASES[key] || key;
         }
 
-        /* Redirect ke portal dengan encoding nama fail (selamat untuk nama ada ruang) */
         function goToPortal(role) {
             const route = PORTAL_ROUTES[role];
             if (!route) return false;
@@ -269,12 +259,11 @@
         }
 
         const REQUEST_TIMEOUT_MS = 15000;
-        /* ============================================================ */
 
         let db, auth;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'fakulti-kej-kimia';
 
-        let currentMode = 'login'; // 'login' atau 'guest'
+        let currentMode = 'login';
         let currentLang = 'ms';
         let isSubmitting = false;
 
@@ -497,7 +486,7 @@
         }
 
         /* ============================================================
-           3) AUDIT TRAIL (Firebase) — pilihan
+           3) AUDIT TRAIL (Firebase)
            ============================================================ */
         async function initFirebase() {
             try {
@@ -533,7 +522,7 @@
         }
 
         /* ============================================================
-           4) HANDLER LOG MASUK (AUTO-DETECT ROLE)
+           4) HANDLER LOG MASUK
            ============================================================ */
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -543,15 +532,19 @@
             const inputValue = userIdInput.value.trim();
             const passwordValue = passwordInput.value;
 
-            /* ----- MOD PELAWAT (GUEST) ----- */
+            /* ==================================================
+               MOD PELAWAT — Terus ke pelawat portal.html
+               Hanya perlu isi NAMA (tiada nombor)
+               ================================================== */
             if (currentMode === 'guest') {
+                // 1) Semak nama kosong
                 if (!inputValue) {
                     showStatus(t.err_name_required, "error");
                     userIdInput.focus();
                     return;
                 }
 
-                // ✅ Validasi: nama tidak boleh mengandungi nombor
+                // 2) Semak nama tiada nombor
                 if (/\d/.test(inputValue)) {
                     showStatus(t.err_name_no_number, "error");
                     userIdInput.focus();
@@ -559,22 +552,38 @@
                 }
 
                 setLoading(true);
-                // Simpan maklumat pelawat (optional) dan terus ke portal pelawat
+
+                // Simpan sesi pelawat
                 try {
-                    sessionStorage.setItem('fms_user', JSON.stringify({ id: inputValue, role: 'guest', name: inputValue }));
+                    sessionStorage.setItem('fms_user', JSON.stringify({
+                        id: inputValue,
+                        role: 'guest',
+                        name: inputValue,
+                        login_at: new Date().toISOString()
+                    }));
                     sessionStorage.setItem('fms_role', 'guest');
                     sessionStorage.setItem('fms_login_at', new Date().toISOString());
-                } catch (e) { /* ignore */ }
+                } catch (storageErr) {
+                    console.warn("sessionStorage tidak tersedia:", storageErr);
+                }
 
+                // Papar mesej selamat datang
                 showStatus(t.success_guest.replace('{name}', inputValue), "success");
+
+                // Audit log (optional)
                 logToFirebase(inputValue, 'guest');
+
+                // ✅ TERUS KE pelawat portal.html
                 setTimeout(() => {
-                    goToPortal('guest');
+                    window.location.href = encodeURI("pelawat portal.html");
                 }, 900);
+
                 return;
             }
 
-            /* ----- MOD LOG MASUK (AUTO-DETECT) ----- */
+            /* ==================================================
+               MOD LOG MASUK (AUTO-DETECT ROLE)
+               ================================================== */
             if (!inputValue) {
                 showStatus(t.err_id_required, "error");
                 userIdInput.focus();
@@ -615,7 +624,6 @@
                     return;
                 }
 
-                // Simpan sesi
                 user.id = user.id || inputValue;
                 user.role = finalRole;
                 try {
