@@ -755,7 +755,7 @@
     <div class="px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-[70px]">
 
-            <a href="portal.html" class="faculty-logo">
+            <a href="index.html" class="faculty-logo">
                 <div class="logo-bar"></div>
                 <div class="logo-text">
                     <span class="line-small" data-i18n="nav_faculty">FAKULTI</span>
@@ -1568,26 +1568,30 @@
     <span id="toastMsg" data-i18n="toast_saved">Settings Saved</span>
 </div>
 
+<!-- AUTH CHANGE: load cookie session helper BEFORE the main script -->
+<script src="auth.js"></script>
+
 <script>
 (function () {
 
     /* =========================================================
+       AUTH CHANGE: GUARD — coordinator only
+    ========================================================== */
+    const session = FMSAuth.requireAuth(['coordinator']);
+    if (!session) return;
+
+    // Keep session alive on user activity
+    ['click', 'keydown'].forEach(evt =>
+        document.addEventListener(evt, () => FMSAuth.touch(), { passive: true })
+    );
+    /* ========================================================= */
+
+    /* =========================================================
        CONSTANTS & STATE
     ========================================================== */
-    const DEFAULT_STAFF = {
-        id: '2001',
-        name: 'Dr. Ahmad Faizal bin Ismail',
-        position: 'Koordinator Prasiswazah',
-        positionEn: 'Undergraduate Coordinator',
-        unit: 'Pusat Pengajian Kejuruteraan Kimia',
-        email: 'ahmad.faizal@uitm.edu.my',
-        initials: 'AF',
-        loginAt: new Date().toISOString()
-    };
-
+    // AUTH CHANGE: DEFAULT_STAFF removed — user data comes from session.
     const DEMO_PASSWORD = 'admin123';
-    const SESSION_KEY = 'fkkCoordinatorUser';
-    const ACTIVITY_KEY= 'fkkCoordinatorActivity';
+    const ACTIVITY_KEY = 'fkkCoordinatorActivity';
     const ACTIVITY_LIMIT = 40;
 
     let currentLang = 'en';
@@ -2341,12 +2345,9 @@
         logActivity('password_change', staff.name, 'Password successfully updated');
     });
 
+    /* AUTH CHANGE: persist staff into session cookie */
     function persistStaff() {
-        try {
-            const raw = JSON.stringify(staff);
-            if (localStorage.getItem(SESSION_KEY)) localStorage.setItem(SESSION_KEY, raw);
-            else sessionStorage.setItem(SESSION_KEY, raw);
-        } catch (e) {}
+        FMSAuth.saveSession(staff, 'coordinator');
     }
 
     /* =========================================================
@@ -2364,23 +2365,27 @@
     }
 
     /* =========================================================
-       LOGOUT
+       LOGOUT — AUTH CHANGE
     ========================================================== */
     document.getElementById('logoutBtn').addEventListener('click', function () {
-        localStorage.removeItem(SESSION_KEY);
-        sessionStorage.removeItem(SESSION_KEY);
-        window.location.href = 'loginstaff.html';
+        FMSAuth.clearSession();
+        window.location.href = 'login.html';
     });
 
     /* =========================================================
-       INIT
+       INIT — AUTH CHANGE
     ========================================================== */
     document.addEventListener('DOMContentLoaded', function () {
-        let saved = null;
-        try {
-            saved = JSON.parse(localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY) || 'null');
-        } catch (e) { saved = null; }
-        staff = (saved && saved.name) ? saved : DEFAULT_STAFF;
+        staff = {
+            id:         session.user.id       || '—',
+            name:       session.user.name     || '—',
+            email:      session.user.email    || '',
+            position:   session.user.position || 'Undergraduate Coordinator',
+            positionEn: session.user.position || 'Undergraduate Coordinator',
+            unit:       session.user.unit     || 'Pusat Pengajian Kejuruteraan Kimia',
+            initials:   makeInitials(session.user.name || ''),
+            loginAt:    new Date(session.loginAt).toISOString()
+        };
 
         loadActivities();
 
