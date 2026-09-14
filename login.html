@@ -197,15 +197,76 @@
            ============================================================ */
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwRNgb5F-I0SE0lTbS-RkhLCrSxwjVjTvHeJN_CCOsWMJ7oIAuE6MYZSrrj1D56akKkqQ/exec";
 
-        // Halaman destinasi mengikut peranan (auto-detected)
+        /* ============================================================
+           HALAMAN DESTINASI MENGIKUT PERANAN
+           (nama fail mesti sama dengan fail sebenar dalam folder yang sama)
+           ============================================================ */
         const PORTAL_ROUTES = {
-            student:         "pelajar.html",
-            academic_staff:  "staf_akademik.html",
-            lab_staff:       "staf_makmal.html",
-            coordinator:     "penyelaras_program.html",
-            admin:           "admin.html",
-            guest:           "pelawat.html"
+            student:        "student portal.html",
+            academic_staff: "academic staff portal.html",
+            lab_staff:      "laboratory staff portal.html",
+            coordinator:    "coordinator program portal.html",
+            admin:          "admin portal.html",
+            guest:          "guest portal.html"   // tukar ikut nama fail pelawat anda
         };
+
+        /* ============================================================
+           NORMALISASI PERANAN
+           Supaya "Academic Staff", "ACADEMIC_STAFF", "academic-staff",
+           "staf_akademik" semuanya jadi satu kunci yang sama.
+           ============================================================ */
+        const ROLE_ALIASES = {
+            // Pelajar
+            student: 'student',
+            pelajar: 'student',
+
+            // Staf Akademik
+            academic_staff: 'academic_staff',
+            academicstaff: 'academic_staff',
+            academic: 'academic_staff',
+            lecturer: 'academic_staff',
+            pensyarah: 'academic_staff',
+            staf_akademik: 'academic_staff',
+
+            // Staf Makmal
+            lab_staff: 'lab_staff',
+            labstaff: 'lab_staff',
+            laboratory_staff: 'lab_staff',
+            laboratory: 'lab_staff',
+            staf_makmal: 'lab_staff',
+            makmal: 'lab_staff',
+
+            // Penyelaras Program
+            coordinator: 'coordinator',
+            coordinator_program: 'coordinator',
+            program_coordinator: 'coordinator',
+            penyelaras: 'coordinator',
+            penyelaras_program: 'coordinator',
+
+            // Admin
+            admin: 'admin',
+            administrator: 'admin',
+            pentadbir: 'admin',
+
+            // Pelawat
+            guest: 'guest',
+            visitor: 'guest',
+            pelawat: 'guest'
+        };
+
+        function normalizeRole(raw) {
+            if (!raw) return '';
+            const key = String(raw).trim().toLowerCase().replace(/[\s\-]+/g, '_');
+            return ROLE_ALIASES[key] || key;
+        }
+
+        /* Redirect ke portal dengan encoding nama fail (selamat untuk nama ada ruang) */
+        function goToPortal(role) {
+            const route = PORTAL_ROUTES[role];
+            if (!route) return false;
+            window.location.href = encodeURI(route);
+            return true;
+        }
 
         const REQUEST_TIMEOUT_MS = 15000;
         /* ============================================================ */
@@ -498,7 +559,7 @@
                 showStatus(t.success_guest.replace('{name}', inputValue), "success");
                 logToFirebase(inputValue, 'guest');
                 setTimeout(() => {
-                    window.location.href = PORTAL_ROUTES.guest;
+                    goToPortal('guest');
                 }, 900);
                 return;
             }
@@ -535,9 +596,10 @@
                 }
 
                 const user = result.user || {};
-                const finalRole = (user.role || '').toLowerCase();
+                const finalRole = normalizeRole(user.role);
 
                 if (!finalRole || !PORTAL_ROUTES[finalRole]) {
+                    console.error("Role tidak dikenali / tiada portal:", user.role);
                     showStatus(t.err_invalid, "error");
                     setLoading(false);
                     return;
@@ -558,7 +620,7 @@
                 logToFirebase(inputValue, finalRole);
 
                 setTimeout(() => {
-                    window.location.href = PORTAL_ROUTES[finalRole];
+                    goToPortal(finalRole);
                 }, 900);
 
             } catch (err) {
