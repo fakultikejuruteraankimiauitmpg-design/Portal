@@ -591,7 +591,7 @@
     <div class="px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-[70px]">
 
-            <a href="admin.html" class="faculty-logo">
+            <a href="index.html" class="faculty-logo">
                 <div class="logo-bar"></div>
                 <div class="logo-text">
                     <span class="line-small" data-i18n="nav_faculty">FAKULTI</span>
@@ -1387,24 +1387,29 @@
     <span id="toastMsg" data-i18n="toast_saved">Settings Saved</span>
 </div>
 
+<!-- AUTH CHANGE: load cookie session helper BEFORE the main script -->
+<script src="auth.js"></script>
+
 <script>
 (function () {
 
     /* =========================================================
+       AUTH CHANGE: GUARD — admin only
+    ========================================================== */
+    const session = FMSAuth.requireAuth(['admin']);
+    if (!session) return;
+
+    // Keep session alive on user activity
+    ['click', 'keydown'].forEach(evt =>
+        document.addEventListener(evt, () => FMSAuth.touch(), { passive: true })
+    );
+    /* ========================================================= */
+
+    /* =========================================================
        CONSTANTS & STATE
     ========================================================== */
-    const DEFAULT_ADMIN = {
-        id: 'ADM-1001',
-        name: 'Dr. Nurul Aisyah binti Hassan',
-        position: 'System Administrator',
-        lab: 'FKK Lab Operations',
-        email: 'nurul.aisyah@uitm.edu.my',
-        initials: 'NH',
-        loginAt: new Date().toISOString()
-    };
-
+    // AUTH CHANGE: DEFAULT_ADMIN removed — user data comes from session.
     const DEMO_PASSWORD = 'admin123';
-    const SESSION_KEY  = 'fkkAdminUser';
     const ACTIVITY_KEY = 'fkkAdminActivityTrail';
     const USERS_KEY    = 'fkkAdminUsers';
     const APPR_KEY     = 'fkkAdminApprovals';
@@ -1516,24 +1521,20 @@
             menu_settings: "Settings", menu_logout: "Sign Out", menu_audit: "Audit Log",
             role_admin: "Administrator",
 
-            /* Hero */
             admin_hero_tag: "System Operational", admin_hero_welcome: "Welcome back,",
             admin_today: "Today", admin_lastlogin: "Last Login",
 
-            /* Stats */
             admin_stat_all: "All Users", admin_stat_users: "Registered Accounts",
             admin_stat_action: "Action", admin_stat_pending: "Pending Approvals",
             admin_stat_live: "Live", admin_stat_labs: "Active Laboratories",
             admin_stat_uptime: "System Uptime",
 
-            /* Quick links */
             admin_quick_label: "Quick Menu", admin_quick_title: "Admin Quick Links", admin_quick_hint: "Opens in new tab",
             admin_link_users: "User Management", admin_link_labs: "Lab Registry",
             admin_link_approvals: "Approvals", admin_link_reports: "Reports",
             admin_link_audit: "Audit Log", admin_link_announce: "Announcements",
             admin_link_settings: "System Settings", admin_link_helpdesk: "IT Helpdesk",
 
-            /* Dashboard */
             admin_dash_tag: "Oversight", admin_dash_title: "System Analytics",
             admin_dash_sub: "Users, approvals &amp; laboratory operations · FKK Johor", admin_dash_trend: "Growing",
 
@@ -1557,7 +1558,6 @@
             admin_legend_logins: "Portal Logins", admin_legend_requests: "Requests Submitted",
             admin_legend_approvals: "Approval Rate (%)",
 
-            /* Pending approvals */
             admin_pending_label: "Action Required", admin_pending_title: "Pending Approvals",
             admin_appr_type_equipment: "Equipment", admin_appr_type_chemical: "Chemical",
             admin_appr_type_access: "Access", admin_appr_type_training: "Training",
@@ -1565,7 +1565,6 @@
             admin_appr_empty: "No pending approvals — all caught up!",
             admin_appr_none_left: "All requests have been processed",
 
-            /* Notices */
             admin_notice_label: "Notices", admin_notice_title: "System Notices",
             admin_notice_1: "Scheduled maintenance: Sunday 02:00 – 04:00",
             admin_notice_2: "12 new account requests awaiting verification",
@@ -1574,7 +1573,6 @@
             admin_alert_title: "Security Reminder",
             admin_alert_sub: "Review inactive accounts older than 180 days and revoke unused lab access.",
 
-            /* Users */
             admin_users_label: "User Management", admin_users_title: "Portal Accounts",
             admin_users_sub: "Create, edit and manage access for all portal users",
             admin_users_search_ph: "Search name, email or ID...",
@@ -1589,7 +1587,6 @@
             admin_confirm_delete: "Delete this user account permanently?",
             admin_confirm_reset: "Reset all user data back to the demo set?",
 
-            /* User modal */
             admin_user_modal_add: "Add New User", admin_user_modal_sub: "Manage portal account details",
             admin_user_modal_edit: "Edit User",
             admin_user_avatar_sub: "Preview updates as you type",
@@ -1600,21 +1597,18 @@
             admin_err_name: "Please enter the user's full name.",
             admin_err_email: "Please enter a valid email address.",
 
-            /* Audit */
             admin_audit_label: "Jejak Audit", admin_audit_title: "Audit Log",
             admin_audit_sub: "Recent administrative actions on this account",
             admin_audit_records: "records", admin_audit_clear: "Clear",
             admin_audit_empty: "No activity recorded yet",
             admin_audit_confirm_clear: "Clear the entire audit log?",
 
-            /* News */
             admin_news_tag: "Latest Updates", admin_news_title: "Admin News &amp; Events",
             admin_news_archive: "View Archive", admin_read_more: "Read More",
             admin_news_1_title: "Portal v3.2 Rollout — New Role &amp; Permission Module.",
             admin_news_2_title: "Annual Access Review — Action Required by All Admins.",
             admin_news_3_title: "Administrator Workshop: Data Governance &amp; Audit Trails.",
 
-            /* Settings */
             settings_title: "Profile Settings", settings_sub: "Update your profile information",
             settings_tab_profile: "Profile", settings_tab_security: "Security",
             settings_avatar_hint: "Avatar initials auto-generated",
@@ -1633,7 +1627,6 @@
             pwd_hint: "Minimum 8 characters · at least 1 uppercase · 1 lowercase · 1 number",
             btn_update_pwd: "Update Password", toast_pwd: "Password Updated",
 
-            /* Toasts */
             toast_user_added: "User Created",
             toast_user_updated: "User Updated",
             toast_user_deleted: "User Deleted",
@@ -1643,7 +1636,6 @@
             toast_activity_cleared: "Audit Log Cleared",
             toast_users_reset: "Demo Data Restored",
 
-            /* Errors */
             err_current_wrong: "Current password is incorrect.",
             err_pwd_short: "Password must be at least 8 characters.",
             err_pwd_upper: "Password must contain an uppercase letter.",
@@ -1653,7 +1645,6 @@
             err_pwd_same: "New password must be different from the current one.",
             err_pwd_empty: "Please fill in all password fields.",
 
-            /* Footer */
             footer_desc: "Universiti Teknologi MARA (UiTM) Cawangan Johor, Kampus Pasir Gudang. Dedicated to academic excellence and industrial innovation.",
             footer_quick_links: "Quick Links",
             footer_lab_dir: "Lab Directory",
@@ -2709,12 +2700,9 @@
         logActivity('password_change', admin.name, 'Password successfully updated');
     });
 
+    /* AUTH CHANGE: persist admin into session cookie */
     function persistAdmin() {
-        try {
-            const raw = JSON.stringify(admin);
-            if (localStorage.getItem(SESSION_KEY)) localStorage.setItem(SESSION_KEY, raw);
-            else sessionStorage.setItem(SESSION_KEY, raw);
-        } catch (e) {}
+        FMSAuth.saveSession(admin, 'admin');
     }
 
     /* =========================================================
@@ -2732,23 +2720,26 @@
     }
 
     /* =========================================================
-       LOGOUT
-========================================================== */
+       LOGOUT — AUTH CHANGE
+    ========================================================== */
     document.getElementById('logoutBtn').addEventListener('click', function () {
-        localStorage.removeItem(SESSION_KEY);
-        sessionStorage.removeItem(SESSION_KEY);
-        window.location.href = 'loginadmin.html';
+        FMSAuth.clearSession();
+        window.location.href = 'login.html';
     });
 
     /* =========================================================
-       INIT
+       INIT — AUTH CHANGE
     ========================================================== */
     document.addEventListener('DOMContentLoaded', function () {
-        let saved = null;
-        try {
-            saved = JSON.parse(localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY) || 'null');
-        } catch (e) { saved = null; }
-        admin = (saved && saved.name) ? saved : DEFAULT_ADMIN;
+        admin = {
+            id:       session.user.id       || '—',
+            name:     session.user.name     || '—',
+            email:    session.user.email    || '',
+            position: session.user.position || 'System Administrator',
+            lab:      session.user.lab      || session.user.unit || 'FKK Lab Operations',
+            initials: makeInitials(session.user.name || ''),
+            loginAt:  new Date(session.loginAt).toISOString()
+        };
 
         loadActivities();
         loadUsers();
