@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fakulti Kejuruteraan Kimia - Keselamatan Akaun</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pantone-254c: #9B26B6;
+            --pantone-130c: #F2A900;
+            --pantone-655c: #002D62;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--pantone-254c);
+            background-image: 
+                linear-gradient(rgba(155, 38, 182, 0.75), rgba(0, 45, 98, 0.85)), 
+                url('https://conlay.com.my/data/images/item/img_511143_uitm.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .main-card {
+            min-height: 800px;
+            opacity: 0;
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .tab-active {
+            background-color: var(--pantone-254c);
+            color: white;
+            box-shadow: 0 4px 12px rgba(155, 38, 182, 0.4);
+        }
+        
+        .hidden-view { display: none !important; }
+        
+        .glass-input {
+            background: rgba(255, 255, 255, 0.95) !important;
+            color: #1a202c !important;
+            border: 1px solid rgba(255,255,255,0.3) !important;
+        }
+
+        .success-animation {
+            animation: scaleUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes scaleUp {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(0,45,98,0.3);
+            border-top-color: #002D62;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 md:p-8 lg:p-12 relative overflow-x-hidden">
+
+    <div class="main-card max-w-6xl w-full rounded-[48px] overflow-hidden flex flex-col md:flex-row relative z-10">
+        
+        <!-- Bahagian Kiri - Panel Maklumat -->
+        <div class="relative md:w-1/2 p-10 md:p-16 flex flex-col justify-between overflow-hidden min-h-[400px] border-b md:border-b-0 md:border-r border-white/10 bg-transparent">
+            <div class="relative z-10">
+                <div class="inline-block border-l-4 border-[#F2A900] pl-6 mt-4">
+                    <h1 id="faculty-title-left" class="text-3xl md:text-5xl font-black tracking-tighter text-white leading-[1.1] uppercase drop-shadow-lg">
+                        FAKULTI<br><span class="text-[#F2A900]">KEJURUTERAAN KIMIA</span>
+                    </h1>
+                </div>
+            </div>
+
+            <div class="relative z-10 w-full text-left pl-6 pb-4">
+                <div class="space-y-0.5 drop-shadow-md">
+                    <p class="text-white text-[9px] font-bold tracking-[0.15em] uppercase">
+                        Universiti Teknologi MARA
+                    </p>
+                    <p id="campus-text" class="text-white/90 text-[9px] font-semibold tracking-widest uppercase">
+                        Cawangan Johor, Kampus Pasir Gudang
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bahagian Kanan - Kotak Keselamatan -->
+        <div class="md:w-1/2 p-8 md:p-12 lg:p-16 flex flex-col justify-between relative bg-white/10 backdrop-blur-2xl">
+            <div class="absolute top-0 right-0 left-0 h-2 flex">
+                <div class="flex-1 bg-[#9B26B6]"></div>
+                <div class="flex-1 bg-[#F2A900]"></div>
+                <div class="flex-1 bg-[#002D62]"></div>
+            </div>
+
+            <div class="flex justify-end items-center gap-4 mb-10">
+                <button id="btn-back-nav" onclick="window.location.href='login.html'" class="text-white/70 text-[10px] font-bold hover:text-white transition-colors tracking-widest uppercase px-2">
+                    Log Masuk
+                </button>
+                <div class="w-px h-4 bg-white/20 mx-1"></div>
+                <button id="lang-toggle-btn" onclick="toggleLanguage()" class="flex items-center gap-2 border border-white/20 px-4 py-2 rounded-full text-[10px] font-black text-white hover:bg-white/10 transition-all shadow-sm active:scale-95 uppercase">
+                    <span id="lang-label">BM</span> <span class="text-[8px] opacity-40 text-white">▼</span>
+                </button>
+            </div>
+
+            <!-- View Keselamatan -->
+            <div id="passwordView" class="max-w-md w-full mx-auto">
+                <div id="formContainer">
+                    <div class="mb-6 text-center md:text-left">
+                        <p id="sub-title-text" class="text-white/60 font-extrabold text-[10px] uppercase tracking-[0.3em] mb-2">Keselamatan Akaun</p>
+                        <h2 id="main-title-text" class="text-4xl font-extrabold text-white tracking-tighter leading-tight">Tukar Kata<br>Laluan</h2>
+                    </div>
+
+                    <div class="flex p-1 bg-white/5 rounded-[20px] mb-8 border border-white/10 shadow-inner">
+                        <button type="button" onclick="setUserType('student')" id="tab-student" class="flex-1 py-3 text-[10px] font-black rounded-xl transition-all tab-active whitespace-nowrap px-4 uppercase tracking-widest">Pelajar</button>
+                        <button type="button" onclick="setUserType('staff')" id="tab-staff" class="flex-1 py-3 text-[10px] font-black rounded-xl transition-all text-white/40 hover:text-white whitespace-nowrap px-4 uppercase tracking-widest">Staf</button>
+                    </div>
+
+                    <div id="statusMessage" class="hidden mb-6 p-4 rounded-2xl text-sm font-semibold"></div>
+
+                    <form class="space-y-4" id="passwordForm">
+                        <div>
+                            <input id="userId" type="text" required placeholder="ID Pelajar" class="glass-input w-full px-7 py-4 border-none rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#9B26B6]/20 transition-all font-bold text-sm shadow-xl">
+                        </div>
+                        
+                        <div id="changeFields" class="space-y-4">
+                            <input id="currentPassword" type="password" placeholder="Kata Laluan Semasa" class="glass-input w-full px-7 py-4 border-none rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#9B26B6]/20 transition-all font-bold text-sm shadow-xl">
+                            <input id="newPassword" type="password" placeholder="Kata Laluan Baru" class="glass-input w-full px-7 py-4 border-none rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#9B26B6]/20 transition-all font-bold text-sm shadow-xl">
+                            <input id="confirmPassword" type="password" placeholder="Sahkan Kata Laluan Baru" class="glass-input w-full px-7 py-4 border-none rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#9B26B6]/20 transition-all font-bold text-sm shadow-xl">
+                        </div>
+
+                        <button type="submit" id="submitBtn" class="w-full py-5 bg-[#F2A900] text-[#002D62] rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-white transition-all shadow-2xl active:scale-[0.98] mt-4 border-b-4 border-[#002D62]/20">
+                            Kemaskini Kata Laluan
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Paparan Kejayaan -->
+                <div id="successView" class="hidden-view success-animation flex flex-col items-center text-center py-12">
+                    <div class="w-24 h-24 bg-green-500/20 rounded-full flex items-center justify-center mb-8 border border-green-500/30">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <h3 id="success-title" class="text-3xl font-black text-white mb-4 tracking-tighter uppercase">Berjaya Tukar!</h3>
+                    <p id="success-message" class="text-white/60 text-sm font-semibold leading-relaxed mb-10 max-w-[280px]">
+                        Kata laluan anda telah berjaya dikemaskini. Sila gunakan kata laluan baharu untuk log masuk.
+                    </p>
+                    <button id="btn-success-back" onclick="window.location.href='login.html'" class="px-10 py-4 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-full text-[10px] font-black uppercase tracking-widest transition-all">
+                        Kembali Ke Log Masuk
+                    </button>
+                </div>
+
+                <div id="footerLinks" class="mt-8 flex justify-center">
+                    <button id="btn-cancel-back" onclick="window.location.href='login.html'" class="text-[10px] font-black text-white/50 hover:text-white transition-colors uppercase tracking-widest">
+                        Batal dan Kembali
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="absolute bottom-6 right-8 z-50 pointer-events-none text-right">
+        <p class="text-[9px] md:text-[10px] font-bold text-white/30 tracking-widest leading-relaxed uppercase select-none drop-shadow-sm">
+            © 2026 Faculty Management System | Developed by Azmi Roslan.
+        </p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        /* ==========================================================
+           GOOGLE APPS SCRIPT ENDPOINT (akaun credential store)
+           ========================================================== */
+        const GAS_DEPLOYMENT_ID = 'AKfycbwRNgb5F-I0SE0lTbS-RkhLCrSxwjVjTvHeJN_CCOsWMJ7oIAuE6MYZSrrj1D56akKkqQ';
+        const GAS_URL = `https://script.google.com/macros/s/${GAS_DEPLOYMENT_ID}/exec`;
+        /* ========================================================== */
+
+        let db, auth;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'fakulti-kej-kimia';
+        let selectedUserType = 'student';
+        let currentLang = 'ms';
+
+        const translations = {
+            ms: {
+                label: "BM",
+                faculty_left: "FAKULTI<br><span class='text-[#F2A900]'>KEJURUTERAAN KIMIA</span>",
+                campus: "Cawangan Johor, Kampus Pasir Gudang",
+                btn_login_nav: "Log Masuk",
+                sub: "Keselamatan Akaun",
+                main_change: "Tukar Kata<br>Laluan",
+                student: "Pelajar",
+                staff: "Staf",
+                placeholder_id: "ID Pelajar",
+                placeholder_staff: "ID Kakitangan",
+                placeholder_current: "Kata Laluan Semasa",
+                placeholder_new: "Kata Laluan Baru",
+                placeholder_confirm: "Sahkan Kata Laluan Baru",
+                btn_update: "Kemaskini Kata Laluan",
+                btn_loading: "Mengemaskini...",
+                success_title_c: "Berjaya Tukar!",
+                success_msg_c: "Kata laluan anda telah berjaya dikemaskini. Sila gunakan kata laluan baharu untuk log masuk.",
+                btn_success_back: "Kembali Ke Log Masuk",
+                btn_cancel_back: "Batal dan Kembali",
+                error_match: "Kata laluan baru tidak sepadan!",
+                error_empty: "Sila isi semua ruangan.",
+                error_credentials: "ID atau kata laluan semasa tidak sah!",
+                error_notfound: "ID tidak dijumpai dalam sistem.",
+                error_network: "Ralat sambungan. Sila cuba lagi.",
+                error_db: "Ralat sistem. Sila cuba lagi."
+            },
+            en: {
+                label: "EN",
+                faculty_left: "FACULTY OF<br><span class='text-[#F2A900]'>CHEMICAL ENGINEERING</span>",
+                campus: "Johor Branch, Pasir Gudang Campus",
+                btn_login_nav: "Login",
+                sub: "Account Security",
+                main_change: "Change<br>Password",
+                student: "Student",
+                staff: "Staff",
+                placeholder_id: "Student ID",
+                placeholder_staff: "Staff ID",
+                placeholder_current: "Current Password",
+                placeholder_new: "New Password",
+                placeholder_confirm: "Confirm New Password",
+                btn_update: "Update Password",
+                btn_loading: "Updating...",
+                success_title_c: "Success!",
+                success_msg_c: "Your password has been successfully updated. Please use your new password to log in.",
+                btn_success_back: "Back to Login",
+                btn_cancel_back: "Cancel and Back",
+                error_match: "New passwords do not match!",
+                error_empty: "Please fill in all fields.",
+                error_credentials: "Invalid ID or current password!",
+                error_notfound: "ID not found in the system.",
+                error_network: "Connection error. Please try again.",
+                error_db: "System error. Please try again."
+            }
+        };
+
+        window.toggleLanguage = function() {
+            currentLang = currentLang === 'ms' ? 'en' : 'ms';
+            updateUI();
+        };
+
+        function updateUI() {
+            const t = translations[currentLang];
+
+            document.getElementById('lang-label').textContent = t.label;
+            document.getElementById('faculty-title-left').innerHTML = t.faculty_left;
+            document.getElementById('campus-text').textContent = t.campus;
+            document.getElementById('btn-back-nav').textContent = t.btn_login_nav;
+
+            document.getElementById('sub-title-text').textContent = t.sub;
+            document.getElementById('main-title-text').innerHTML = t.main_change;
+
+            document.getElementById('tab-student').textContent = t.student;
+            document.getElementById('tab-staff').textContent = t.staff;
+
+            document.getElementById('currentPassword').placeholder = t.placeholder_current;
+            document.getElementById('newPassword').placeholder = t.placeholder_new;
+            document.getElementById('confirmPassword').placeholder = t.placeholder_confirm;
+
+            document.getElementById('submitBtn').textContent = t.btn_update;
+            document.getElementById('btn-success-back').textContent = t.btn_success_back;
+            document.getElementById('btn-cancel-back').textContent = t.btn_cancel_back;
+
+            if (!document.getElementById('successView').classList.contains('hidden-view')) {
+                document.getElementById('success-title').textContent = t.success_title_c;
+                document.getElementById('success-message').textContent = t.success_msg_c;
+            }
+
+            setUserType(selectedUserType);
+        }
+
+        window.setUserType = function(type) {
+            selectedUserType = type;
+            const t = translations[currentLang];
+            ['student', 'staff'].forEach(tab => {
+                const el = document.getElementById(`tab-${tab}`);
+                if (!el) return;
+                if (tab === type) {
+                    el.classList.add('tab-active');
+                    el.classList.remove('text-white/40');
+                } else {
+                    el.classList.remove('tab-active');
+                    el.classList.add('text-white/40');
+                }
+            });
+            document.getElementById('userId').placeholder = (type === 'student' ? t.placeholder_id : t.placeholder_staff);
+        };
+
+        window.showStatus = function(msg, type) {
+            const statusMessage = document.getElementById('statusMessage');
+            statusMessage.textContent = msg;
+            statusMessage.classList.remove('hidden', 'bg-green-500/20', 'text-green-400', 'bg-red-500/20', 'text-red-400');
+            statusMessage.classList.add(
+                type === "success" ? 'bg-green-500/20' : 'bg-red-500/20',
+                type === "success" ? 'text-green-400' : 'text-red-400'
+            );
+            statusMessage.classList.remove('hidden');
+            clearTimeout(window.__statusTimer);
+            window.__statusTimer = setTimeout(() => statusMessage.classList.add('hidden'), 6000);
+        };
+
+        async function initFirebase() {
+            try {
+                if (typeof __firebase_config === 'undefined' || !__firebase_config) return;
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) { console.error('Firebase init:', error); }
+        }
+
+        /* ==========================================================
+           Hantar permintaan ke Google Apps Script
+           Nota: Guna text/plain untuk elak preflight CORS (GAS tak
+           handle OPTIONS request).
+           ========================================================== */
+        async function callGASChangePassword({ userId, userType, currentPassword, newPassword }) {
+            const res = await fetch(GAS_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'changePassword',
+                    userId: userId.trim(),
+                    userType: userType,
+                    currentPassword: currentPassword,
+                    newPassword: newPassword
+                }),
+                redirect: 'follow'
+            });
+
+            if (!res.ok) {
+                throw new Error('HTTP ' + res.status);
+            }
+
+            // GAS akan pulangkan JSON { success, code, message }
+            let data;
+            try {
+                data = await res.json();
+            } catch (e) {
+                throw new Error('Invalid JSON response from server');
+            }
+            return data;
+        }
+
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const t = translations[currentLang];
+            const userId = document.getElementById('userId').value.trim();
+            const currentPw = document.getElementById('currentPassword').value;
+            const newPw = document.getElementById('newPassword').value;
+            const confirmPw = document.getElementById('confirmPassword').value;
+
+            // Validasi asas
+            if (!userId || !currentPw || !newPw || !confirmPw) {
+                showStatus(t.error_empty, "error");
+                return;
+            }
+            if (newPw !== confirmPw) {
+                showStatus(t.error_match, "error");
+                return;
+            }
+            if (newPw.length < 6) {
+                showStatus(currentLang === 'ms'
+                    ? "Kata laluan baru mesti sekurang-kurangnya 6 aksara."
+                    : "New password must be at least 6 characters.", "error");
+                return;
+            }
+
+            const btn = document.getElementById('submitBtn');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.innerHTML = `<span class="loading-spinner"></span>${t.btn_loading}`;
+
+            try {
+                // 1) Kemaskini credential dalam Google Sheet melalui GAS
+                const data = await callGASChangePassword({
+                    userId,
+                    userType: selectedUserType,
+                    currentPassword: currentPw,
+                    newPassword: newPw
+                });
+
+                if (!data || data.success !== true) {
+                    // Peta ralat dari GAS ke mesej UI
+                    const code = (data && data.code) || '';
+                    let msg = (data && data.message) || t.error_db;
+                    if (code === 'INVALID_CREDENTIALS') msg = t.error_credentials;
+                    else if (code === 'NOT_FOUND')      msg = t.error_notfound;
+                    showStatus(msg, "error");
+                    return;
+                }
+
+                // 2) (Optional) Log ke Firebase untuk audit trail
+                try {
+                    if (db && auth && auth.currentUser) {
+                        await addDoc(
+                            collection(db, 'artifacts', appId, 'public', 'data', 'password_changes'),
+                            {
+                                user_id: userId,
+                                user_type: selectedUserType,
+                                timestamp: serverTimestamp(),
+                                status: 'success'
+                            }
+                        );
+                    }
+                } catch (logErr) {
+                    console.warn('Audit log failed (non-fatal):', logErr);
+                }
+
+                // 3) Papar Success View
+                document.getElementById('formContainer').classList.add('hidden-view');
+                document.getElementById('footerLinks').classList.add('hidden-view');
+                document.getElementById('successView').classList.remove('hidden-view');
+                updateUI();
+
+            } catch (error) {
+                console.error('Submit error:', error);
+                showStatus(t.error_network, "error");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText || t.btn_update;
+            }
+        });
+
+        initFirebase();
+        updateUI();
+    </script>
+</body>
+</html>
