@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fakulti Kejuruteraan Kimia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pantone-254c: #9B26B6;
+            --pantone-130c: #F2A900;
+            --pantone-655c: #002D62;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--pantone-254c);
+            background-image: 
+                linear-gradient(rgba(155, 38, 182, 0.75), rgba(0, 45, 98, 0.85)), 
+                url('https://conlay.com.my/data/images/item/img_511143_uitm.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .main-card {
+            min-height: 800px;
+            opacity: 0;
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes viewIn {
+            from { opacity: 0; transform: translateY(14px) scale(0.99); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .view-anim { animation: viewIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        .enter-glow {
+            position: relative;
+            overflow: hidden;
+        }
+        .enter-glow::after {
+            content: "";
+            position: absolute;
+            top: 0; left: -120%;
+            width: 60%; height: 100%;
+            background: linear-gradient(100deg, transparent, rgba(255,255,255,0.75), transparent);
+            transform: skewX(-20deg);
+            animation: shine 3.2s infinite;
+        }
+        @keyframes shine {
+            0% { left: -120%; }
+            55% { left: 140%; }
+            100% { left: 140%; }
+        }
+
+        .pulse-ring::before {
+            content: "";
+            position: absolute;
+            inset: -14px;
+            border-radius: 9999px;
+            border: 1px solid rgba(242, 169, 0, 0.35);
+            animation: ringPulse 3s ease-out infinite;
+        }
+        @keyframes ringPulse {
+            0% { transform: scale(0.9); opacity: 0.9; }
+            100% { transform: scale(1.35); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 md:p-8 lg:p-12 relative overflow-x-hidden">
+
+    <div class="main-card max-w-6xl w-full rounded-[48px] overflow-hidden flex flex-col md:flex-row relative z-10">
+        
+        <!-- Bahagian Kiri - Panel Maklumat -->
+        <div class="relative md:w-1/2 p-10 md:p-16 flex flex-col justify-between overflow-hidden min-h-[400px] border-b md:border-b-0 md:border-r border-white/10 bg-transparent">
+            
+            <div class="relative z-10">
+                <div class="inline-block border-l-4 border-[#F2A900] pl-6 mt-4">
+                    <h1 id="faculty-title-left" class="text-3xl md:text-5xl font-black tracking-tighter text-white leading-[1.1] uppercase drop-shadow-lg">
+                        FAKULTI<br><span class="text-[#F2A900]">KEJURUTERAAN KIMIA</span>
+                    </h1>
+                </div>
+            </div>
+
+            <div class="relative z-10 w-full text-left pl-6 pb-4">
+                <div class="space-y-0.5 drop-shadow-md">
+                    <p class="text-white text-[9px] font-bold tracking-[0.15em] uppercase">
+                        Universiti Teknologi MARA
+                    </p>
+                    <p class="text-white/90 text-[9px] font-semibold tracking-widest uppercase">
+                        Cawangan Johor, Kampus Pasir Gudang
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bahagian Kanan - Panel Kandungan -->
+        <div class="md:w-1/2 p-8 md:p-12 lg:p-16 flex flex-col justify-between relative bg-white/10 backdrop-blur-2xl">
+            <!-- Jalur Warna -->
+            <div class="absolute top-0 right-0 left-0 h-2 flex">
+                <div class="flex-1 bg-[#9B26B6]"></div>
+                <div class="flex-1 bg-[#F2A900]"></div>
+                <div class="flex-1 bg-[#002D62]"></div>
+            </div>
+
+            <!-- Navigasi Atas -->
+            <div class="flex justify-end items-center gap-4 mb-6">
+                <button onclick="toggleLanguage()" class="flex items-center gap-2 border border-white/20 px-4 py-2 rounded-full text-[10px] font-black text-white hover:bg-white/10 transition-all shadow-sm active:scale-95 uppercase">
+                    <span id="lang-label">BM</span> <span class="text-[8px] opacity-40 text-white">▼</span>
+                </button>
+            </div>
+
+            <!-- HALAMAN SELAMAT DATANG -->
+            <div id="welcomeView" class="flex-1 flex flex-col justify-center items-center text-center max-w-md w-full mx-auto view-anim">
+
+                <div class="relative mb-10">
+                    <div class="pulse-ring absolute inset-0 flex items-center justify-center"></div>
+                    <div class="w-24 h-24 rounded-[32px] bg-white/10 border border-white/20 backdrop-blur-xl flex items-center justify-center shadow-2xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#F2A900" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 10 12 5 2 10l10 5 10-5Z"/>
+                            <path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <p id="welcome-kicker" class="text-[10px] font-black uppercase tracking-[0.45em] text-[#F2A900] mb-4">
+                    Portal Rasmi
+                </p>
+
+                <h2 id="welcome-title" class="text-5xl md:text-6xl font-black text-white tracking-tighter leading-[0.95] mb-6 drop-shadow-xl">
+                    Selamat<br>Datang
+                </h2>
+
+                <p id="welcome-desc" class="text-white/60 text-[13px] font-semibold leading-relaxed max-w-xs mb-12">
+                    Fakulti Kejuruteraan Kimia, Universiti Teknologi MARA Cawangan Johor, Kampus Pasir Gudang.
+                </p>
+
+                <button type="button" onclick="enterPortal()" id="enterBtn"
+                    class="enter-glow group w-full py-5 bg-[#F2A900] text-[#002D62] rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] hover:bg-white transition-all shadow-2xl active:scale-[0.98] border-b-4 border-[#002D62]/20 flex items-center justify-center gap-3">
+                    <span id="enter-btn-text">Masuk</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:translate-x-1">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                </button>
+
+                <p id="welcome-note" class="text-[9px] font-bold text-white/35 uppercase tracking-[0.2em] mt-7 leading-relaxed">
+                    Tekan butang untuk teruskan
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Maklumat Hak Cipta -->
+    <div class="absolute bottom-6 right-8 z-50 pointer-events-none text-right">
+        <p class="text-[9px] md:text-[10px] font-bold text-white/30 tracking-widest leading-relaxed uppercase select-none drop-shadow-sm">
+            © 2026 Faculty Management System | Developed by Azmi Roslan. <br class="md:hidden">All rights reserved.
+        </p>
+    </div>
+
+    <script>
+        let currentLang = 'ms';
+
+        const translations = {
+            ms: {
+                label: "BM",
+                welcome_kicker: "Portal Rasmi",
+                welcome_title: "Selamat<br>Datang",
+                welcome_desc: "Fakulti Kejuruteraan Kimia, Universiti Teknologi MARA Cawangan Johor, Kampus Pasir Gudang.",
+                enter_btn: "Masuk",
+                welcome_note: "Tekan butang untuk teruskan"
+            },
+            en: {
+                label: "EN",
+                welcome_kicker: "Official Portal",
+                welcome_title: "Welcome",
+                welcome_desc: "Faculty of Chemical Engineering, Universiti Teknologi MARA Johor Branch, Pasir Gudang Campus.",
+                enter_btn: "Enter",
+                welcome_note: "Tap the button to continue"
+            }
+        };
+
+        window.toggleLanguage = function() {
+            currentLang = currentLang === 'ms' ? 'en' : 'ms';
+            updateUI();
+        };
+
+        function updateUI() {
+            const t = translations[currentLang];
+            document.getElementById('lang-label').textContent = t.label;
+            document.getElementById('faculty-title-left').innerHTML = currentLang === 'ms'
+                ? "FAKULTI<br><span class='text-[#F2A900]'>KEJURUTERAAN KIMIA</span>"
+                : "FACULTY OF<br><span class='text-[#F2A900]'>CHEMICAL ENGINEERING</span>";
+            document.getElementById('welcome-kicker').textContent = t.welcome_kicker;
+            document.getElementById('welcome-title').innerHTML    = t.welcome_title;
+            document.getElementById('welcome-desc').textContent   = t.welcome_desc;
+            document.getElementById('enter-btn-text').textContent = t.enter_btn;
+            document.getElementById('welcome-note').textContent   = t.welcome_note;
+        }
+
+        // ============================================================
+        //  BUTANG MASUK → ke halaman LOGIN
+        // ============================================================
+        window.enterPortal = function() {
+            window.location.href = 'login.html';
+        };
+
+        // Boleh tekan Enter / Space pada halaman selamat datang
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                enterPortal();
+            }
+        });
+
+        updateUI();
+    </script>
+</body>
+</html>
