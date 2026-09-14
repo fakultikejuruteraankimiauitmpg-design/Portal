@@ -1386,25 +1386,30 @@
     <span id="toastMsg" data-i18n="toast_saved">Settings Saved</span>
 </div>
 
+<!-- AUTH CHANGE: load cookie session helper BEFORE the main script -->
+<script src="auth.js"></script>
+
 <script>
 (function () {
 
     /* =========================================================
+       AUTH CHANGE: GUARD — redirect to login if not authed
+    ========================================================== */
+    const session = FMSAuth.requireAuth(['academic_staff']);
+    if (!session) return;   // already redirected to login.html
+
+    // Keep session alive on user activity
+    ['click', 'keydown'].forEach(evt =>
+        document.addEventListener(evt, () => FMSAuth.touch(), { passive: true })
+    );
+    /* ========================================================= */
+
+    /* =========================================================
        CONSTANTS & STATE
     ========================================================== */
-    const DEFAULT_STAFF = {
-        id: '1001',
-        name: 'Dr. Nurul Aisyah binti Rahman',
-        position: 'Pensyarah Kanan',
-        positionEn: 'Senior Lecturer',
-        unit: 'Jabatan Kejuruteraan Kimia',
-        email: 'nurul.aisyah@uitm.edu.my',
-        initials: 'NA',
-        loginAt: new Date().toISOString()
-    };
-
+    // AUTH CHANGE: DEFAULT_STAFF removed — user data now comes from session.
+    // Only kept DEMO_PASSWORD for the local password-change demo form.
     const DEMO_PASSWORD = 'admin123';
-    const SESSION_KEY = 'fkkStaffUser';
     const ACTIVITY_KEY= 'fkkActivityTrail';
     const ACTIVITY_LIMIT = 40;
 
@@ -2104,12 +2109,9 @@
         logActivity('password_change', staff.name, 'Password successfully updated');
     });
 
+    /* AUTH CHANGE: persist staff into session cookie */
     function persistStaff() {
-        try {
-            const raw = JSON.stringify(staff);
-            if (localStorage.getItem(SESSION_KEY)) localStorage.setItem(SESSION_KEY, raw);
-            else sessionStorage.setItem(SESSION_KEY, raw);
-        } catch (e) {}
+        FMSAuth.saveSession(staff, 'academic_staff');
     }
 
     /* =========================================================
@@ -2127,23 +2129,28 @@
     }
 
     /* =========================================================
-       LOGOUT
+       LOGOUT — AUTH CHANGE
     ========================================================== */
     document.getElementById('logoutBtn').addEventListener('click', function () {
-        localStorage.removeItem(SESSION_KEY);
-        sessionStorage.removeItem(SESSION_KEY);
-        window.location.href = 'loginstaff.html';
+        FMSAuth.clearSession();
+        window.location.href = 'login.html';
     });
 
     /* =========================================================
-       INIT
+       INIT — AUTH CHANGE
     ========================================================== */
     document.addEventListener('DOMContentLoaded', function () {
-        let saved = null;
-        try {
-            saved = JSON.parse(localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY) || 'null');
-        } catch (e) { saved = null; }
-        staff = (saved && saved.name) ? saved : DEFAULT_STAFF;
+        // Build staff object from the authenticated session
+        staff = {
+            id:         session.user.id       || '—',
+            name:       session.user.name     || '—',
+            email:      session.user.email    || '',
+            position:   session.user.position || '',
+            positionEn: session.user.position || '',
+            unit:       session.user.unit     || 'Jabatan Kejuruteraan Kimia',
+            initials:   makeInitials(session.user.name || ''),
+            loginAt:    new Date(session.loginAt).toISOString()
+        };
 
         loadActivities();
 
