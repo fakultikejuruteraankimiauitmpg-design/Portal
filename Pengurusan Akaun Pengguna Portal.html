@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Management | Admin Control Centre | FKK UiTM Johor</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script src="auth.js"></script>
+<script>
+    window.__FMS_SESSION__ = FMSAuth.requireAuth(['admin']);
+</script>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    :root { --navy:#002D62; --purple:#9B26B6; --gold:#FDB913; }
+    * { -webkit-tap-highlight-color: transparent; }
+    body { font-family:'Plus Jakarta Sans',sans-serif; scroll-behavior:smooth; background:#F8FAFC; background-attachment:fixed; }
+
+    .faculty-logo { display:flex; align-items:center; gap:14px; }
+    .logo-bar { width:3px; height:42px; background:#FDB913; border-radius:2px; }
+    .logo-text { display:flex; flex-direction:column; line-height:1.1; font-weight:800; text-transform:uppercase; letter-spacing:-0.01em; }
+    .logo-text .line-small { font-size:0.62rem; letter-spacing:0.2em; color:var(--gold); margin-bottom:2px; }
+    .logo-text .line-large { font-size:0.95rem; color:#fff; }
+
+    .glass-nav { background:#002D62; border-bottom:1px solid rgba(255,255,255,0.12); box-shadow:0 4px 30px -10px rgba(0,45,98,0.45); }
+
+    .lang-toggle-wrapper { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); border-radius:9999px; padding:3px; display:inline-flex; gap:2px; }
+    .lang-btn { padding:5px 11px; border-radius:9999px; font-size:10px; font-weight:800; cursor:pointer; transition:all .2s; opacity:.7; color:#fff; display:flex; align-items:center; gap:5px; }
+    .lang-btn:hover { opacity:1; background:rgba(255,255,255,.1); }
+    .lang-btn.active { opacity:1; background:#FDB913; color:#002D62; box-shadow:0 4px 14px rgba(253,185,19,.5); }
+
+    .card { background:#fff; border:1px solid rgba(226,232,240,0.8); transition:all .3s; position:relative; overflow:hidden; }
+    .btn-gold { background:#FDB913; color:#fff; transition:all .25s; box-shadow:0 10px 22px -8px rgba(253,185,19,.6); }
+    .btn-gold:hover { transform:translateY(-2px); box-shadow:0 16px 30px -10px rgba(253,185,19,.7); }
+
+    .text-p655c { color:var(--navy); }
+    .text-p254c { color:var(--purple); }
+    .text-p130c { color:var(--gold); }
+
+    .section-label { font-size:10px; font-weight:800; letter-spacing:.2em; text-transform:uppercase; color:#9B26B6; }
+
+    .chip { display:inline-flex; align-items:center; gap:6px; padding:5px 12px; font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; border-radius:9999px; }
+    .chip-gold { background:rgba(253,185,19,.18); color:#B45309; border:1px solid rgba(253,185,19,.4); }
+    .chip-purple { background:rgba(155,38,182,.12); color:#9B26B6; border:1px solid rgba(155,38,182,.3); }
+    .chip-navy { background:rgba(0,45,98,.10); color:#002D62; border:1px solid rgba(0,45,98,.25); }
+
+    @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+    .anim-up { animation:fadeUp .45s cubic-bezier(.4,0,.2,1) both; }
+
+    .stat-card { position:relative; overflow:hidden; color:#fff; border:none!important; box-shadow:0 14px 30px -12px rgba(0,0,0,.25); }
+    .stat-card::before { content:''; position:absolute; right:-30px; top:-30px; width:130px; height:130px; border-radius:50%; background:rgba(255,255,255,0.12); pointer-events:none; }
+    .stat-navy { background:#002D62; }
+    .stat-purple { background:#9B26B6; }
+    .stat-gold { background:#FDB913; }
+    .stat-deep { background:#002D62; }
+    .stat-card .stat-icon-box { width:44px; height:44px; border-radius:12px; background:rgba(255,255,255,0.20); display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,0.3); }
+    .stat-card .stat-icon-box i { color:#fff; font-size:16px; }
+
+    .hero-banner { background:#002D62; position:relative; overflow:hidden; box-shadow:0 20px 45px -18px rgba(0,45,98,.55); }
+    .hero-banner::before { content:''; position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,.18) 1px, transparent 1px); background-size:26px 26px; opacity:.35; }
+
+    .tbl-scroll { overflow-x:auto; }
+    .tbl { width:100%; border-collapse:separate; border-spacing:0; min-width:900px; }
+    .tbl thead th { font-size:9px; font-weight:900; letter-spacing:.16em; text-transform:uppercase; color:#94A3B8; padding:12px 14px; text-align:left; border-bottom:1px solid #E2E8F0; white-space:nowrap; background:#F8FAFC; }
+    .tbl tbody td { padding:13px 14px; border-bottom:1px solid #F1F5F9; font-size:12px; font-weight:600; color:#334155; vertical-align:middle; }
+    .tbl tbody tr { transition:background .2s ease; }
+    .tbl tbody tr.row-clickable { cursor:pointer; }
+    .tbl tbody tr.row-clickable:hover { background:#F0F4FA; }
+    .tbl tbody tr:last-child td { border-bottom:none; }
+
+    .tbl-avatar { width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:900; color:#fff; flex-shrink:0; letter-spacing:.02em; }
+    .tbl-user { display:flex; align-items:center; gap:11px; }
+    .tbl-user-name { font-size:12px; font-weight:800; color:var(--navy); line-height:1.3; }
+    .tbl-user-name .key-hint { color:#9B26B6; font-size:9px; opacity:.55; margin-left:4px; transition:opacity .2s; }
+    .tbl tbody tr.row-clickable:hover .key-hint { opacity:1; }
+    .tbl-user-mail { font-size:10px; font-weight:600; color:#94A3B8; margin-top:1px; }
+
+    .icon-btn { width:32px; height:32px; border-radius:9px; display:inline-flex; align-items:center; justify-content:center; font-size:11px; transition:all .2s ease; cursor:pointer; border:1px solid #E2E8F0; background:#fff; color:#64748B; }
+    .icon-btn:hover { border-color:#9B26B6; color:#9B26B6; background:#FAF5FF; }
+    .icon-btn.ok:hover { border-color:#002D62; color:#002D62; background:#EFF6FF; }
+    .icon-btn.warn:hover { border-color:#B45309; color:#B45309; background:#FFFBEB; }
+
+    .status-badge { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:9999px; font-size:9px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; white-space:nowrap; }
+    .status-ok { background:rgba(0,45,98,.10); color:#002D62; border:1px solid rgba(0,45,98,.25); }
+    .status-warn { background:rgba(253,185,19,.18); color:#B45309; border:1px solid rgba(253,185,19,.4); }
+
+    .badge-session { background:rgba(0,45,98,.08); color:#002D62; padding:3px 8px; border-radius:6px; font-size:10px; font-weight:800; font-family:'Courier New',monospace; border:1px solid rgba(0,45,98,.15); letter-spacing:.03em; }
+
+    .modal-backdrop { background:rgba(15,23,42,0.55); backdrop-filter:blur(6px); opacity:0; visibility:hidden; transition:all .25s ease; z-index:100; }
+    .modal-backdrop.open { opacity:1; visibility:visible; }
+    .modal-box { transform:translateY(18px) scale(.97); transition:all .3s cubic-bezier(.4,0,.2,1); border-radius:16px; overflow:hidden; }
+    .modal-backdrop.open .modal-box { transform:translateY(0) scale(1); }
+    .modal-header-gradient { background:#002D62; color:#fff; }
+
+    .field-label { display:block; font-size:9px; font-weight:800; letter-spacing:.18em; text-transform:uppercase; color:#94A3B8; margin-bottom:6px; }
+    .field-input { width:100%; padding:12px 14px; font-size:13px; font-weight:600; color:var(--navy); background:#F8FAFC; border:1px solid #E2E8F0; border-radius:10px; outline:none; transition:all .2s ease; }
+    .field-input::placeholder { color:#94A3B8; font-weight:500; }
+    .field-input:focus { background:#fff; border-color:#9B26B6; box-shadow:0 0 0 4px rgba(155,38,182,.12); }
+    .field-input:disabled { background:#F1F5F9; color:#64748B; cursor:not-allowed; }
+    .field-input.is-invalid { border-color:#9B26B6; background:#FAF5FF; }
+    select.field-input { appearance:none; cursor:pointer; }
+
+    .pwd-wrap { position:relative; }
+    .pwd-wrap .field-input { padding-right:44px; }
+    .pwd-toggle { position:absolute; right:14px; top:50%; transform:translateY(-50%); color:#94A3B8; font-size:12px; cursor:pointer; transition:color .2s; background:none; border:none; padding:0; }
+    .pwd-toggle:hover { color:#9B26B6; }
+
+    .strength-bar { height:5px; display:flex; gap:4px; }
+    .strength-seg { flex:1; background:#E2E8F0; border-radius:3px; transition:background .3s; }
+    .strength-seg.on-weak { background:#FDB913; }
+    .strength-seg.on-medium { background:#9B26B6; }
+    .strength-seg.on-strong { background:#002D62; }
+    .strength-text { font-size:9px; font-weight:800; letter-spacing:.15em; text-transform:uppercase; }
+    .strength-text.weak { color:#B45309; }
+    .strength-text.medium { color:#9B26B6; }
+    .strength-text.strong { color:#002D62; }
+
+    .error-box { display:none; padding:12px 14px; background:#FAF5FF; border-left:4px solid #9B26B6; border-radius:8px; font-size:11px; color:#6B21A8; font-weight:600; line-height:1.5; }
+    .error-box.show { display:block; animation:fadeUp .25s both; }
+    .error-box ul { list-style:disc; padding-left:16px; }
+
+    .info-banner { background:#EFF6FF; border-left:4px solid #9B26B6; border-radius:10px; }
+    .warning-banner { background:#FEF3C7; border-left:4px solid #FDB913; border-radius:10px; }
+
+    .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(80px); background:#FDB913; color:#fff; padding:14px 22px; border-radius:9999px; font-size:11px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; box-shadow:0 18px 40px -12px rgba(253,185,19,.6); display:flex; align-items:center; gap:10px; z-index:200; opacity:0; transition:all .35s; max-width:90vw; text-align:center; }
+    .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+    .toast.toast-blue { background:#002D62; box-shadow:0 18px 40px -12px rgba(0,45,98,.6); }
+
+    .site-footer { background:#002D62; color:#fff; margin-top:40px; position:relative; }
+    .site-footer::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background:#FDB913; }
+    .footer-inner { max-width:80rem; margin:0 auto; padding:56px 24px 0; }
+    .footer-grid { display:grid; grid-template-columns:1fr; gap:40px; padding-bottom:40px; border-bottom:1px solid rgba(255,255,255,0.12); }
+    @media (min-width:768px) { .footer-grid { grid-template-columns:1.4fr 1fr 1.2fr; gap:48px; } }
+    .footer-logo { display:flex; align-items:center; gap:14px; margin-bottom:18px; }
+    .footer-logo .logo-bar { width:3px; height:42px; background:#FDB913; border-radius:2px; }
+    .footer-logo .logo-text { display:flex; flex-direction:column; line-height:1.1; font-weight:800; text-transform:uppercase; }
+    .footer-logo .line-small { font-size:0.62rem; letter-spacing:0.2em; color:#FDB913; margin-bottom:2px; }
+    .footer-logo .line-large { font-size:0.95rem; color:#fff; }
+    .footer-desc { font-size:12px; line-height:1.7; color:rgba(255,255,255,0.75); font-weight:500; max-width:380px; }
+    .footer-heading { font-size:10px; font-weight:900; letter-spacing:0.2em; text-transform:uppercase; color:#FDB913; margin-bottom:18px; }
+    .footer-links { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; }
+    .footer-links a { color:rgba(255,255,255,0.8); text-decoration:none; font-size:12px; font-weight:600; transition:color .2s, padding-left .2s; display:inline-flex; align-items:center; gap:8px; }
+    .footer-links a::before { content:''; width:4px; height:4px; border-radius:50%; background:#9B26B6; display:inline-block; transition:background .2s; }
+    .footer-links a:hover { color:#FDB913; padding-left:4px; }
+    .footer-links a:hover::before { background:#FDB913; }
+    .footer-contact { display:flex; flex-direction:column; gap:14px; }
+    .footer-contact-item { display:flex; gap:12px; align-items:flex-start; font-size:12px; color:rgba(255,255,255,0.8); font-weight:500; line-height:1.6; }
+    .footer-contact-item i { color:#FDB913; font-size:13px; margin-top:3px; width:16px; flex-shrink:0; }
+    .footer-contact-item a { color:rgba(255,255,255,0.85); text-decoration:none; transition:color .2s; }
+    .footer-contact-item a:hover { color:#FDB913; }
+    .footer-bottom { padding:22px 0; display:flex; flex-direction:column; gap:12px; align-items:center; justify-content:space-between; }
+    @media (min-width:640px) { .footer-bottom { flex-direction:row; } }
+    .footer-copy { font-size:11px; font-weight:600; color:rgba(255,255,255,0.65); letter-spacing:0.03em; }
+    .footer-legal { display:flex; align-items:center; gap:20px; }
+    .footer-legal a { font-size:11px; font-weight:700; color:rgba(255,255,255,0.75); text-decoration:none; letter-spacing:0.05em; transition:color .2s; }
+    .footer-legal a:hover { color:#FDB913; }
+
+    .mini-btn { padding:7px 14px; border-radius:9px; font-size:10px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; transition:all .2s; border:1px solid transparent; display:inline-flex; align-items:center; gap:6px; }
+    .mini-navy { background:#002D62; color:#fff; }
+    .mini-navy:hover { transform:translateY(-1px); box-shadow:0 8px 18px -8px rgba(0,45,98,.6); }
+    .mini-purple { background:#9B26B6; color:#fff; }
+    .mini-purple:hover { transform:translateY(-1px); box-shadow:0 8px 18px -8px rgba(155,38,182,.6); }
+    .mini-ghost { background:#fff; color:#64748B; border-color:#E2E8F0; }
+    .mini-ghost:hover { border-color:#9B26B6; color:#9B26B6; background:#FAF5FF; }
+
+    .preview-tbl { width:100%; border-collapse:separate; border-spacing:0; }
+    .preview-tbl thead th { font-size:9px; font-weight:900; letter-spacing:.16em; text-transform:uppercase; color:#94A3B8; padding:10px 12px; text-align:left; border-bottom:1px solid #E2E8F0; white-space:nowrap; background:#F8FAFC; position:sticky; top:0; z-index:1; }
+    .preview-tbl tbody td { padding:10px 12px; border-bottom:1px solid #F1F5F9; font-size:11px; font-weight:600; color:#334155; }
+    .preview-tbl tbody tr:last-child td { border-bottom:none; }
+
+    .activity-timeline { position:relative; }
+    .activity-timeline::before { content:''; position:absolute; left:19px; top:22px; bottom:22px; width:2px; background:#E2E8F0; }
+    .activity-item { display:flex; gap:16px; padding:12px 0; position:relative; }
+    .activity-icon { width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; z-index:1; box-shadow:0 6px 16px -6px rgba(0,0,0,.35); border:2px solid #fff; }
+    .activity-icon i { font-size:14px; }
+    .activity-content { flex:1; min-width:0; padding-top:2px; }
+    .activity-title { font-size:12px; font-weight:800; color:var(--navy); line-height:1.4; }
+    .activity-entity { color:var(--purple); font-weight:900; }
+    .activity-detail { font-size:11px; font-weight:500; color:#64748B; margin-top:3px; line-height:1.5; word-break:break-word; }
+    .activity-actor { display:inline-flex; align-items:center; gap:6px; margin-top:6px; padding:3px 10px; background:rgba(0,45,98,.06); border:1px solid rgba(0,45,98,.15); border-radius:9999px; font-size:10px; font-weight:800; color:var(--navy); text-transform:uppercase; letter-spacing:.04em; }
+    .activity-actor i { font-size:9px; color:#FDB913; }
+    .activity-time { font-size:9px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:#94A3B8; margin-top:6px; display:inline-flex; align-items:center; gap:5px; }
+    .activity-empty { text-align:center; padding:36px 20px; color:#94A3B8; }
+    .activity-empty i { font-size:30px; margin-bottom:12px; display:block; opacity:.4; }
+
+    .pwd-display { font-family:'Courier New', monospace; font-size:20px; font-weight:900; letter-spacing:.25em; color:var(--navy); text-align:center; padding:22px 16px; background:#F8FAFC; border:2px dashed #CBD5E1; border-radius:12px; transition:all .2s; word-break:break-all; }
+    .pwd-display.revealed { letter-spacing:.08em; color:#9B26B6; border-color:rgba(155,38,182,.4); background:#FAF5FF; border-style:solid; }
+    .pwd-display.unavailable { font-size:11px; letter-spacing:0; color:#94A3B8; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
+    .copy-btn { background:#002D62; color:#fff; padding:12px 16px; border-radius:10px; font-size:10px; font-weight:900; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; border:none; transition:all .2s; display:inline-flex; align-items:center; justify-content:center; gap:6px; }
+    .copy-btn:hover { background:#9B26B6; }
+    .copy-btn:disabled { background:#CBD5E1; cursor:not-allowed; }
+</style>
+</head>
+<body class="text-slate-900">
+
+<nav class="glass-nav sticky top-0 z-50">
+    <div class="px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-[70px]">
+            <a href="admin portal.html" class="faculty-logo">
+                <div class="logo-bar"></div>
+                <div class="logo-text">
+                    <span class="line-small" data-i18n="nav_faculty">FAKULTI</span>
+                    <span class="line-large" data-i18n="nav_dept">KEJURUTERAAN KIMIA</span>
+                </div>
+            </a>
+            <div class="flex items-center gap-3 sm:gap-4">
+                <a href="admin portal.html" class="hidden md:flex items-center gap-2 text-white/80 hover:text-white text-[11px] font-bold uppercase tracking-widest transition px-3 py-2 rounded-full hover:bg-white/10">
+                    <i class="fas fa-arrow-left"></i> <span data-i18n="nav_back">Back to Admin Portal</span>
+                </a>
+                <div class="lang-toggle-wrapper">
+                    <button class="lang-btn active" id="btn-en" onclick="switchLanguage('en')">
+                        <img src="https://flagcdn.com/w20/gb.png" class="w-3.5 h-auto rounded-[2px]" alt="EN"> EN
+                    </button>
+                    <button class="lang-btn" id="btn-ms" onclick="switchLanguage('ms')">
+                        <img src="https://flagcdn.com/w20/my.png" class="w-3.5 h-auto rounded-[2px]" alt="BM"> BM
+                    </button>
+                </div>
+                <button class="relative text-white/80 hover:text-white transition p-2 rounded-full hover:bg-white/10">
+                    <i class="fas fa-bell text-sm"></i>
+                    <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-yellow-300"></span>
+                </button>
+                <div class="relative flex items-center gap-2">
+                    <button id="profileToggle" class="flex items-center gap-3 pl-3 sm:pl-4 border-l border-white/20">
+                        <div class="hidden sm:block text-right leading-tight">
+                            <p id="navName" class="text-[11px] font-black text-white uppercase tracking-wide">Administrator</p>
+                            <p id="navRole" class="text-[9px] font-bold text-p130c uppercase tracking-widest">Admin</p>
+                        </div>
+                        <div id="navAvatar" class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-black border-2 border-white/40 text-white" style="background:#FDB913;">AD</div>
+                        <i class="fas fa-chevron-down text-white/50 text-[10px] hidden sm:block"></i>
+                    </button>
+                    <button id="logoutBtn" title="Log out" class="text-white/70 hover:text-white transition px-3 py-2 rounded-full hover:bg-white/10 text-[11px] font-black uppercase tracking-widest flex items-center gap-2">
+                        <i class="fas fa-right-from-bracket"></i>
+                        <span class="hidden sm:inline">Logout</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+    <div class="hero-banner p-8 sm:p-10 mb-6 rounded-3xl anim-up">
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+                <span class="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.25em] text-yellow-300 mb-3">
+                    <span class="w-2 h-2 rounded-full bg-yellow-300 animate-pulse"></span>
+                    <span data-i18n="hero_tag">User Directory</span>
+                </span>
+                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-tight tracking-tight drop-shadow-lg">
+                    <span data-i18n="hero_title">User Management</span><br>
+                    <span class="text-yellow-300" data-i18n="hero_sub">Portal Accounts</span>
+                </h1>
+                <div class="mt-4 flex flex-wrap items-center gap-2">
+                    <span class="chip chip-gold"><i class="fas fa-users"></i> <span id="heroTotalUsers">0</span> <span data-i18n="hero_accounts">accounts</span></span>
+                    <span class="chip chip-purple"><i class="fas fa-user-shield"></i> <span data-i18n="role_admin">Administrator</span></span>
+                    <span class="chip chip-navy" id="serverStatusChip"><i class="fas fa-circle-notch fa-spin"></i> <span id="serverStatusText">Connecting…</span></span>
+                </div>
+            </div>
+            <div class="shrink-0">
+                <div class="bg-white/15 border border-white/25 p-5 min-w-[200px] rounded-2xl">
+                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-yellow-300 mb-1" data-i18n="hero_today">Today</p>
+                    <p id="todayDate" class="text-white font-bold text-sm">—</p>
+                    <div class="h-px bg-white/25 my-3"></div>
+                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-yellow-300 mb-1" data-i18n="hero_hint">Tip</p>
+                    <p class="text-white font-bold text-xs" data-i18n="hero_hint_val">Click any row to view password</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-6">
+        <div class="stat-card stat-navy p-5 sm:p-6 rounded-2xl">
+            <div class="flex items-start justify-between mb-3 relative z-10"><div class="stat-icon-box"><i class="fas fa-users"></i></div></div>
+            <p id="statTotal" class="text-2xl sm:text-3xl font-black leading-none mb-2 relative z-10">0</p>
+            <p class="text-[10px] font-black uppercase tracking-widest text-blue-100 relative z-10" data-i18n="stat_total">Total Accounts</p>
+        </div>
+        <div class="stat-card stat-purple p-5 sm:p-6 rounded-2xl">
+            <div class="flex items-start justify-between mb-3 relative z-10"><div class="stat-icon-box"><i class="fas fa-user-graduate"></i></div></div>
+            <p id="statStudents" class="text-2xl sm:text-3xl font-black leading-none mb-2 relative z-10">0</p>
+            <p class="text-[10px] font-black uppercase tracking-widest text-purple-100 relative z-10" data-i18n="stat_students">Students</p>
+        </div>
+        <div class="stat-card stat-gold p-5 sm:p-6 rounded-2xl">
+            <div class="flex items-start justify-between mb-3 relative z-10"><div class="stat-icon-box"><i class="fas fa-user-tie"></i></div></div>
+            <p id="statStaff" class="text-2xl sm:text-3xl font-black leading-none mb-2 relative z-10">0</p>
+            <p class="text-[10px] font-black uppercase tracking-widest text-yellow-100 relative z-10" data-i18n="stat_staff">Staff</p>
+        </div>
+        <div class="stat-card stat-deep p-5 sm:p-6 rounded-2xl">
+            <div class="flex items-start justify-between mb-3 relative z-10"><div class="stat-icon-box"><i class="fas fa-user-shield"></i></div></div>
+            <p id="statAdmins" class="text-2xl sm:text-3xl font-black leading-none mb-2 relative z-10">0</p>
+            <p class="text-[10px] font-black uppercase tracking-widest text-blue-100 relative z-10" data-i18n="stat_admins">Administrators</p>
+        </div>
+    </div>
+
+    <section class="card p-5 sm:p-6 rounded-3xl mb-6 anim-up">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-5 pb-4 border-b border-slate-100">
+            <div>
+                <span class="section-label" data-i18n="users_label">Directory</span>
+                <h3 class="text-lg font-black text-p655c mt-1" data-i18n="users_title">Portal Accounts</h3>
+                <p class="text-xs text-slate-500 font-medium mt-1" data-i18n="users_sub">Create, edit and manage access for all portal users</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+                <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl">
+                    <i class="fas fa-magnifying-glass text-slate-400 text-[11px]"></i>
+                    <input id="userSearch" type="text" placeholder="Search name, email or ID..." data-i18n-ph="users_search_ph" class="bg-transparent border-none outline-none text-[11px] font-semibold text-p655c placeholder-slate-400 w-40 sm:w-44">
+                </div>
+                <select id="roleFilter" class="field-input" style="width:auto;padding:9px 12px;font-size:11px;">
+                    <option value="all" data-i18n="filter_all">All Roles</option>
+                    <option value="student" data-i18n="role_student">Student</option>
+                    <option value="academic_staff" data-i18n="role_academic">Academic Staff</option>
+                    <option value="lab_staff" data-i18n="role_lab">Lab Staff</option>
+                    <option value="coordinator" data-i18n="role_coordinator">Coordinator</option>
+                    <option value="admin" data-i18n="role_admin_short">Admin</option>
+                </select>
+                <button id="refreshBtn" class="mini-btn mini-ghost" style="padding:9px 14px;" title="Refresh from server"><i class="fas fa-rotate"></i></button>
+                <button id="bulkImportBtn" class="mini-btn mini-ghost" style="padding:9px 14px;">
+                    <i class="fas fa-file-excel"></i> <span data-i18n="btn_import">Excel</span>
+                </button>
+                <button id="addUserBtn" class="btn-gold px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                    <i class="fas fa-user-plus"></i> <span data-i18n="btn_add">Add User</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="tbl-scroll">
+            <table class="tbl">
+                <thead>
+                    <tr>
+                        <th data-i18n="th_user">User</th>
+                        <th data-i18n="th_role">Role</th>
+                        <th data-i18n="th_program">Program / Department</th>
+                        <th data-i18n="th_session">Session ID</th>
+                        <th data-i18n="th_status">Status</th>
+                        <th style="text-align:right;" data-i18n="th_actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTbody"></tbody>
+            </table>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-3 mt-4 pt-4 border-t border-slate-100">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                <span data-i18n="showing">Showing</span>
+                <span id="shownCount" class="text-p655c">0</span>
+                <span data-i18n="of">of</span>
+                <span id="totalCount" class="text-p655c">0</span>
+                <span data-i18n="accounts">accounts</span>
+            </p>
+            <p class="text-[10px] font-bold text-purple-500 uppercase tracking-widest">
+                <i class="fas fa-hand-pointer"></i> <span data-i18n="click_hint">Click row to view password</span>
+            </p>
+        </div>
+    </section>
+
+    <section class="card p-5 sm:p-6 rounded-3xl mb-10 anim-up">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-5 pb-4 border-b border-slate-100">
+            <div>
+                <span class="section-label" data-i18n="audit_label">Jejak Audit</span>
+                <h3 class="text-lg font-black text-p655c mt-1" data-i18n="audit_title">Activity Log</h3>
+                <p class="text-xs text-slate-500 font-medium mt-1" data-i18n="audit_sub">All administrative actions recorded with actor information</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="chip chip-purple">
+                    <i class="fas fa-clock-rotate-left"></i>
+                    <span id="activityCount">0</span>
+                    <span data-i18n="audit_records">records</span>
+                </span>
+                <button id="clearActivityBtn" class="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-p254c transition px-3 py-2">
+                    <i class="fas fa-broom"></i> <span data-i18n="audit_clear">Clear</span>
+                </button>
+            </div>
+        </div>
+        <div id="activityTimeline" class="activity-timeline"></div>
+    </section>
+
+</main>
+
+<footer class="site-footer">
+    <div class="footer-inner">
+        <div class="footer-grid">
+            <div>
+                <div class="footer-logo">
+                    <div class="logo-bar"></div>
+                    <div class="logo-text"><span class="line-small">FAKULTI</span><span class="line-large">KEJURUTERAAN KIMIA</span></div>
+                </div>
+                <p class="footer-desc" data-i18n="footer_desc">Universiti Teknologi MARA (UiTM) Cawangan Johor, Kampus Pasir Gudang. Dedicated to academic excellence and industrial innovation.</p>
+            </div>
+            <div>
+                <h4 class="footer-heading" data-i18n="footer_quick_links">Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="admin portal.html" data-i18n="footer_dashboard">Admin Dashboard</a></li>
+                    <li><a href="#" data-i18n="footer_lab_dir">Lab Directory</a></li>
+                    <li><a href="#" data-i18n="footer_safety_manual">Safety Manual</a></li>
+                    <li><a href="#" data-i18n="footer_equipment_log">Equipment Log</a></li>
+                    <li><a href="#" data-i18n="footer_contact">Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="footer-heading" data-i18n="footer_contact_heading">UiTM Cawangan Johor</h4>
+                <div class="footer-contact">
+                    <div class="footer-contact-item"><i class="fas fa-location-dot"></i><span data-i18n="footer_address">Kampus Pasir Gudang, Jalan Purnama<br>81750 Masai, Johor</span></div>
+                    <div class="footer-contact-item"><i class="fas fa-phone"></i><a href="tel:+6073818000">+607-381 8000</a></div>
+                    <div class="footer-contact-item"><i class="fas fa-envelope"></i><a href="mailto:korporat@uitm.edu.my">korporat@uitm.edu.my</a></div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p class="footer-copy" data-i18n="footer_copyright">© 2026 FKK UiTM Johor. All Rights Reserved.</p>
+            <div class="footer-legal">
+                <a href="#" data-i18n="footer_privacy">Privacy Policy</a>
+                <a href="#" data-i18n="footer_terms">Terms of Use</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- ============================================================
+     PASSWORD REVEAL MODAL
+============================================================= -->
+<div id="pwdViewModal" class="modal-backdrop fixed inset-0 flex items-center justify-center p-4">
+    <div class="modal-box bg-white w-full max-w-md shadow-2xl overflow-hidden flex flex-col">
+        <div class="modal-header-gradient flex items-center justify-between px-6 py-5 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-white/20 border border-white/30">
+                    <i class="fas fa-key text-white text-sm"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-black leading-none" data-i18n="pwd_reveal_title">View Password</h3>
+                    <p class="text-[9px] font-bold text-white/70 uppercase tracking-widest mt-1" data-i18n="pwd_reveal_sub">Plaintext password for this account</p>
+                </div>
+            </div>
+            <button id="pwdViewClose" class="text-white/70 hover:text-white transition text-lg"><i class="fas fa-xmark"></i></button>
+        </div>
+
+        <div class="p-6 space-y-4">
+            <div id="pwdViewUser" class="bg-slate-50 p-4 rounded-xl border border-slate-200"></div>
+
+            <div>
+                <label class="field-label" data-i18n="pwd_reveal_label">Password</label>
+                <div id="pwdDisplay" class="pwd-display">••••••••</div>
+
+                <div class="flex gap-2 mt-3">
+                    <button id="pwdViewToggle" type="button" class="mini-btn mini-ghost flex-1" style="justify-content:center;">
+                        <i class="fas fa-eye"></i> <span data-i18n="pwd_reveal_show">Show</span>
+                    </button>
+                    <button id="pwdViewCopy" type="button" class="copy-btn flex-1">
+                        <i class="fas fa-copy"></i> <span data-i18n="pwd_reveal_copy">Copy</span>
+                    </button>
+                </div>
+
+                <div id="pwdViewWarn" class="warning-banner flex gap-3 p-3 mt-3 hidden">
+                    <i class="fas fa-triangle-exclamation text-amber-600 mt-0.5"></i>
+                    <p class="text-[10px] font-semibold text-amber-800 leading-relaxed" data-i18n="pwd_reveal_unavailable">
+                        Password not recoverable — use "Reset Password" to set a new one.
+                    </p>
+                </div>
+
+                <button id="pwdViewResetBtn" type="button" class="mini-btn mini-purple w-full mt-2 hidden" style="justify-content:center;">
+                    <i class="fas fa-key"></i> <span data-i18n="pwd_reveal_reset">Reset Password Now</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="flex gap-3 px-6 py-4 border-t border-slate-100 shrink-0 bg-slate-50">
+            <button id="pwdViewCloseBtn" type="button" class="flex-1 py-3 bg-slate-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-200 transition" data-i18n="btn_close">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     USER MODAL
+============================================================= -->
+<div id="userModal" class="modal-backdrop fixed inset-0 flex items-center justify-center p-4">
+    <div class="modal-box bg-white w-full max-w-lg shadow-2xl max-h-[92vh] overflow-hidden flex flex-col">
+        <div class="modal-header-gradient flex items-center justify-between px-6 py-5 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-white/20 border border-white/30"><i class="fas fa-user-gear text-white text-sm"></i></div>
+                <div>
+                    <h3 id="userModalTitle" class="text-base font-black leading-none">Add New User</h3>
+                    <p class="text-[9px] font-bold text-white/70 uppercase tracking-widest mt-1" data-i18n="modal_sub">Manage portal account details</p>
+                </div>
+            </div>
+            <button id="userModalClose" class="text-white/70 hover:text-white transition text-lg"><i class="fas fa-xmark"></i></button>
+        </div>
+        <div class="overflow-y-auto flex-1 p-6 space-y-5">
+            <div class="flex items-center gap-4 p-4 rounded-xl bg-slate-50">
+                <div id="userModalAvatar" class="w-16 h-16 rounded-full flex items-center justify-center text-lg font-black border-4 border-white shadow-md shrink-0 text-white" style="background:#002D62;">--</div>
+                <div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-600" data-i18n="modal_avatar_hint">Avatar initials auto-generated</p>
+                    <p class="text-[9px] font-bold text-slate-500 mt-1" data-i18n="modal_avatar_sub">Preview updates as you type</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div><label class="field-label" data-i18n="field_userid">User ID</label><input id="uId" type="text" class="field-input" placeholder="Auto if empty" style="font-family:'Courier New',monospace;"></div>
+                <div><label class="field-label" data-i18n="field_session">Session ID (Auto)</label><input id="uSession" type="text" class="field-input" readonly style="font-family:'Courier New',monospace;color:#94A3B8;"></div>
+            </div>
+            <div><label class="field-label" data-i18n="field_name">Full Name</label><input id="uName" type="text" class="field-input" placeholder="Enter full name"></div>
+            <div><label class="field-label" data-i18n="field_email">Email</label><input id="uEmail" type="email" class="field-input" placeholder="name@uitm.edu.my"></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="field-label" data-i18n="field_role">Role</label>
+                    <select id="uRole" class="field-input">
+                        <option value="student" data-i18n="role_student">Student</option>
+                        <option value="academic_staff" data-i18n="role_academic">Academic Staff</option>
+                        <option value="lab_staff" data-i18n="role_lab">Lab Staff</option>
+                        <option value="coordinator" data-i18n="role_coordinator">Coordinator</option>
+                        <option value="admin" data-i18n="role_admin_short">Admin</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="field-label" data-i18n="field_status">Status</label>
+                    <select id="uStatus" class="field-input">
+                        <option value="Aktif" data-i18n="status_active">Active</option>
+                        <option value="Tidak Aktif" data-i18n="status_inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+            <div><label class="field-label" data-i18n="field_program">Program / Department</label><input id="uProgram" type="text" class="field-input" placeholder="e.g. Kejuruteraan Kimia"></div>
+            <div>
+                <label class="field-label" data-i18n="field_password">Password</label>
+                <div class="pwd-wrap">
+                    <input id="uPwd" type="text" class="field-input" placeholder="Minimum 6 characters" style="font-family:'Courier New',monospace;">
+                    <button type="button" class="pwd-toggle" data-target="uPwd"><i class="fas fa-eye-slash"></i></button>
+                </div>
+            </div>
+            <div id="userError" class="error-box"></div>
+        </div>
+        <div class="flex gap-3 px-6 py-5 border-t border-slate-100 shrink-0 bg-slate-50">
+            <button id="userCancel" type="button" class="flex-1 py-3 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-white hover:text-p655c transition" data-i18n="btn_cancel">Cancel</button>
+            <button id="userSave" type="button" class="flex-1 btn-gold py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
+                <i class="fas fa-check"></i> <span data-i18n="btn_save">Save User</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     RESET PASSWORD MODAL
+============================================================= -->
+<div id="pwdModal" class="modal-backdrop fixed inset-0 flex items-center justify-center p-4">
+    <div class="modal-box bg-white w-full max-w-lg shadow-2xl max-h-[92vh] overflow-hidden flex flex-col">
+        <div class="modal-header-gradient flex items-center justify-between px-6 py-5 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-white/20 border border-white/30"><i class="fas fa-key text-white text-sm"></i></div>
+                <div>
+                    <h3 class="text-base font-black leading-none" data-i18n="pwd_modal_title">Reset Password</h3>
+                    <p class="text-[9px] font-bold text-white/70 uppercase tracking-widest mt-1" data-i18n="pwd_modal_sub">Set a new password for this account</p>
+                </div>
+            </div>
+            <button id="pwdModalClose" class="text-white/70 hover:text-white transition text-lg"><i class="fas fa-xmark"></i></button>
+        </div>
+        <div class="overflow-y-auto flex-1 p-6 space-y-5">
+            <div id="pwdUserCard" class="bg-slate-50 p-4 rounded-xl border border-slate-200"></div>
+            <div class="warning-banner flex gap-3 p-4">
+                <i class="fas fa-user-shield text-amber-600 mt-0.5"></i>
+                <div>
+                    <p class="text-[11px] font-black uppercase tracking-wider text-amber-800 mb-1" data-i18n="pwd_actor_title">Action will be logged</p>
+                    <p class="text-[10px] font-medium text-amber-800 leading-relaxed">
+                        <span data-i18n="pwd_actor_sub">This password change will be recorded under:</span>
+                        <span class="font-black text-amber-900 block mt-1" id="pwdActorName">—</span>
+                    </p>
+                </div>
+            </div>
+            <div class="info-banner flex gap-3 p-4">
+                <i class="fas fa-circle-info text-purple-600 mt-0.5"></i>
+                <div>
+                    <p class="text-[11px] font-black uppercase tracking-wider text-purple-800 mb-1" data-i18n="pwd_info_title">Set New Password</p>
+                    <p class="text-[10px] font-medium text-purple-700 leading-relaxed" data-i18n="pwd_info_sub">Minimum 8 characters · 1 uppercase · 1 lowercase · 1 number</p>
+                </div>
+            </div>
+            <div>
+                <label class="field-label" data-i18n="pwd_new">New Password</label>
+                <div class="pwd-wrap">
+                    <input id="newPwd" type="password" class="field-input" placeholder="Enter new password" autocomplete="new-password">
+                    <button type="button" class="pwd-toggle" data-target="newPwd"><i class="fas fa-eye"></i></button>
+                </div>
+                <div class="mt-3">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-[9px] font-black uppercase tracking-widest text-slate-400" data-i18n="pwd_strength_label">Strength</span>
+                        <span id="pwdStrengthText" class="strength-text">—</span>
+                    </div>
+                    <div class="strength-bar">
+                        <div class="strength-seg" id="pseg1"></div>
+                        <div class="strength-seg" id="pseg2"></div>
+                        <div class="strength-seg" id="pseg3"></div>
+                        <div class="strength-seg" id="pseg4"></div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <label class="field-label" data-i18n="pwd_confirm">Confirm New Password</label>
+                <div class="pwd-wrap">
+                    <input id="confirmPwd" type="password" class="field-input" placeholder="Re-enter password" autocomplete="new-password">
+                    <button type="button" class="pwd-toggle" data-target="confirmPwd"><i class="fas fa-eye"></i></button>
+                </div>
+            </div>
+            <div id="pwdError" class="error-box"></div>
+        </div>
+        <div class="flex gap-3 px-6 py-5 border-t border-slate-100 shrink-0 bg-slate-50">
+            <button id="pwdCancel" type="button" class="flex-1 py-3 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-white hover:text-p655c transition" data-i18n="btn_cancel">Cancel</button>
+            <button id="pwdSave" type="button" class="flex-1 btn-gold py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
+                <i class="fas fa-rotate-right"></i> <span data-i18n="pwd_btn_reset">Reset Password</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     BULK IMPORT MODAL
+============================================================= -->
+<div id="bulkModal" class="modal-backdrop fixed inset-0 flex items-center justify-center p-4">
+    <div class="modal-box bg-white w-full max-w-4xl shadow-2xl max-h-[92vh] overflow-hidden flex flex-col">
+        <div class="modal-header-gradient flex items-center justify-between px-6 py-5 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-white/20 border border-white/30"><i class="fas fa-file-excel text-white text-sm"></i></div>
+                <div>
+                    <h3 class="text-base font-black leading-none" data-i18n="bulk_title">Bulk Import Users</h3>
+                    <p class="text-[9px] font-bold text-white/70 uppercase tracking-widest mt-1" data-i18n="bulk_sub">Import accounts from Excel file</p>
+                </div>
+            </div>
+            <button id="bulkModalClose" class="text-white/70 hover:text-white transition text-lg"><i class="fas fa-xmark"></i></button>
+        </div>
+        <div class="overflow-y-auto flex-1 p-6 space-y-5">
+            <div class="info-banner flex gap-3 p-4">
+                <i class="fas fa-circle-info text-purple-600 mt-0.5"></i>
+                <div>
+                    <p class="text-[11px] font-black uppercase tracking-wider text-purple-800 mb-2" data-i18n="bulk_format_title">Excel Column Format</p>
+                    <p class="text-[10px] font-mono font-bold text-purple-700">User ID | User Name | Role Detected | Password | Status | Email | Program</p>
+                    <p class="text-[10px] font-medium text-purple-700 mt-2" data-i18n="bulk_format_sub">Role Detected: STUDENT, ACADEMIC_STAFF, LAB_STAFF, COORDINATOR, ADMIN · Status: Aktif / Tidak Aktif · User ID &amp; Password auto-generate if empty · Session ID auto-generated by system</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-3">
+                <button onclick="downloadTemplate()" class="mini-btn mini-navy"><i class="fas fa-download"></i> <span data-i18n="bulk_download">Download Template</span></button>
+                <label class="mini-btn mini-purple cursor-pointer"><i class="fas fa-upload"></i> <span data-i18n="bulk_choose">Choose File</span>
+                    <input type="file" id="excelInput" accept=".xlsx, .xls, .csv" class="hidden">
+                </label>
+            </div>
+            <div id="bulkPreviewArea" class="hidden">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                        <span data-i18n="bulk_preview">Preview</span> (<span id="bulkCount" class="text-p655c">0</span> <span data-i18n="bulk_rows">rows</span>)
+                    </span>
+                    <button onclick="clearBulkPreview()" class="text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-700">
+                        <i class="fas fa-times-circle"></i> <span data-i18n="bulk_clear">Clear</span>
+                    </button>
+                </div>
+                <div class="overflow-auto max-h-72 border border-slate-200 rounded-xl">
+                    <table class="preview-tbl">
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th data-i18n="th_name_short">Name</th>
+                                <th data-i18n="th_role">Role</th>
+                                <th data-i18n="th_session">Session ID</th>
+                                <th data-i18n="th_password">Password</th>
+                                <th data-i18n="th_status">Status</th>
+                                <th data-i18n="th_email">Email</th>
+                                <th data-i18n="th_program">Program</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bulkPreviewBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="flex gap-3 px-6 py-5 border-t border-slate-100 shrink-0 bg-slate-50">
+            <button id="bulkCancel" type="button" class="flex-1 py-3 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-white hover:text-p655c transition" data-i18n="btn_cancel">Cancel</button>
+            <button id="bulkConfirm" type="button" class="flex-1 btn-gold py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2" disabled style="opacity:.5;cursor:not-allowed;">
+                <i class="fas fa-check"></i> <span data-i18n="bulk_confirm">Import</span> <span id="bulkImportCount">0</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="toast"><i class="fas fa-circle-check"></i><span id="toastMsg">Saved</span></div>
+
+<script>
+(function () {
+
+    /* =========================================================
+       API CONFIG
+    ========================================================== */
+    const API_URL = "https://script.google.com/macros/s/AKfycbwTf6R87uxIhon3uB5ZW4E2M3o37J58UMRDu494bBQESo1YmaAT0gPDTnmYgmd4gh2IKg/exec";
+    const ACTIVITY_LIMIT = 60;
+
+    async function apiGet(action, params) {
+        params = params || {};
+        const url = new URL(API_URL);
+        url.searchParams.set('action', action);
+        Object.keys(params).forEach(function(k){ url.searchParams.set(k, params[k]); });
+        const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+    }
+
+    async function apiPost(payload) {
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload),
+            redirect: 'follow'
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+    }
+
+    /* =========================================================
+       CURRENT ADMIN
+    ========================================================== */
+    const session = window.__FMS_SESSION__;
+    const sessionUser = (session && session.user) || {};
+
+    function makeAdminInitials(name) {
+        if (!name) return 'AD';
+        const parts = String(name).trim().split(/\s+/).filter(function(w){
+            return !/^(bin|binti|dr\.?|prof\.?|en\.?|pn\.?|ir\.?|a\/l|a\/p)$/i.test(w);
+        });
+        if (!parts.length) return 'AD';
+        if (parts.length === 1) return parts[0].substring(0,2).toUpperCase();
+        return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+    }
+
+    const currentAdmin = {
+        id: sessionUser.id || sessionUser.userId || sessionUser.email || 'ADMIN',
+        name: sessionUser.name || sessionUser.email || 'Administrator',
+        initials: makeAdminInitials(sessionUser.name || 'Administrator'),
+        role: (sessionUser.role || 'admin')
+    };
+
+    /* =========================================================
+       STATE
+    ========================================================== */
+    let currentLang = 'en';
+    let editingUserId = null;
+    let resetPwdUserId = null;
+    let bulkUserData = [];
+    let appState = { users: [], auditLogs: [] };
+
+    const ROLE_META = {
+        student:        { i18n:'role_student',     bg:'#002D62', chip:'chip-navy',   prefix:'STU' },
+        academic_staff: { i18n:'role_academic',    bg:'#9B26B6', chip:'chip-purple', prefix:'ACA' },
+        lab_staff:      { i18n:'role_lab',         bg:'#FDB913', chip:'chip-gold',   prefix:'LAB' },
+        coordinator:    { i18n:'role_coordinator', bg:'#9B26B6', chip:'chip-purple', prefix:'CRD' },
+        admin:          { i18n:'role_admin_short', bg:'#002D62', chip:'chip-navy',   prefix:'ADM' }
+    };
+
+    const ACTIVITY_TYPES = {
+        user_add:       { icon:'fa-user-plus',  bg:'#002D62', en:'Created user account',      ms:'Cipta akaun pengguna' },
+        user_edit:      { icon:'fa-user-pen',   bg:'#9B26B6', en:'Updated user account',      ms:'Kemas kini akaun pengguna' },
+        user_delete:    { icon:'fa-user-minus', bg:'#9B26B6', en:'Deleted user account',      ms:'Padam akaun pengguna' },
+        password_reset: { icon:'fa-key',        bg:'#FDB913', en:'Reset user password',       ms:'Set semula kata laluan pengguna' },
+        password_view:  { icon:'fa-eye',        bg:'#9B26B6', en:'Viewed user password',      ms:'Lihat kata laluan pengguna' },
+        bulk_import:    { icon:'fa-file-excel', bg:'#002D62', en:'Imported users from Excel', ms:'Import pengguna dari Excel' },
+        activity_clear: { icon:'fa-broom',      bg:'#002D62', en:'Cleared activity log',      ms:'Kosongkan log aktiviti' }
+    };
+
+    /* =========================================================
+       i18n
+    ========================================================== */
+    const i18n = {
+        en: {
+            nav_faculty:"FAKULTI", nav_dept:"KEJURUTERAAN KIMIA", nav_back:"Back to Admin Portal",
+            hero_tag:"User Directory", hero_title:"User Management", hero_sub:"Portal Accounts",
+            hero_accounts:"accounts", hero_today:"Today", hero_hint:"Tip",
+            hero_hint_val:"Click any row to view password",
+            stat_total:"Total Accounts", stat_students:"Students", stat_staff:"Staff", stat_admins:"Administrators",
+            users_label:"Directory", users_title:"Portal Accounts",
+            users_sub:"Create, edit and manage access for all portal users",
+            users_search_ph:"Search name, email or ID...", filter_all:"All Roles",
+            role_student:"Student", role_academic:"Academic Staff", role_lab:"Lab Staff",
+            role_coordinator:"Coordinator", role_admin:"Administrator", role_admin_short:"Admin",
+            status_active:"Active", status_inactive:"Inactive",
+            btn_add:"Add User", btn_import:"Excel", btn_cancel:"Cancel", btn_save:"Save User", btn_close:"Close",
+            th_user:"User", th_role:"Role", th_program:"Program / Department",
+            th_session:"Session ID", th_status:"Status", th_actions:"Actions",
+            th_name_short:"Name", th_password:"Password", th_email:"Email",
+            showing:"Showing", of:"of", accounts:"accounts",
+            click_hint:"Click row to view password",
+            no_results:"No accounts match your filters",
+            confirm_delete:"Delete this user account permanently?",
+            modal_sub:"Manage portal account details",
+            modal_add:"Add New User", modal_edit:"Edit User",
+            modal_avatar_hint:"Avatar initials auto-generated", modal_avatar_sub:"Preview updates as you type",
+            field_userid:"User ID", field_session:"Session ID (Auto)",
+            field_name:"Full Name", field_email:"Email", field_role:"Role", field_status:"Status",
+            field_program:"Program / Department", field_password:"Password",
+            err_name:"Please enter the user's full name.", err_email:"Please enter a valid email address.",
+            pwd_modal_title:"Reset Password", pwd_modal_sub:"Set a new password for this account",
+            pwd_actor_title:"Action will be logged", pwd_actor_sub:"This password change will be recorded under:",
+            pwd_info_title:"Set New Password",
+            pwd_info_sub:"Minimum 8 characters · 1 uppercase · 1 lowercase · 1 number",
+            pwd_new:"New Password", pwd_confirm:"Confirm New Password", pwd_strength_label:"Strength",
+            pwd_strength_weak:"Weak", pwd_strength_medium:"Medium", pwd_strength_strong:"Strong",
+            pwd_btn_reset:"Reset Password",
+            pwd_err_empty:"Please fill in both password fields.",
+            pwd_err_short:"Password must be at least 8 characters.",
+            pwd_err_upper:"Password must contain an uppercase letter.",
+            pwd_err_lower:"Password must contain a lowercase letter.",
+            pwd_err_number:"Password must contain a number.",
+            pwd_err_match:"Passwords do not match.",
+            pwd_reveal_title:"View Password",
+            pwd_reveal_sub:"Plaintext password for this account",
+            pwd_reveal_label:"Password",
+            pwd_reveal_show:"Show",
+            pwd_reveal_hide:"Hide",
+            pwd_reveal_copy:"Copy",
+            pwd_reveal_copied:"Password copied",
+            pwd_reveal_unavailable:"Password not recoverable — use \"Reset Password\" to set a new one.",
+            pwd_reveal_reset:"Reset Password Now",
+            pwd_reveal_loading:"Loading…",
+            pwd_reveal_error:"Could not reach server. Try again.",
+            bulk_title:"Bulk Import Users", bulk_sub:"Import accounts from Excel file",
+            bulk_format_title:"Excel Column Format",
+            bulk_format_sub:"Role Detected: STUDENT, ACADEMIC_STAFF, LAB_STAFF, COORDINATOR, ADMIN · Status: Aktif / Tidak Aktif · User ID & Password auto-generate if empty · Session ID auto-generated by system",
+            bulk_download:"Download Template", bulk_choose:"Choose File",
+            bulk_preview:"Preview", bulk_rows:"rows", bulk_clear:"Clear", bulk_confirm:"Import",
+            bulk_no_data:"No valid data to import.",
+            toast_added:"User Created", toast_updated:"User Updated",
+            toast_deleted:"User Deleted", toast_pwd_reset:"Password Reset",
+            toast_imported:"Users Imported", toast_template:"Template Downloaded",
+            toast_by:"by",
+            audit_label:"Audit Trail", audit_title:"Activity Log",
+            audit_sub:"All administrative actions recorded with actor information",
+            audit_records:"records", audit_clear:"Clear", audit_empty:"No activity recorded yet",
+            audit_confirm_clear:"Clear the entire activity log?",
+            audit_actor:"Performed by", audit_cleared:"Activity Log Cleared",
+            footer_desc:"Universiti Teknologi MARA (UiTM) Cawangan Johor, Kampus Pasir Gudang. Dedicated to academic excellence and industrial innovation.",
+            footer_quick_links:"Quick Links", footer_dashboard:"Admin Dashboard",
+            footer_lab_dir:"Lab Directory", footer_safety_manual:"Safety Manual",
+            footer_equipment_log:"Equipment Log", footer_contact:"Contact",
+            footer_contact_heading:"UiTM Cawangan Johor",
+            footer_address:"Kampus Pasir Gudang, Jalan Purnama<br>81750 Masai, Johor",
+            footer_copyright:"© 2026 FKK UiTM Johor. All Rights Reserved.",
+            footer_privacy:"Privacy Policy", footer_terms:"Terms of Use"
+        },
+        ms: {
+            nav_faculty:"FAKULTI", nav_dept:"KEJURUTERAAN KIMIA", nav_back:"Kembali ke Portal Admin",
+            hero_tag:"Direktori Pengguna", hero_title:"Pengurusan Pengguna", hero_sub:"Akaun Portal",
+            hero_accounts:"akaun", hero_today:"Hari Ini", hero_hint:"Petua",
+            hero_hint_val:"Klik mana-mana baris untuk lihat kata laluan",
+            stat_total:"Jumlah Akaun", stat_students:"Pelajar", stat_staff:"Staf", stat_admins:"Pentadbir",
+            users_label:"Direktori", users_title:"Akaun Portal",
+            users_sub:"Cipta, sunting dan urus akses semua pengguna portal",
+            users_search_ph:"Cari nama, e-mel atau ID...", filter_all:"Semua Peranan",
+            role_student:"Pelajar", role_academic:"Staf Akademik", role_lab:"Staf Makmal",
+            role_coordinator:"Penyelaras", role_admin:"Pentadbir", role_admin_short:"Admin",
+            status_active:"Aktif", status_inactive:"Tidak Aktif",
+            btn_add:"Tambah Pengguna", btn_import:"Excel", btn_cancel:"Batal", btn_save:"Simpan Pengguna", btn_close:"Tutup",
+            th_user:"Pengguna", th_role:"Peranan", th_program:"Program / Jabatan",
+            th_session:"ID Sesi", th_status:"Status", th_actions:"Tindakan",
+            th_name_short:"Nama", th_password:"Kata Laluan", th_email:"E-mel",
+            showing:"Memaparkan", of:"daripada", accounts:"akaun",
+            click_hint:"Klik baris untuk lihat kata laluan",
+            no_results:"Tiada akaun sepadan dengan penapis anda",
+            confirm_delete:"Padam akaun pengguna ini secara kekal?",
+            modal_sub:"Urus butiran akaun portal",
+            modal_add:"Tambah Pengguna Baharu", modal_edit:"Sunting Pengguna",
+            modal_avatar_hint:"Inisial avatar dijana automatik", modal_avatar_sub:"Pratonton dikemas kini semasa anda menaip",
+            field_userid:"ID Pengguna", field_session:"ID Sesi (Auto)",
+            field_name:"Nama Penuh", field_email:"E-mel", field_role:"Peranan", field_status:"Status",
+            field_program:"Program / Jabatan", field_password:"Kata Laluan",
+            err_name:"Sila masukkan nama penuh pengguna.", err_email:"Sila masukkan alamat e-mel yang sah.",
+            pwd_modal_title:"Set Semula Kata Laluan", pwd_modal_sub:"Tetapkan kata laluan baharu untuk akaun ini",
+            pwd_actor_title:"Tindakan akan direkodkan", pwd_actor_sub:"Perubahan kata laluan ini akan direkodkan di bawah:",
+            pwd_info_title:"Tetapkan Kata Laluan Baharu",
+            pwd_info_sub:"Minimum 8 aksara · 1 huruf besar · 1 huruf kecil · 1 nombor",
+            pwd_new:"Kata Laluan Baharu", pwd_confirm:"Sahkan Kata Laluan", pwd_strength_label:"Kekuatan",
+            pwd_strength_weak:"Lemah", pwd_strength_medium:"Sederhana", pwd_strength_strong:"Kukuh",
+            pwd_btn_reset:"Set Semula Kata Laluan",
+            pwd_err_empty:"Sila isi kedua-dua medan kata laluan.",
+            pwd_err_short:"Kata laluan mestilah sekurang-kurangnya 8 aksara.",
+            pwd_err_upper:"Kata laluan mesti mengandungi huruf besar.",
+            pwd_err_lower:"Kata laluan mesti mengandungi huruf kecil.",
+            pwd_err_number:"Kata laluan mesti mengandungi nombor.",
+            pwd_err_match:"Kata laluan tidak sepadan.",
+            pwd_reveal_title:"Lihat Kata Laluan",
+            pwd_reveal_sub:"Kata laluan teks biasa untuk akaun ini",
+            pwd_reveal_label:"Kata Laluan",
+            pwd_reveal_show:"Tunjuk",
+            pwd_reveal_hide:"Sembunyi",
+            pwd_reveal_copy:"Salin",
+            pwd_reveal_copied:"Kata laluan disalin",
+            pwd_reveal_unavailable:"Kata laluan tidak boleh dipulihkan — guna \"Set Semula Kata Laluan\" untuk yang baharu.",
+            pwd_reveal_reset:"Set Semula Kata Laluan Sekarang",
+            pwd_reveal_loading:"Memuatkan…",
+            pwd_reveal_error:"Tidak dapat hubungi pelayan. Cuba lagi.",
+            bulk_title:"Import Pengguna Pukal", bulk_sub:"Import akaun dari fail Excel",
+            bulk_format_title:"Format Lajur Excel",
+            bulk_format_sub:"Role Detected: STUDENT, ACADEMIC_STAFF, LAB_STAFF, COORDINATOR, ADMIN · Status: Aktif / Tidak Aktif · User ID & Password dijana automatik jika kosong · ID Sesi dijana automatik oleh sistem",
+            bulk_download:"Muat Turun Template", bulk_choose:"Pilih Fail",
+            bulk_preview:"Pratonton", bulk_rows:"baris", bulk_clear:"Kosongkan", bulk_confirm:"Import",
+            bulk_no_data:"Tiada data sah untuk diimport.",
+            toast_added:"Pengguna Dicipta", toast_updated:"Pengguna Dikemas Kini",
+            toast_deleted:"Pengguna Dipadam", toast_pwd_reset:"Kata Laluan Ditetapkan Semula",
+            toast_imported:"Pengguna Diimport", toast_template:"Template Dimuat Turun", toast_by:"oleh",
+            audit_label:"Jejak Audit", audit_title:"Log Aktiviti",
+            audit_sub:"Semua tindakan pentadbiran direkodkan bersama maklumat pelaku",
+            audit_records:"rekod", audit_clear:"Kosongkan", audit_empty:"Tiada aktiviti direkodkan lagi",
+            audit_confirm_clear:"Kosongkan keseluruhan log aktiviti?",
+            audit_actor:"Dilakukan oleh", audit_cleared:"Log Aktiviti Dikosongkan",
+            footer_desc:"Universiti Teknologi MARA (UiTM) Cawangan Johor, Kampus Pasir Gudang. Berdedikasi untuk kecemerlangan akademik dan inovasi industri.",
+            footer_quick_links:"Pautan Pantas", footer_dashboard:"Dashboard Admin",
+            footer_lab_dir:"Direktori Makmal", footer_safety_manual:"Manual Keselamatan",
+            footer_equipment_log:"Log Peralatan", footer_contact:"Hubungi",
+            footer_contact_heading:"UiTM Cawangan Johor",
+            footer_address:"Kampus Pasir Gudang, Jalan Purnama<br>81750 Masai, Johor",
+            footer_copyright:"© 2026 FKK UiTM Johor. Hak Cipta Terpelihara.",
+            footer_privacy:"Dasar Privasi", footer_terms:"Terma Penggunaan"
+        }
+    };
+
+    function t(key) { return (i18n[currentLang] && i18n[currentLang][key]) || key; }
+
+    /* =========================================================
+       UTILITIES
+    ========================================================== */
+    function escapeHtml(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function(m){
+            return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m];
+        });
+    }
+    function makeInitials(name) {
+        if (!name) return '--';
+        const parts = name.trim().split(/\s+/).filter(function(w){
+            return !/^(bin|binti|bin\.|binti\.|bt|a\/l|a\/p|dr\.?|en\.?|pn\.?|ir\.?|prof\.?)$/i.test(w);
+        });
+        if (parts.length === 0) return '--';
+        if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    function generateDefaultPassword(email) {
+        const prefix = (email || 'user').split('@')[0];
+        const clean = prefix.replace(/[^a-zA-Z0-9]/g, '');
+        const base = clean.length >= 4 ? clean : clean.padEnd(4, 'x');
+        return base + '123';
+    }
+    function getSessionPrefix(role) { return (ROLE_META[role] || ROLE_META.student).prefix; }
+    function autoGenerateSessionIdHint(role) {
+        const prefix = getSessionPrefix(role);
+        let maxNum = 0;
+        appState.users.forEach(function(u){
+            if (!u.sessionId) return;
+            const match = String(u.sessionId).match(new RegExp('^' + prefix + '-(\\d+)$'));
+            if (match) {
+                const num = parseInt(match[1], 10);
+                if (!isNaN(num) && num > maxNum) maxNum = num;
+            }
+        });
+        return prefix + '-' + String(maxNum + 1).padStart(4, '0') + ' (auto)';
+    }
+    function roleLabel(role) { return t((ROLE_META[role] || ROLE_META.student).i18n); }
+
+    /* =========================================================
+       LOAD STATE
+    ========================================================== */
+    async function loadStateFromApi() {
+        setServerStatus('loading', 'Loading…');
+        try {
+            const results = await Promise.all([ apiGet('getUsers'), apiGet('getActivity', { limit: ACTIVITY_LIMIT }) ]);
+            const usersRes = results[0], logsRes = results[1];
+            appState.users = (usersRes && usersRes.success && Array.isArray(usersRes.users)) ? usersRes.users : [];
+            appState.auditLogs = (logsRes && logsRes.success && Array.isArray(logsRes.logs)) ? logsRes.logs.slice(0, ACTIVITY_LIMIT) : [];
+            setServerStatus('ok', 'Online');
+            renderUsers();
+            renderActivity();
+        } catch (err) {
+            console.error('loadStateFromApi', err);
+            setServerStatus('err', 'Offline');
+            showToast('Failed to reach server', true);
+            renderUsers();
+            renderActivity();
+        }
+    }
+    function setServerStatus(state, label) {
+        const chip = document.getElementById('serverStatusChip');
+        const text = document.getElementById('serverStatusText');
+        if (!chip || !text) return;
+        text.textContent = label;
+        const icon = chip.querySelector('i');
+        if (!icon) return;
+        icon.classList.remove('fa-circle-notch','fa-spin','fa-circle-check','fa-triangle-exclamation');
+        if (state === 'loading') icon.classList.add('fa-circle-notch','fa-spin');
+        else if (state === 'ok') icon.classList.add('fa-circle-check');
+        else icon.classList.add('fa-triangle-exclamation');
+    }
+
+    /* =========================================================
+       ACTIVITY
+    ========================================================== */
+    function relativeTime(iso) {
+        if (!iso) return '';
+        const diff = Date.now() - new Date(iso).getTime();
+        const sec = Math.max(0, Math.floor(diff / 1000));
+        if (sec < 45) return currentLang === 'ms' ? 'Baru sahaja' : 'Just now';
+        const min = Math.floor(sec / 60);
+        if (min < 60) return min + (currentLang === 'ms' ? ' min lalu' : 'm ago');
+        const hr = Math.floor(min / 60);
+        if (hr < 24) return hr + (currentLang === 'ms' ? ' jam lalu' : 'h ago');
+        const day = Math.floor(hr / 24);
+        if (day < 7) return day + (currentLang === 'ms' ? ' hari lalu' : 'd ago');
+        return new Date(iso).toLocaleDateString(currentLang === 'ms' ? 'ms-MY' : 'en-GB', { day:'2-digit', month:'short', year:'numeric' });
+    }
+
+    function renderActivity() {
+        const tl = document.getElementById('activityTimeline');
+        const countEl = document.getElementById('activityCount');
+        const logs = appState.auditLogs || [];
+        if (countEl) countEl.textContent = logs.length;
+        if (!tl) return;
+        if (!logs.length) {
+            tl.innerHTML = '<div class="activity-empty"><i class="fas fa-clock-rotate-left"></i><p class="text-xs font-bold uppercase tracking-widest">' + escapeHtml(t('audit_empty')) + '</p></div>';
+            return;
+        }
+        tl.innerHTML = logs.map(function(a){
+            const meta = ACTIVITY_TYPES[a.type] || ACTIVITY_TYPES.user_add;
+            const label = currentLang === 'ms' ? meta.ms : meta.en;
+            const entityHtml = a.entity ? ' <span class="activity-entity">· ' + escapeHtml(a.entity) + '</span>' : '';
+            const detailHtml = a.detail ? '<p class="activity-detail">' + escapeHtml(a.detail) + '</p>' : '';
+            const actorHtml = a.actor ? '<div class="activity-actor"><i class="fas fa-user-shield"></i> ' + escapeHtml(t('audit_actor')) + ': ' + escapeHtml(a.actor) + '</div>' : '';
+            return '<div class="activity-item"><div class="activity-icon" style="background:' + meta.bg + ';"><i class="fas ' + meta.icon + '"></i></div><div class="activity-content"><p class="activity-title">' + escapeHtml(label) + entityHtml + '</p>' + detailHtml + actorHtml + '<p class="activity-time"><i class="far fa-clock"></i> ' + escapeHtml(relativeTime(a.timestamp)) + '</p></div></div>';
+        }).join('');
+    }
+
+    document.getElementById('clearActivityBtn').addEventListener('click', async function () {
+        if (!(appState.auditLogs && appState.auditLogs.length)) return;
+        if (!confirm(t('audit_confirm_clear'))) return;
+        try {
+            const res = await apiPost({ action: 'clearActivity', actor: currentAdmin.name, actorId: currentAdmin.id, actorRole: currentAdmin.role });
+            if (!res || !res.success) { showToast((res && res.message) || 'Clear failed', true); return; }
+            await loadStateFromApi();
+            showToast(t('audit_cleared'), true);
+        } catch (e) { console.error(e); showToast('Network error', true); }
+    });
+
+    /* =========================================================
+       LANGUAGE
+    ========================================================== */
+    window.switchLanguage = function (lang) {
+        currentLang = lang;
+        document.querySelectorAll('[data-i18n]').forEach(function(el){
+            const key = el.getAttribute('data-i18n');
+            if (i18n[lang] && i18n[lang][key] !== undefined) el.innerHTML = i18n[lang][key];
+        });
+        document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
+            const key = el.getAttribute('data-i18n-ph');
+            if (i18n[lang] && i18n[lang][key]) el.setAttribute('placeholder', i18n[lang][key]);
+        });
+        document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+        document.getElementById('btn-ms').classList.toggle('active', lang === 'ms');
+        renderUsers();
+        renderActivity();
+        updateStrength('newPwd', 'pwdStrengthText', ['pseg1','pseg2','pseg3','pseg4']);
+    };
+
+    /* =========================================================
+       RENDER USERS
+    ========================================================== */
+    function renderUsers() {
+        const tbody = document.getElementById('usersTbody');
+        if (!tbody) return;
+
+        const q = (document.getElementById('userSearch').value || '').trim().toLowerCase();
+        const roleF = document.getElementById('roleFilter').value || 'all';
+
+        const filtered = appState.users.filter(function(u){
+            const matchQ = !q ||
+                String(u.name || '').toLowerCase().indexOf(q) !== -1 ||
+                String(u.email || '').toLowerCase().indexOf(q) !== -1 ||
+                String(u.id + '').toLowerCase().indexOf(q) !== -1 ||
+                String(u.sessionId || '').toLowerCase().indexOf(q) !== -1;
+            const matchR = roleF === 'all' || u.role === roleF;
+            return matchQ && matchR;
+        });
+
+        document.getElementById('shownCount').textContent = filtered.length;
+        document.getElementById('totalCount').textContent = appState.users.length;
+        document.getElementById('heroTotalUsers').textContent = appState.users.length;
+
+        document.getElementById('statTotal').textContent = appState.users.length;
+        document.getElementById('statStudents').textContent = appState.users.filter(function(u){ return u.role === 'student'; }).length;
+        document.getElementById('statStaff').textContent = appState.users.filter(function(u){
+            return u.role === 'academic_staff' || u.role === 'lab_staff' || u.role === 'coordinator';
+        }).length;
+        document.getElementById('statAdmins').textContent = appState.users.filter(function(u){ return u.role === 'admin'; }).length;
+
+        if (!filtered.length) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:34px;color:#94A3B8;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.12em;">'
+                + '<i class="fas fa-user-slash" style="display:block;font-size:22px;margin-bottom:10px;opacity:.4;"></i>' + escapeHtml(t('no_results')) + '</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = filtered.map(function(u){
+            const rm = ROLE_META[u.role] || ROLE_META.student;
+            const initials = makeInitials(u.name);
+            const statusCls = u.status === 'Aktif' ? 'status-ok' : 'status-warn';
+            return '<tr class="row-clickable" data-user-id="' + escapeHtml(String(u.id)) + '" title="' + escapeHtml(t('click_hint')) + '">'
+                + '<td><div class="tbl-user"><div class="tbl-avatar" style="background:' + rm.bg + ';">' + escapeHtml(initials) + '</div><div class="min-w-0">'
+                + '<p class="tbl-user-name">' + escapeHtml(u.name) + '<i class="fas fa-key key-hint"></i></p>'
+                + '<p class="tbl-user-mail">' + escapeHtml(u.email) + ' · #' + escapeHtml(String(u.id)) + '</p>'
+                + '</div></div></td>'
+                + '<td><span class="chip ' + rm.chip + '">' + escapeHtml(roleLabel(u.role)) + '</span></td>'
+                + '<td style="color:#475569;font-size:11px;font-weight:700;">' + escapeHtml(u.program || '—') + '</td>'
+                + '<td><span class="badge-session">' + escapeHtml(u.sessionId || '—') + '</span></td>'
+                + '<td><span class="status-badge ' + statusCls + '">' + escapeHtml(u.status || 'Aktif') + '</span></td>'
+                + '<td style="text-align:right;white-space:nowrap;">'
+                +   '<button class="icon-btn" title="View Password" data-act="viewpwd" data-id="' + escapeHtml(String(u.id)) + '"><i class="fas fa-eye"></i></button>'
+                +   '<button class="icon-btn" title="Edit" data-act="edit" data-id="' + escapeHtml(String(u.id)) + '"><i class="fas fa-pen"></i></button>'
+                +   '<button class="icon-btn warn" title="Reset Password" data-act="pwd" data-id="' + escapeHtml(String(u.id)) + '"><i class="fas fa-key"></i></button>'
+                +   '<button class="icon-btn ok" title="Delete" data-act="delete" data-id="' + escapeHtml(String(u.id)) + '"><i class="fas fa-trash-can"></i></button>'
+                + '</td></tr>';
+        }).join('');
+
+        tbody.querySelectorAll('tr.row-clickable').forEach(function(tr){
+            tr.addEventListener('click', function(e){
+                if (e.target.closest('button[data-act]')) return;
+                openPasswordView(tr.dataset.userId);
+            });
+        });
+
+        tbody.querySelectorAll('button[data-act]').forEach(function(btn){
+            btn.addEventListener('click', function(e){
+                e.stopPropagation();
+                const act = btn.dataset.act;
+                const id = btn.dataset.id;
+                if (act === 'edit') openUserModal(id);
+                else if (act === 'pwd') openPwdModal(id);
+                else if (act === 'viewpwd') openPasswordView(id);
+                else if (act === 'delete') deleteUser(id);
+            });
+        });
+    }
+
+    document.getElementById('userSearch').addEventListener('input', renderUsers);
+    document.getElementById('roleFilter').addEventListener('change', renderUsers);
+    document.getElementById('refreshBtn').addEventListener('click', function(){
+        loadStateFromApi();
+        showToast('Refreshed from server', false);
+    });
+
+    /* =========================================================
+       PASSWORD REVEAL MODAL — DEDICATED ENDPOINT
+    ========================================================== */
+    const pwdViewModal = document.getElementById('pwdViewModal');
+    const pwdDisplay = document.getElementById('pwdDisplay');
+    const pwdViewToggle = document.getElementById('pwdViewToggle');
+    const pwdViewCopy = document.getElementById('pwdViewCopy');
+    const pwdViewWarn = document.getElementById('pwdViewWarn');
+    const pwdViewResetBtn = document.getElementById('pwdViewResetBtn');
+
+    let pwdViewState = { revealed: false, value: '', userId: null };
+
+    async function openPasswordView(userId) {
+        const u = appState.users.find(function(x){ return String(x.id) === String(userId); });
+        if (!u) return;
+
+        pwdViewState.userId = userId;
+        pwdViewState.revealed = false;
+        pwdViewState.value = '';
+
+        document.getElementById('pwdViewUser').innerHTML = ''
+            + '<div class="flex items-center gap-3">'
+            +   '<div class="tbl-avatar" style="background:' + (ROLE_META[u.role] || ROLE_META.student).bg + ';width:44px;height:44px;border-radius:12px;font-size:13px;">'
+            +     escapeHtml(makeInitials(u.name))
+            +   '</div>'
+            +   '<div class="min-w-0">'
+            +     '<div class="font-bold text-p655c text-sm">' + escapeHtml(u.name) + '</div>'
+            +     '<div class="text-slate-500 text-xs truncate">' + escapeHtml(u.email) + ' · <span class="font-mono text-[10px]">' + escapeHtml(u.sessionId || '') + '</span></div>'
+            +   '</div>'
+            + '</div>';
+
+        pwdDisplay.textContent = t('pwd_reveal_loading');
+        pwdDisplay.className = 'pwd-display';
+        pwdViewWarn.classList.add('hidden');
+        pwdViewResetBtn.classList.add('hidden');
+        pwdViewToggle.disabled = true;
+        pwdViewCopy.disabled = true;
+        pwdViewToggle.style.opacity = '.4';
+        pwdViewCopy.style.opacity = '.4';
+        setToggleLabel(false);
+
+        pwdViewModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+
+        // === DEDICATED SERVER CALL ===
+        try {
+            const res = await apiPost({
+                action: 'getUserPassword',
+                id: u.id,
+                actor: currentAdmin.name,
+                actorId: currentAdmin.id,
+                actorRole: currentAdmin.role
+            });
+
+            if (!res || !res.success) {
+                pwdDisplay.textContent = (res && res.message) || t('pwd_reveal_error');
+                pwdDisplay.className = 'pwd-display unavailable';
+                pwdViewWarn.classList.remove('hidden');
+                pwdViewResetBtn.classList.remove('hidden');
+                return;
+            }
+
+            const plain = String(res.password || '').trim();
+            if (!plain) {
+                pwdDisplay.textContent = t('pwd_reveal_unavailable');
+                pwdDisplay.className = 'pwd-display unavailable';
+                pwdViewWarn.classList.remove('hidden');
+                pwdViewResetBtn.classList.remove('hidden');
+                return;
+            }
+
+            // Got plaintext — render hidden by default
+            pwdViewState.value = plain;
+            pwdDisplay.textContent = '••••••••••••';
+            pwdDisplay.className = 'pwd-display';
+            pwdViewToggle.disabled = false;
+            pwdViewCopy.disabled = false;
+            pwdViewToggle.style.opacity = '';
+            pwdViewCopy.style.opacity = '';
+            setToggleLabel(false);
+
+            // Refresh activity log silently (view was logged server-side)
+            setTimeout(function(){
+                apiGet('getActivity', { limit: ACTIVITY_LIMIT }).then(function(r){
+                    if (r && r.success) { appState.auditLogs = (r.logs || []).slice(0, ACTIVITY_LIMIT); renderActivity(); }
+                }).catch(function(){});
+            }, 500);
+
+        } catch (err) {
+            console.error('password reveal', err);
+            pwdDisplay.textContent = t('pwd_reveal_error');
+            pwdDisplay.className = 'pwd-display unavailable';
+            pwdViewWarn.classList.remove('hidden');
+        }
+    }
+
+    function setToggleLabel(revealed) {
+        const icon = pwdViewToggle.querySelector('i');
+        const label = pwdViewToggle.querySelector('span');
+        if (revealed) {
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+            label.textContent = t('pwd_reveal_hide');
+        } else {
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+            label.textContent = t('pwd_reveal_show');
+        }
+    }
+
+    function closePwdViewModal() {
+        pwdViewModal.classList.remove('open');
+        document.body.style.overflow = '';
+        pwdViewState = { revealed: false, value: '', userId: null };
+    }
+
+    pwdViewToggle.addEventListener('click', function(){
+        if (!pwdViewState.value) return;
+        pwdViewState.revealed = !pwdViewState.revealed;
+        if (pwdViewState.revealed) {
+            pwdDisplay.textContent = pwdViewState.value;
+            pwdDisplay.className = 'pwd-display revealed';
+        } else {
+            pwdDisplay.textContent = '••••••••••••';
+            pwdDisplay.className = 'pwd-display';
+        }
+        setToggleLabel(pwdViewState.revealed);
+    });
+
+    pwdViewCopy.addEventListener('click', function(){
+        if (!pwdViewState.value) return;
+        const done = function(){ showToast(t('pwd_reveal_copied'), false); };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(pwdViewState.value).then(done).catch(function(){
+                fallbackCopy(pwdViewState.value); done();
+            });
+        } else {
+            fallbackCopy(pwdViewState.value); done();
+        }
+    });
+
+    pwdViewResetBtn.addEventListener('click', function(){
+        if (!pwdViewState.userId) return;
+        const uid = pwdViewState.userId;
+        closePwdViewModal();
+        setTimeout(function(){ openPwdModal(uid); }, 200);
+    });
+
+    function fallbackCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+    }
+
+    document.getElementById('pwdViewClose').addEventListener('click', closePwdViewModal);
+    document.getElementById('pwdViewCloseBtn').addEventListener('click', closePwdViewModal);
+    pwdViewModal.addEventListener('click', function(e){ if (e.target === pwdViewModal) closePwdViewModal(); });
+
+    /* =========================================================
+       USER MODAL (ADD / EDIT)
+    ========================================================== */
+    const userModal = document.getElementById('userModal');
+    const uId = document.getElementById('uId');
+    const uSession = document.getElementById('uSession');
+    const uName = document.getElementById('uName');
+    const uEmail = document.getElementById('uEmail');
+    const uRole = document.getElementById('uRole');
+    const uStatus = document.getElementById('uStatus');
+    const uProgram = document.getElementById('uProgram');
+    const uPwd = document.getElementById('uPwd');
+    const userError = document.getElementById('userError');
+    const userModalAvatar = document.getElementById('userModalAvatar');
+    const userModalTitle = document.getElementById('userModalTitle');
+
+    function nextUserId() {
+        const nums = appState.users.map(function(u){
+            const m = String(u.id).match(/(\d+)$/);
+            return m ? parseInt(m[1], 10) : 0;
+        }).filter(function(n){ return !isNaN(n); });
+        return (nums.length ? Math.max.apply(null, nums) : 1000) + 1;
+    }
+
+    function openUserModal(id) {
+        editingUserId = id || null;
+        hideUserError();
+        [uId, uName, uEmail, uProgram, uPwd].forEach(function(f){ if (f) f.classList.remove('is-invalid'); });
+
+        if (id) {
+            const u = appState.users.find(function(x){ return String(x.id) === String(id); });
+            if (!u) return;
+            userModalTitle.textContent = t('modal_edit');
+            uId.value = u.id;
+            uId.readOnly = true;
+            uSession.value = u.sessionId || '';
+            uName.value = u.name;
+            uEmail.value = u.email;
+            uRole.value = u.role;
+            uStatus.value = u.status || 'Aktif';
+            uProgram.value = u.program || '';
+            uPwd.value = '';
+            uPwd.placeholder = 'Leave empty to keep current';
+            userModalAvatar.style.background = (ROLE_META[u.role] || ROLE_META.student).bg;
+            userModalAvatar.textContent = makeInitials(u.name);
+        } else {
+            userModalTitle.textContent = t('modal_add');
+            uId.readOnly = false;
+            uId.value = nextUserId();
+            uRole.value = 'student';
+            uSession.value = autoGenerateSessionIdHint('student');
+            uName.value = '';
+            uEmail.value = '';
+            uStatus.value = 'Aktif';
+            uProgram.value = '';
+            uPwd.value = 'password123';
+            uPwd.placeholder = 'Minimum 6 characters';
+            userModalAvatar.style.background = ROLE_META.student.bg;
+            userModalAvatar.textContent = '--';
+        }
+        userModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        setTimeout(function(){ uName.focus(); }, 120);
+    }
+    function closeUserModal() {
+        userModal.classList.remove('open');
+        document.body.style.overflow = '';
+        editingUserId = null;
+    }
+    function showUserError(msg) { userError.innerHTML = '<ul><li>' + escapeHtml(msg) + '</li></ul>'; userError.classList.add('show'); }
+    function hideUserError() { userError.classList.remove('show'); }
+
+    uName.addEventListener('input', function(){
+        userModalAvatar.textContent = makeInitials(this.value) || '--';
+        this.classList.remove('is-invalid'); hideUserError();
+    });
+    uEmail.addEventListener('input', function(){ this.classList.remove('is-invalid'); hideUserError(); });
+    uRole.addEventListener('change', function(){
+        userModalAvatar.style.background = (ROLE_META[this.value] || ROLE_META.student).bg;
+        if (!editingUserId) uSession.value = autoGenerateSessionIdHint(this.value);
+    });
+
+    document.getElementById('addUserBtn').addEventListener('click', function(){ openUserModal(null); });
+    document.getElementById('userModalClose').addEventListener('click', closeUserModal);
+    document.getElementById('userCancel').addEventListener('click', closeUserModal);
+    userModal.addEventListener('click', function(e){ if (e.target === userModal) closeUserModal(); });
+
+    document.getElementById('userSave').addEventListener('click', async function(){
+        hideUserError();
+        const name = uName.value.trim();
+        const email = uEmail.value.trim();
+        const role = uRole.value;
+        let bad = false;
+        if (!name) { uName.classList.add('is-invalid'); showUserError(t('err_name')); bad = true; }
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            uEmail.classList.add('is-invalid');
+            if (!bad) showUserError(t('err_email'));
+            bad = true;
+        }
+        if (bad) return;
+
+        const btn = this;
+        btn.disabled = true; btn.style.opacity = '.7';
+
+        try {
+            if (editingUserId) {
+                const res = await apiPost({
+                    action:'editUser', id: editingUserId, name: name, email: email, role: role,
+                    program: uProgram.value.trim(), status: uStatus.value, password: uPwd.value.trim()
+                });
+                if (!res || !res.success) { showUserError((res && res.message) || 'Update failed'); return; }
+                logActivity('user_edit', name, 'Role: ' + roleLabel(role));
+                closeUserModal();
+                await loadStateFromApi();
+                showToast(t('toast_updated'), false);
+            } else {
+                const res = await apiPost({
+                    action:'addUser', id: uId.value.trim(), name: name, email: email, role: role,
+                    program: uProgram.value.trim(), status: uStatus.value,
+                    password: uPwd.value.trim() || generateDefaultPassword(email), sessionId: ''
+                });
+                if (!res || !res.success) { showUserError((res && res.message) || 'Create failed'); return; }
+                logActivity('user_add', name, 'Role: ' + roleLabel(role) + (res.user && res.user.sessionId ? ' · Session: ' + res.user.sessionId : ''));
+                closeUserModal();
+                await loadStateFromApi();
+                showToast(t('toast_added') + (res.user && res.user.sessionId ? ' · ' + res.user.sessionId : ''), false);
+            }
+        } catch (err) { console.error(err); showUserError('Network error: ' + err.message); }
+        finally { btn.disabled = false; btn.style.opacity = ''; }
+    });
+
+    async function deleteUser(id) {
+        const u = appState.users.find(function(x){ return String(x.id) === String(id); });
+        if (!u) return;
+        if (!confirm(t('confirm_delete'))) return;
+        try {
+            const res = await apiPost({ action: 'deleteUser', id: u.id });
+            if (!res || !res.success) { showToast((res && res.message) || 'Delete failed', true); return; }
+            logActivity('user_delete', u.name, u.email || '');
+            await loadStateFromApi();
+            showToast(t('toast_deleted'), true);
+        } catch (e) { console.error(e); showToast('Network error', true); }
+    }
+
+    /* =========================================================
+       RESET PASSWORD MODAL
+    ========================================================== */
+    const pwdModal = document.getElementById('pwdModal');
+    const newPwd = document.getElementById('newPwd');
+    const confirmPwd = document.getElementById('confirmPwd');
+    const pwdError = document.getElementById('pwdError');
+    const pwdActorName = document.getElementById('pwdActorName');
+
+    function openPwdModal(id) {
+        resetPwdUserId = id;
+        const u = appState.users.find(function(x){ return String(x.id) === String(id); });
+        if (!u) return;
+        document.getElementById('pwdUserCard').innerHTML = ''
+            + '<div class="flex items-center gap-3">'
+            +   '<div class="tbl-avatar" style="background:' + (ROLE_META[u.role] || ROLE_META.student).bg + ';width:44px;height:44px;border-radius:12px;font-size:13px;">' + escapeHtml(makeInitials(u.name)) + '</div>'
+            +   '<div class="min-w-0"><div class="font-bold text-p655c text-sm">' + escapeHtml(u.name) + '</div>'
+            +   '<div class="text-slate-500 text-xs truncate">' + escapeHtml(u.email) + ' · <span class="font-mono text-[10px]">' + escapeHtml(u.sessionId || '') + '</span></div></div></div>';
+        pwdActorName.textContent = currentAdmin.name + ' (' + currentAdmin.id + ')';
+        newPwd.value = ''; confirmPwd.value = '';
+        [newPwd, confirmPwd].forEach(function(f){ f.classList.remove('is-invalid'); f.type = 'password'; });
+        document.querySelectorAll('#pwdModal .pwd-toggle i').forEach(function(ic){ ic.classList.remove('fa-eye-slash'); ic.classList.add('fa-eye'); });
+        hidePwdError();
+        updateStrength('newPwd', 'pwdStrengthText', ['pseg1','pseg2','pseg3','pseg4']);
+        pwdModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        setTimeout(function(){ newPwd.focus(); }, 120);
+    }
+    function closePwdModal() { pwdModal.classList.remove('open'); document.body.style.overflow = ''; resetPwdUserId = null; }
+    function showPwdError(messages) { pwdError.innerHTML = '<ul>' + messages.map(function(m){ return '<li>' + escapeHtml(m) + '</li>'; }).join('') + '</ul>'; pwdError.classList.add('show'); }
+    function hidePwdError() { pwdError.classList.remove('show'); }
+
+    document.getElementById('pwdModalClose').addEventListener('click', closePwdModal);
+    document.getElementById('pwdCancel').addEventListener('click', closePwdModal);
+    pwdModal.addEventListener('click', function(e){ if (e.target === pwdModal) closePwdModal(); });
+
+    document.querySelectorAll('.pwd-toggle').forEach(function(btn){
+        btn.addEventListener('click', function(){
+            const target = document.getElementById(this.dataset.target);
+            if (!target) return;
+            const icon = this.querySelector('i');
+            const isHidden = target.type === 'password';
+            target.type = isHidden ? 'text' : 'password';
+            icon.classList.toggle('fa-eye', !isHidden);
+            icon.classList.toggle('fa-eye-slash', isHidden);
+        });
+    });
+
+    function scorePassword(pwd) {
+        if (!pwd) return 0;
+        let s = 0;
+        if (pwd.length >= 8) s++;
+        if (/[A-Z]/.test(pwd)) s++;
+        if (/[a-z]/.test(pwd)) s++;
+        if (/[0-9]/.test(pwd)) s++;
+        if (/[^A-Za-z0-9]/.test(pwd)) s++;
+        return Math.min(s, 4);
+    }
+    function updateStrength(inputId, textId, segIds) {
+        const input = document.getElementById(inputId);
+        const textEl = document.getElementById(textId);
+        const segs = segIds.map(function(id){ return document.getElementById(id); });
+        if (!input || !textEl) return;
+        const pwd = input.value, score = scorePassword(pwd);
+        segs.forEach(function(s){ if (s) s.className = 'strength-seg'; });
+        if (!pwd) { textEl.className = 'strength-text'; textEl.textContent = '—'; return; }
+        let level, label;
+        if (score <= 1) { level = 'weak'; label = t('pwd_strength_weak'); }
+        else if (score <= 3) { level = 'medium'; label = t('pwd_strength_medium'); }
+        else { level = 'strong'; label = t('pwd_strength_strong'); }
+        for (let i = 0; i < score; i++) { if (segs[i]) segs[i].classList.add('on-' + level); }
+        textEl.className = 'strength-text ' + level; textEl.textContent = label;
+    }
+    newPwd.addEventListener('input', function(){
+        updateStrength('newPwd', 'pwdStrengthText', ['pseg1','pseg2','pseg3','pseg4']);
+        hidePwdError();
+        [newPwd, confirmPwd].forEach(function(f){ f.classList.remove('is-invalid'); });
+    });
+    confirmPwd.addEventListener('input', function(){ hidePwdError(); confirmPwd.classList.remove('is-invalid'); });
+
+    document.getElementById('pwdSave').addEventListener('click', async function(){
+        hidePwdError();
+        const np = newPwd.value, cp = confirmPwd.value;
+        [newPwd, confirmPwd].forEach(function(f){ f.classList.remove('is-invalid'); });
+        if (!np || !cp) {
+            showPwdError([t('pwd_err_empty')]);
+            if (!np) newPwd.classList.add('is-invalid');
+            if (!cp) confirmPwd.classList.add('is-invalid');
+            return;
+        }
+        const errors = [];
+        if (np.length < 8) { errors.push(t('pwd_err_short')); newPwd.classList.add('is-invalid'); }
+        if (!/[A-Z]/.test(np)) { errors.push(t('pwd_err_upper')); newPwd.classList.add('is-invalid'); }
+        if (!/[a-z]/.test(np)) { errors.push(t('pwd_err_lower')); newPwd.classList.add('is-invalid'); }
+        if (!/[0-9]/.test(np)) { errors.push(t('pwd_err_number')); newPwd.classList.add('is-invalid'); }
+        if (np !== cp) { errors.push(t('pwd_err_match')); confirmPwd.classList.add('is-invalid'); }
+        if (errors.length) { showPwdError(errors); return; }
+
+        const u = appState.users.find(function(x){ return String(x.id) === String(resetPwdUserId); });
+        if (!u) return;
+        const btn = this;
+        btn.disabled = true; btn.style.opacity = '.7';
+        try {
+            const res = await apiPost({ action: 'adminResetPassword', id: u.id, password: np, newPassword: np });
+            if (!res || !res.success) { showPwdError([(res && res.message) || 'Reset failed']); return; }
+            logActivity('password_reset', u.name, 'Password changed for ' + u.email);
+            closePwdModal();
+            await loadStateFromApi();
+            showToast(t('toast_pwd_reset') + ' — ' + u.name + ' ' + t('toast_by') + ' ' + currentAdmin.name, false);
+        } catch (err) { console.error(err); showPwdError(['Network error: ' + err.message]); }
+        finally { btn.disabled = false; btn.style.opacity = ''; }
+    });
+
+    /* =========================================================
+       ACTIVITY LOG TO SERVER
+    ========================================================== */
+    function logActivity(type, entity, detail) {
+        apiPost({
+            action: 'logActivity', type: type, entity: entity || '', detail: detail || '',
+            actor: currentAdmin.name, actorId: currentAdmin.id, actorRole: currentAdmin.role,
+            timestamp: new Date().toISOString()
+        }).then(function(){
+            setTimeout(function(){
+                apiGet('getActivity', { limit: ACTIVITY_LIMIT }).then(function(r){
+                    if (r && r.success) { appState.auditLogs = (r.logs || []).slice(0, ACTIVITY_LIMIT); renderActivity(); }
+                }).catch(function(){});
+            }, 400);
+        }).catch(function(err){ console.error('logActivity', err); });
+    }
+
+    /* =========================================================
+       BULK IMPORT
+    ========================================================== */
+    const bulkModal = document.getElementById('bulkModal');
+
+    document.getElementById('bulkImportBtn').addEventListener('click', function(){
+        bulkUserData = [];
+        clearBulkPreview();
+        bulkModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    });
+    document.getElementById('bulkModalClose').addEventListener('click', function(){
+        bulkModal.classList.remove('open'); document.body.style.overflow = '';
+    });
+    document.getElementById('bulkCancel').addEventListener('click', function(){
+        bulkModal.classList.remove('open'); document.body.style.overflow = '';
+    });
+    bulkModal.addEventListener('click', function(e){
+        if (e.target === bulkModal) { bulkModal.classList.remove('open'); document.body.style.overflow = ''; }
+    });
+
+    window.downloadTemplate = function () {
+        const templateData = [{
+            'User ID': '', 'User Name': 'Contoh Nama', 'Role Detected': 'ACADEMIC_STAFF',
+            'Password': '', 'Status': 'Aktif', 'Email': 'contoh@uitm.edu.my', 'Program': 'Kejuruteraan Kimia'
+        }];
+        const ws = XLSX.utils.json_to_sheet(templateData);
+        ws['!cols'] = [{wch:12},{wch:30},{wch:18},{wch:20},{wch:12},{wch:30},{wch:25}];
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Template Pengguna');
+        XLSX.writeFile(wb, 'Template_Tambah_Pengguna.xlsx');
+        showToast(t('toast_template'), false);
+    };
+
+    document.getElementById('excelInput').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+            try {
+                const data = new Uint8Array(ev.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+                if (jsonData.length < 2) { showToast('File is empty', true); return; }
+                const headers = jsonData[0].map(function(h){ return String(h).trim().toLowerCase(); });
+                const colMap = {
+                    user_id: headers.findIndex(function(h){ return h.indexOf('user id') !== -1 || h.indexOf('userid') !== -1 || h === 'id'; }),
+                    user_name: headers.findIndex(function(h){ return h.indexOf('user name') !== -1 || h.indexOf('nama') !== -1 || h.indexOf('name') !== -1; }),
+                    role: headers.findIndex(function(h){ return h.indexOf('role') !== -1 || h.indexOf('peranan') !== -1; }),
+                    password: headers.findIndex(function(h){ return h.indexOf('password') !== -1 || h.indexOf('kata laluan') !== -1; }),
+                    status: headers.findIndex(function(h){ return h.indexOf('status') !== -1; }),
+                    email: headers.findIndex(function(h){ return h.indexOf('email') !== -1 || h.indexOf('emel') !== -1; }),
+                    program: headers.findIndex(function(h){ return h.indexOf('program') !== -1; })
+                };
+                if (colMap.user_name === -1) {
+                    colMap.user_id = 0; colMap.user_name = 1; colMap.role = 2;
+                    colMap.password = 3; colMap.status = 4; colMap.email = 5; colMap.program = 6;
+                }
+                if (colMap.user_name === -1 || colMap.email === -1 || colMap.program === -1) { showToast('Invalid format', true); return; }
+                const rows = [];
+                for (let i = 1; i < jsonData.length; i++) {
+                    const row = jsonData[i];
+                    if (!row || row.length === 0) continue;
+                    const name = String(row[colMap.user_name] || '').trim();
+                    const email = String(row[colMap.email] || '').trim();
+                    if (!name && !email) continue;
+                    const userIdRaw = colMap.user_id !== -1 ? String(row[colMap.user_id] || '').trim() : '';
+                    const roleRaw = colMap.role !== -1 ? String(row[colMap.role] || '').trim().toLowerCase() : '';
+                    const passwordRaw = colMap.password !== -1 ? String(row[colMap.password] || '').trim() : '';
+                    const statusRaw = colMap.status !== -1 ? String(row[colMap.status] || '').trim() : 'Aktif';
+                    const program = colMap.program !== -1 ? String(row[colMap.program] || '').trim() : '';
+                    let role = 'student';
+                    if (roleRaw.indexOf('admin') !== -1) role = 'admin';
+                    else if (roleRaw.indexOf('academic') !== -1) role = 'academic_staff';
+                    else if (roleRaw.indexOf('lab') !== -1) role = 'lab_staff';
+                    else if (roleRaw.indexOf('coordinator') !== -1) role = 'coordinator';
+                    else if (roleRaw.indexOf('student') !== -1 || roleRaw.indexOf('pelajar') !== -1) role = 'student';
+                    let status = 'Aktif';
+                    if (statusRaw.toLowerCase().indexOf('tidak') !== -1 || statusRaw.toLowerCase() === 'inactive') status = 'Tidak Aktif';
+                    rows.push({ id: userIdRaw, name: name, role: role, password: passwordRaw, status: status, email: email, program: program });
+                }
+                if (!rows.length) { showToast(t('bulk_no_data'), true); return; }
+                bulkUserData = rows;
+                renderBulkPreview();
+            } catch (err) { console.error(err); showToast('Failed to read file', true); }
+        };
+        reader.readAsArrayBuffer(file);
+    });
+
+    function renderBulkPreview() {
+        const area = document.getElementById('bulkPreviewArea');
+        const tbody = document.getElementById('bulkPreviewBody');
+        const countEl = document.getElementById('bulkCount');
+        const importCountEl = document.getElementById('bulkImportCount');
+        const confirmBtn = document.getElementById('bulkConfirm');
+        if (!area || !tbody) return;
+        if (!bulkUserData.length) {
+            area.classList.add('hidden');
+            confirmBtn.disabled = true; confirmBtn.style.opacity = '.5'; confirmBtn.style.cursor = 'not-allowed';
+            return;
+        }
+        area.classList.remove('hidden');
+        countEl.textContent = bulkUserData.length;
+        importCountEl.textContent = bulkUserData.length;
+        confirmBtn.disabled = false; confirmBtn.style.opacity = ''; confirmBtn.style.cursor = '';
+        tbody.innerHTML = bulkUserData.map(function(r){
+            const rm = ROLE_META[r.role] || ROLE_META.student;
+            const idDisplay = r.id || '(auto)';
+            const pwdDisplay = r.password ? r.password : '(auto)';
+            return '<tr>'
+                + '<td style="font-family:\'Courier New\',monospace;font-size:10px;color:#002D62;font-weight:800;">' + escapeHtml(idDisplay) + '</td>'
+                + '<td style="font-weight:800;color:#002D62;">' + escapeHtml(r.name) + '</td>'
+                + '<td><span class="chip ' + rm.chip + '" style="padding:3px 8px;font-size:9px;">' + escapeHtml(roleLabel(r.role)) + '</span></td>'
+                + '<td style="font-family:\'Courier New\',monospace;font-size:10px;color:#9B26B6;font-style:italic;">(auto)</td>'
+                + '<td style="font-family:\'Courier New\',monospace;font-size:10px;color:#94A3B8;">' + escapeHtml(pwdDisplay) + '</td>'
+                + '<td>' + escapeHtml(r.status) + '</td>'
+                + '<td style="color:#64748B;font-size:10px;">' + escapeHtml(r.email) + '</td>'
+                + '<td>' + escapeHtml(r.program) + '</td>'
+                + '</tr>';
+        }).join('');
+    }
+
+    window.clearBulkPreview = function () {
+        bulkUserData = [];
+        const area = document.getElementById('bulkPreviewArea');
+        const confirmBtn = document.getElementById('bulkConfirm');
+        if (area) area.classList.add('hidden');
+        if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.style.opacity = '.5'; confirmBtn.style.cursor = 'not-allowed'; }
+        const input = document.getElementById('excelInput');
+        if (input) input.value = '';
+    };
+
+    document.getElementById('bulkConfirm').addEventListener('click', async function(){
+        if (!bulkUserData.length) return;
+        const btn = this;
+        btn.disabled = true; btn.style.opacity = '.7';
+        try {
+            const res = await apiPost({ action: 'bulkImport', users: bulkUserData });
+            if (!res || !res.success) { showToast((res && res.message) || 'Import failed', true); return; }
+            const added = res.added || 0;
+            const skipped = res.skipped || 0;
+            bulkModal.classList.remove('open');
+            document.body.style.overflow = '';
+            await loadStateFromApi();
+            if (added > 0) {
+                logActivity('bulk_import', added + ' users', 'Imported from Excel');
+                showToast(t('toast_imported') + ' · ' + added, false);
+            }
+            if (skipped > 0) showToast(skipped + ' rows skipped (duplicate or incomplete)', true);
+        } catch (err) { console.error(err); showToast('Network error', true); }
+        finally { btn.disabled = false; btn.style.opacity = ''; }
+    });
+
+    /* =========================================================
+       TOAST
+    ========================================================== */
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toastMsg');
+    let toastTimer = null;
+    function showToast(message, purple) {
+        toastMsg.textContent = message;
+        toast.classList.toggle('toast-blue', !!purple);
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function(){ toast.classList.remove('show'); }, 3200);
+    }
+
+    /* =========================================================
+       INIT
+    ========================================================== */
+    document.addEventListener('DOMContentLoaded', async function () {
+        const navName = document.getElementById('navName');
+        const navRole = document.getElementById('navRole');
+        const navAvatar = document.getElementById('navAvatar');
+        if (navName) navName.textContent = currentAdmin.name;
+        if (navRole) navRole.textContent = String(currentAdmin.role).toUpperCase();
+        if (navAvatar) navAvatar.textContent = currentAdmin.initials;
+
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function () {
+                if (!confirm('Log out from admin portal?')) return;
+                FMSAuth.clearSession();
+                location.replace('login.html');
+            });
+        }
+
+        ['click', 'keydown'].forEach(function(evt){
+            document.addEventListener(evt, function(){ try { FMSAuth.touch(); } catch (e) {} }, { passive: true });
+        });
+
+        const todayEl = document.getElementById('todayDate');
+        if (todayEl) {
+            todayEl.textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+        }
+
+        await loadStateFromApi();
+    });
+
+})();
+</script>
+</body>
+</html>
