@@ -499,58 +499,6 @@
     .dot-purple { background: #9B26B6; }
     .dot-navy   { background: #002D62; }
 
-    /* Status badge */
-    .status-badge {
-        display: inline-flex; align-items: center; gap: 5px;
-        padding: 4px 10px; border-radius: 9999px;
-        font-size: 9px; font-weight: 900;
-        letter-spacing: .08em; text-transform: uppercase;
-        white-space: nowrap;
-    }
-    .status-ok      { background: rgba(0,45,98,.10); color: #002D62; border: 1px solid rgba(0,45,98,.25); }
-    .status-warn    { background: rgba(253,185,19,.18); color: #B45309; border: 1px solid rgba(253,185,19,.4); }
-    .status-alert   { background: rgba(155,38,182,.12); color: #9B26B6; border: 1px solid rgba(155,38,182,.3); }
-
-    /* ============================================================
-       DATA TABLE
-    ============================================================ */
-    .tbl-scroll { overflow-x: auto; }
-    .tbl { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 780px; }
-    .tbl thead th {
-        font-size: 9px; font-weight: 900; letter-spacing: .16em;
-        text-transform: uppercase; color: #94A3B8;
-        padding: 12px 14px; text-align: left;
-        border-bottom: 1px solid #E2E8F0; white-space: nowrap;
-        background: #F8FAFC;
-    }
-    .tbl tbody td {
-        padding: 13px 14px; border-bottom: 1px solid #F1F5F9;
-        font-size: 12px; font-weight: 600; color: #334155;
-        vertical-align: middle;
-    }
-    .tbl tbody tr { transition: background .2s ease; }
-    .tbl tbody tr:hover { background: #F8FAFC; }
-    .tbl tbody tr:last-child td { border-bottom: none; }
-
-    .tbl-avatar {
-        width: 34px; height: 34px; border-radius: 10px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 11px; font-weight: 900; color: #fff; flex-shrink: 0;
-        letter-spacing: .02em;
-    }
-    .tbl-user { display: flex; align-items: center; gap: 11px; }
-    .tbl-user-name { font-size: 12px; font-weight: 800; color: var(--navy); line-height: 1.3; }
-    .tbl-user-mail { font-size: 10px; font-weight: 600; color: #94A3B8; margin-top: 1px; }
-
-    .icon-btn {
-        width: 32px; height: 32px; border-radius: 9px;
-        display: inline-flex; align-items: center; justify-content: center;
-        font-size: 11px; transition: all .2s ease; cursor: pointer;
-        border: 1px solid #E2E8F0; background: #fff; color: #64748B;
-    }
-    .icon-btn:hover { border-color: #9B26B6; color: #9B26B6; background: #FAF5FF; }
-    .icon-btn.ok:hover { border-color: #002D62; color: #002D62; background: #EFF6FF; }
-
     /* ============================================================
        APPROVAL ITEMS
     ============================================================ */
@@ -771,7 +719,7 @@
                 <div class="stat-icon-box"><i class="fas fa-users"></i></div>
                 <span class="text-[10px] font-black uppercase tracking-widest bg-white/25 px-2 py-1 rounded-full" data-i18n="admin_stat_all">All Users</span>
             </div>
-            <p id="statTotalUsers" class="text-3xl font-black leading-none mb-2 relative z-10">0</p>
+            <p class="text-3xl font-black leading-none mb-2 relative z-10">248</p>
             <p class="text-[10px] font-black uppercase tracking-widest text-blue-100 relative z-10" data-i18n="admin_stat_users">Registered Accounts</p>
         </div>
 
@@ -824,7 +772,7 @@
                 <i class="fas fa-user-shield"></i>
                 <span data-i18n="portal_menu_admin">Administration</span>
             </div>
-            <a href="#" class="portal-menu-item">
+            <a href="Pengurusan Akaun Pengguna Portal.html" class="portal-menu-item">
                 <i class="fas fa-users-gear"></i>
                 <span data-i18n="portal_menu_account_mgmt">Portal User Account Management</span>
             </a>
@@ -1073,72 +1021,6 @@
             </div>
         </div>
     </div>
-
-    <!-- ============================================================
-         USER MANAGEMENT
-    ============================================================ -->
-    <section class="card p-6 rounded-3xl mb-6 anim-up">
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-5 pb-4 border-b border-slate-100">
-            <div>
-                <span class="section-label" data-i18n="admin_users_label">User Management</span>
-                <h3 class="text-lg font-black text-p655c mt-1" data-i18n="admin_users_title">Portal Accounts</h3>
-                <p class="text-xs text-slate-500 font-medium mt-1" data-i18n="admin_users_sub">Create, edit and manage access for all portal users</p>
-            </div>
-
-            <div class="flex flex-wrap items-center gap-2">
-                <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl">
-                    <i class="fas fa-magnifying-glass text-slate-400 text-[11px]"></i>
-                    <input id="userSearch" type="text"
-                           placeholder="Search name, email or ID..."
-                           data-i18n-ph="admin_users_search_ph"
-                           class="bg-transparent border-none outline-none text-[11px] font-semibold text-p655c placeholder-slate-400 w-44">
-                </div>
-
-                <select id="roleFilter" class="field-input" style="width:auto;padding:9px 12px;font-size:11px;">
-                    <option value="all" data-i18n="admin_filter_all">All Roles</option>
-                    <option value="student" data-i18n="admin_role_students">Students</option>
-                    <option value="lecturer" data-i18n="admin_role_lecturers">Lecturers</option>
-                    <option value="staff" data-i18n="admin_role_staff">Lab Staff</option>
-                    <option value="admin" data-i18n="admin_role_admins">Administrators</option>
-                </select>
-
-                <button id="addUserBtn" class="btn-gold px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                    <i class="fas fa-user-plus"></i> <span data-i18n="admin_add_user">Add User</span>
-                </button>
-            </div>
-        </div>
-
-        <div class="tbl-scroll">
-            <table class="tbl">
-                <thead>
-                    <tr>
-                        <th data-i18n="admin_th_user">User</th>
-                        <th data-i18n="admin_th_role">Role</th>
-                        <th data-i18n="admin_th_lab">Laboratory / Dept</th>
-                        <th data-i18n="admin_th_status">Status</th>
-                        <th data-i18n="admin_th_last">Last Active</th>
-                        <th style="text-align:right;" data-i18n="admin_th_actions">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="usersTbody">
-                    <!-- rendered by JS -->
-                </tbody>
-            </table>
-        </div>
-
-        <div class="flex flex-wrap items-center justify-between gap-3 mt-4 pt-4 border-t border-slate-100">
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                <span data-i18n="admin_showing">Showing</span>
-                <span id="shownCount" class="text-p655c">0</span>
-                <span data-i18n="admin_of">of</span>
-                <span id="totalCount" class="text-p655c">0</span>
-                <span data-i18n="admin_accounts">accounts</span>
-            </p>
-            <button id="resetUsersBtn" class="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-p254c transition px-3 py-2">
-                <i class="fas fa-rotate-left"></i> <span data-i18n="admin_reset">Reset Demo Data</span>
-            </button>
-        </div>
-    </section>
 
     <!-- ============================================================
          AUDIT LOG / ACTIVITY TRAIL
@@ -1393,88 +1275,63 @@
     </div>
 </div>
 
-<!-- ============================================================
-     USER MODAL (ADD / EDIT)
-============================================================= -->
-<div id="userModal" class="modal-backdrop fixed inset-0 flex items-center justify-center p-4">
-    <div class="modal-box bg-white w-full max-w-lg shadow-2xl max-h-[92vh] overflow-hidden flex flex-col">
-
-        <div class="modal-header-gradient flex items-center justify-between px-6 py-5 shrink-0">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-white/20 border border-white/30">
-                    <i class="fas fa-user-gear text-white text-sm"></i>
-                </div>
-                <div>
-                    <h3 id="userModalTitle" class="text-base font-black leading-none" data-i18n="admin_user_modal_add">Add New User</h3>
-                    <p class="text-[9px] font-bold text-white/70 uppercase tracking-widest mt-1" data-i18n="admin_user_modal_sub">Manage portal account details</p>
-                </div>
-            </div>
-            <button id="userModalClose" class="text-white/70 hover:text-white transition text-lg"><i class="fas fa-xmark"></i></button>
-        </div>
-
-        <div class="overflow-y-auto flex-1 p-6 space-y-5">
-            <div class="flex items-center gap-4 p-4 rounded-xl bg-slate-50">
-                <div id="userModalAvatar"
-                     class="w-16 h-16 rounded-full flex items-center justify-center text-lg font-black border-4 border-white shadow-md shrink-0 text-white"
-                     style="background: #002D62;">--</div>
-                <div>
-                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-600" data-i18n="settings_avatar_hint">Avatar initials auto-generated</p>
-                    <p class="text-[9px] font-bold text-slate-500 mt-1" data-i18n="admin_user_avatar_sub">Preview updates as you type</p>
-                </div>
-            </div>
-
-            <div><label class="field-label" data-i18n="admin_user_name">Full Name</label><input id="uName" type="text" class="field-input" placeholder="Enter full name"></div>
-            <div><label class="field-label" data-i18n="admin_user_email">Email</label><input id="uEmail" type="email" class="field-input" placeholder="name@uitm.edu.my"></div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="field-label" data-i18n="admin_user_role">Role</label>
-                    <select id="uRole" class="field-input">
-                        <option value="student" data-i18n="admin_role_students">Students</option>
-                        <option value="lecturer" data-i18n="admin_role_lecturers">Lecturers</option>
-                        <option value="staff" data-i18n="admin_role_staff">Lab Staff</option>
-                        <option value="admin" data-i18n="admin_role_admins">Administrators</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="field-label" data-i18n="admin_user_status">Status</label>
-                    <select id="uStatus" class="field-input">
-                        <option value="active" data-i18n="admin_status_active">Active</option>
-                        <option value="inactive" data-i18n="admin_status_inactive">Inactive</option>
-                        <option value="suspended" data-i18n="admin_status_suspended">Suspended</option>
-                    </select>
-                </div>
-            </div>
-
-            <div><label class="field-label" data-i18n="admin_user_lab">Laboratory / Department</label><input id="uLab" type="text" class="field-input" placeholder="e.g. Analytical Chemistry Lab"></div>
-            <div><label class="field-label" data-i18n="admin_user_id">User ID (Read-only)</label><input id="uId" type="text" class="field-input" disabled></div>
-
-            <div id="userError" class="error-box"></div>
-        </div>
-
-        <div class="flex gap-3 px-6 py-5 border-t border-slate-100 shrink-0 bg-slate-50">
-            <button id="userCancel" type="button" class="flex-1 py-3 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-white hover:text-p655c transition"><span data-i18n="settings_cancel">Cancel</span></button>
-            <button id="userSave" type="button" class="flex-1 btn-gold py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"><i class="fas fa-check"></i> <span data-i18n="admin_user_save">Save User</span></button>
-        </div>
-    </div>
-</div>
-
 <div id="toast" class="toast">
     <i class="fas fa-circle-check"></i>
     <span id="toastMsg" data-i18n="toast_saved">Settings Saved</span>
 </div>
 
-<!-- AUTH CHANGE: load cookie session helper BEFORE the main script -->
+<!-- AUTH: load cookie session helper BEFORE the main script -->
 <script src="auth.js"></script>
 
 <script>
 (function () {
 
     /* =========================================================
-       AUTH CHANGE: GUARD — admin only
+       AUTH GUARD — admin only
     ========================================================== */
     const session = FMSAuth.requireAuth(['admin']);
     if (!session) return;
+
+    /* =========================================================
+       AUTO SIGN-OUT WHEN THE BROWSER / TAB IS CLOSED
+       ---------------------------------------------------------
+       sessionStorage only lives as long as the browser tab lives.
+       We stamp a marker on the first (just-logged-in) load of this
+       tab. If the admin page is later opened and the marker is
+       gone, it means the browser/tab was closed in the meantime —
+       so we destroy the session and bounce to the login page.
+    ========================================================== */
+    const TAB_ALIVE_KEY  = 'fkkAdminTabAlive';
+    const LOGIN_GRACE_MS = 30000; // window allowed for the login → dashboard redirect
+
+    function enforceTabBoundSession() {
+        // Same tab, page reload / in-app navigation → keep the session
+        if (sessionStorage.getItem(TAB_ALIVE_KEY)) return true;
+
+        const loginTime = session.loginAt ? new Date(session.loginAt).getTime() : NaN;
+        const justLoggedIn = isNaN(loginTime) ? true : (Date.now() - loginTime < LOGIN_GRACE_MS);
+
+        if (justLoggedIn) {
+            sessionStorage.setItem(TAB_ALIVE_KEY, '1');
+            return true;
+        }
+
+        // Browser was closed (or a brand-new tab was opened) → kill the session
+        try { FMSAuth.clearSession(); } catch (e) {}
+        sessionStorage.removeItem(TAB_ALIVE_KEY);
+        window.location.replace('login.html');
+        return false;
+    }
+
+    if (!enforceTabBoundSession()) return;
+
+    // Safety net: if the tab is being discarded, drop the session immediately
+    window.addEventListener('pagehide', function (e) {
+        if (e.persisted) return;                 // bfcache restore → keep session
+        if (sessionStorage.getItem('fkkNavigating') === '1') return;
+        // Tab/browser closing — invalidate right away
+        try { FMSAuth.clearSession(); } catch (err) {}
+    });
 
     // Keep session alive on user activity
     ['click', 'keydown'].forEach(evt =>
@@ -1485,48 +1342,26 @@
     /* =========================================================
        CONSTANTS & STATE
     ========================================================== */
-    // AUTH CHANGE: DEFAULT_ADMIN removed — user data comes from session.
     const DEMO_PASSWORD = 'admin123';
-    const ACTIVITY_KEY = 'fkkAdminActivityTrail';
-    const USERS_KEY    = 'fkkAdminUsers';
-    const APPR_KEY     = 'fkkAdminApprovals';
+    const ACTIVITY_KEY  = 'fkkAdminActivityTrail';
+    const APPR_KEY      = 'fkkAdminApprovals';
     const ACTIVITY_LIMIT = 60;
 
     let currentLang = 'en';
     let admin = null;
     let charts = { roles: null, approval: null, lab: null, trend: null };
     let activities = [];
-    let users = [];
     let approvals = [];
-    let editingUserId = null;
 
     /* Activity type meta — SOLID colours */
     const ACTIVITY_TYPES = {
-        login:           { icon: 'fa-right-to-bracket',           bg: '#002D62', en: 'Signed in to admin portal', ms: 'Log masuk ke portal admin' },
-        profile_update:  { icon: 'fa-user-pen',                   bg: '#9B26B6', en: 'Updated profile',          ms: 'Kemas kini profil' },
-        password_change: { icon: 'fa-key',                        bg: '#9B26B6', en: 'Changed password',         ms: 'Tukar kata laluan' },
-        settings_open:   { icon: 'fa-gear',                       bg: '#FDB913', en: 'Opened settings',          ms: 'Buka tetapan' },
-        activity_clear:  { icon: 'fa-broom',                      bg: '#002D62', en: 'Cleared audit log',        ms: 'Kosongkan log audit' },
-        user_add:        { icon: 'fa-user-plus',                  bg: '#002D62', en: 'Created user account',     ms: 'Cipta akaun pengguna' },
-        user_edit:       { icon: 'fa-user-pen',                   bg: '#9B26B6', en: 'Updated user account',     ms: 'Kemas kini akaun pengguna' },
-        user_delete:     { icon: 'fa-user-minus',                 bg: '#9B26B6', en: 'Deleted user account',     ms: 'Padam akaun pengguna' },
-        user_status:     { icon: 'fa-toggle-on',                  bg: '#FDB913', en: 'Changed account status',   ms: 'Tukar status akaun' },
-        approve:         { icon: 'fa-circle-check',               bg: '#002D62', en: 'Approved request',         ms: 'Luluskan permohonan' },
-        reject:          { icon: 'fa-circle-xmark',               bg: '#9B26B6', en: 'Rejected request',         ms: 'Tolak permohonan' },
-        users_reset:     { icon: 'fa-rotate-left',                bg: '#FDB913', en: 'Reset demo user data',     ms: 'Set semula data demo' }
-    };
-
-    const ROLE_META = {
-        student:  { i18n: 'admin_role_students',  bg: '#002D62', chip: 'chip-navy' },
-        lecturer: { i18n: 'admin_role_lecturers', bg: '#9B26B6', chip: 'chip-purple' },
-        staff:    { i18n: 'admin_role_staff',     bg: '#FDB913', chip: 'chip-gold' },
-        admin:    { i18n: 'admin_role_admins',    bg: '#002D62', chip: 'chip-navy' }
-    };
-
-    const STATUS_META = {
-        active:    { i18n: 'admin_status_active',    cls: 'status-ok' },
-        inactive:  { i18n: 'admin_status_inactive',  cls: 'status-warn' },
-        suspended: { i18n: 'admin_status_suspended', cls: 'status-alert' }
+        login:           { icon: 'fa-right-to-bracket', bg: '#002D62', en: 'Signed in to admin portal', ms: 'Log masuk ke portal admin' },
+        profile_update:  { icon: 'fa-user-pen',         bg: '#9B26B6', en: 'Updated profile',          ms: 'Kemas kini profil' },
+        password_change: { icon: 'fa-key',              bg: '#9B26B6', en: 'Changed password',         ms: 'Tukar kata laluan' },
+        settings_open:   { icon: 'fa-gear',             bg: '#FDB913', en: 'Opened settings',          ms: 'Buka tetapan' },
+        activity_clear:  { icon: 'fa-broom',            bg: '#002D62', en: 'Cleared audit log',        ms: 'Kosongkan log audit' },
+        approve:         { icon: 'fa-circle-check',     bg: '#002D62', en: 'Approved request',         ms: 'Luluskan permohonan' },
+        reject:          { icon: 'fa-circle-xmark',     bg: '#9B26B6', en: 'Rejected request',         ms: 'Tolak permohonan' }
     };
 
     const APPR_TYPE_META = {
@@ -1537,25 +1372,8 @@
     };
 
     /* =========================================================
-       SEED DATA
+       SEED DATA — approvals
     ========================================================== */
-    function seedUsers() {
-        return [
-            { id: 'USR-3041', name: 'Ahmad Zaki bin Ismail',      email: 'zaki.ismail@uitm.edu.my',     role: 'student',  lab: 'FKK · Semester 5',           status: 'active',    lastActive: '2026-03-16T08:20:00' },
-            { id: 'USR-3042', name: 'Nurul Izzati binti Kamal',   email: 'izzati.kamal@uitm.edu.my',    role: 'student',  lab: 'FKK · Semester 3',           status: 'active',    lastActive: '2026-03-16T07:45:00' },
-            { id: 'USR-2110', name: 'Dr. Faizal bin Rahman',      email: 'faizal.rahman@uitm.edu.my',   role: 'lecturer', lab: 'Jabatan Kejuruteraan Kimia', status: 'active',    lastActive: '2026-03-15T16:10:00' },
-            { id: 'USR-2111', name: 'Dr. Lim Wei Sheng',          email: 'lim.weisheng@uitm.edu.my',    role: 'lecturer', lab: 'Jabatan Kejuruteraan Kimia', status: 'active',    lastActive: '2026-03-15T14:02:00' },
-            { id: 'USR-2045', name: 'Mohd Hafiz bin Abdullah',    email: 'mohd.hafiz@uitm.edu.my',      role: 'staff',    lab: 'Analytical Chemistry Lab',   status: 'active',    lastActive: '2026-03-16T09:05:00' },
-            { id: 'USR-2046', name: 'Siti Rohana binti Yusof',    email: 'rohana.yusof@uitm.edu.my',    role: 'staff',    lab: 'Organic Chemistry Lab',      status: 'active',    lastActive: '2026-03-16T08:55:00' },
-            { id: 'USR-2047', name: 'Kumaravel a/l Raju',         email: 'kumaravel.raju@uitm.edu.my',  role: 'staff',    lab: 'Thermodynamics Lab',         status: 'inactive',  lastActive: '2026-02-28T11:30:00' },
-            { id: 'USR-3090', name: 'Farah Nadia binti Othman',   email: 'farah.nadia@uitm.edu.my',     role: 'student',  lab: 'FKK · Semester 7',           status: 'active',    lastActive: '2026-03-16T06:40:00' },
-            { id: 'USR-3091', name: 'Tan Mei Ling',               email: 'meiling.tan@uitm.edu.my',     role: 'student',  lab: 'FKK · Semester 5',           status: 'suspended', lastActive: '2026-01-22T13:15:00' },
-            { id: 'USR-2120', name: 'Dr. Suresh a/l Maniam',      email: 'suresh.maniam@uitm.edu.my',   role: 'lecturer', lab: 'Jabatan Kejuruteraan Kimia', status: 'active',    lastActive: '2026-03-14T10:25:00' },
-            { id: 'USR-2050', name: 'Nurul Aina binti Salleh',    email: 'aina.salleh@uitm.edu.my',     role: 'staff',    lab: 'Microbiology Lab',           status: 'active',    lastActive: '2026-03-15T17:40:00' },
-            { id: 'USR-1002', name: 'En. Rosli bin Ahmad',        email: 'rosli.ahmad@uitm.edu.my',     role: 'admin',    lab: 'FKK Lab Operations',         status: 'active',    lastActive: '2026-03-16T09:30:00' }
-        ];
-    }
-
     function seedApprovals() {
         return [
             { id: 'APR-9001', type: 'equipment', requester: 'Dr. Faizal bin Rahman',   lab: 'Analytical Lab',
@@ -1637,30 +1455,6 @@
             admin_alert_title: "Security Reminder",
             admin_alert_sub: "Review inactive accounts older than 180 days and revoke unused lab access.",
 
-            admin_users_label: "User Management", admin_users_title: "Portal Accounts",
-            admin_users_sub: "Create, edit and manage access for all portal users",
-            admin_users_search_ph: "Search name, email or ID...",
-            admin_filter_all: "All Roles",
-            admin_add_user: "Add User",
-            admin_th_user: "User", admin_th_role: "Role", admin_th_lab: "Laboratory / Dept",
-            admin_th_status: "Status", admin_th_last: "Last Active", admin_th_actions: "Actions",
-            admin_status_active: "Active", admin_status_inactive: "Inactive", admin_status_suspended: "Suspended",
-            admin_showing: "Showing", admin_of: "of", admin_accounts: "accounts",
-            admin_reset: "Reset Demo Data",
-            admin_no_results: "No accounts match your filters",
-            admin_confirm_delete: "Delete this user account permanently?",
-            admin_confirm_reset: "Reset all user data back to the demo set?",
-
-            admin_user_modal_add: "Add New User", admin_user_modal_sub: "Manage portal account details",
-            admin_user_modal_edit: "Edit User",
-            admin_user_avatar_sub: "Preview updates as you type",
-            admin_user_name: "Full Name", admin_user_email: "Email",
-            admin_user_role: "Role", admin_user_status: "Status",
-            admin_user_lab: "Laboratory / Department", admin_user_id: "User ID (Read-only)",
-            admin_user_save: "Save User",
-            admin_err_name: "Please enter the user's full name.",
-            admin_err_email: "Please enter a valid email address.",
-
             admin_audit_label: "Jejak Audit", admin_audit_title: "Audit Log",
             admin_audit_sub: "Recent administrative actions on this account",
             admin_audit_records: "records", admin_audit_clear: "Clear",
@@ -1691,14 +1485,10 @@
             pwd_hint: "Minimum 8 characters · at least 1 uppercase · 1 lowercase · 1 number",
             btn_update_pwd: "Update Password", toast_pwd: "Password Updated",
 
-            toast_user_added: "User Created",
-            toast_user_updated: "User Updated",
-            toast_user_deleted: "User Deleted",
-            toast_status_changed: "Status Updated",
             toast_approved: "Request Approved",
             toast_rejected: "Request Rejected",
             toast_activity_cleared: "Audit Log Cleared",
-            toast_users_reset: "Demo Data Restored",
+            toast_auto_logout: "Signed out — browser closed",
 
             err_current_wrong: "Current password is incorrect.",
             err_pwd_short: "Password must be at least 8 characters.",
@@ -1779,30 +1569,6 @@
             admin_alert_title: "Peringatan Keselamatan",
             admin_alert_sub: "Semak akaun tidak aktif melebihi 180 hari dan batalkan akses makmal yang tidak digunakan.",
 
-            admin_users_label: "Pengurusan Pengguna", admin_users_title: "Akaun Portal",
-            admin_users_sub: "Cipta, sunting dan urus akses semua pengguna portal",
-            admin_users_search_ph: "Cari nama, e-mel atau ID...",
-            admin_filter_all: "Semua Peranan",
-            admin_add_user: "Tambah Pengguna",
-            admin_th_user: "Pengguna", admin_th_role: "Peranan", admin_th_lab: "Makmal / Jabatan",
-            admin_th_status: "Status", admin_th_last: "Terakhir Aktif", admin_th_actions: "Tindakan",
-            admin_status_active: "Aktif", admin_status_inactive: "Tidak Aktif", admin_status_suspended: "Digantung",
-            admin_showing: "Memaparkan", admin_of: "daripada", admin_accounts: "akaun",
-            admin_reset: "Set Semula Data Demo",
-            admin_no_results: "Tiada akaun sepadan dengan penapis anda",
-            admin_confirm_delete: "Padam akaun pengguna ini secara kekal?",
-            admin_confirm_reset: "Set semula semua data pengguna kepada set demo?",
-
-            admin_user_modal_add: "Tambah Pengguna Baharu", admin_user_modal_sub: "Urus butiran akaun portal",
-            admin_user_modal_edit: "Sunting Pengguna",
-            admin_user_avatar_sub: "Pratonton dikemas kini semasa anda menaip",
-            admin_user_name: "Nama Penuh", admin_user_email: "E-mel",
-            admin_user_role: "Peranan", admin_user_status: "Status",
-            admin_user_lab: "Makmal / Jabatan", admin_user_id: "ID Pengguna (Baca sahaja)",
-            admin_user_save: "Simpan Pengguna",
-            admin_err_name: "Sila masukkan nama penuh pengguna.",
-            admin_err_email: "Sila masukkan alamat e-mel yang sah.",
-
             admin_audit_label: "Jejak Audit", admin_audit_title: "Log Audit",
             admin_audit_sub: "Tindakan pentadbiran terkini pada akaun ini",
             admin_audit_records: "rekod", admin_audit_clear: "Kosongkan",
@@ -1833,14 +1599,10 @@
             pwd_hint: "Minimum 8 aksara · sekurang-kurangnya 1 huruf besar · 1 huruf kecil · 1 nombor",
             btn_update_pwd: "Kemas Kini Kata Laluan", toast_pwd: "Kata Laluan Dikemas Kini",
 
-            toast_user_added: "Pengguna Dicipta",
-            toast_user_updated: "Pengguna Dikemas Kini",
-            toast_user_deleted: "Pengguna Dipadam",
-            toast_status_changed: "Status Dikemas Kini",
             toast_approved: "Permohonan Diluluskan",
             toast_rejected: "Permohonan Ditolak",
             toast_activity_cleared: "Log Audit Dikosongkan",
-            toast_users_reset: "Data Demo Dipulihkan",
+            toast_auto_logout: "Log keluar — pelayar ditutup",
 
             err_current_wrong: "Kata laluan semasa tidak betul.",
             err_pwd_short: "Kata laluan mestilah sekurang-kurangnya 8 aksara.",
@@ -1919,7 +1681,6 @@
         if (admin) fillAdmin(admin);
         renderActivities();
         renderApprovals();
-        renderUsers();
         updateStrength();
     };
 
@@ -2026,250 +1787,6 @@
     }
 
     document.getElementById('clearActivityBtn').addEventListener('click', clearActivities);
-
-    /* =========================================================
-       USERS — LOAD / SAVE / RENDER
-    ========================================================== */
-    function loadUsers() {
-        try {
-            const raw = localStorage.getItem(USERS_KEY);
-            if (raw) {
-                const parsed = JSON.parse(raw);
-                if (Array.isArray(parsed) && parsed.length) { users = parsed; return; }
-            }
-        } catch (e) {}
-        users = seedUsers();
-        saveUsers();
-    }
-    function saveUsers() {
-        try { localStorage.setItem(USERS_KEY, JSON.stringify(users)); } catch (e) {}
-    }
-
-    function roleLabel(role) { return t((ROLE_META[role] || ROLE_META.student).i18n); }
-    function statusLabel(st) { return t((STATUS_META[st] || STATUS_META.active).i18n); }
-
-    function renderUsers() {
-        const tbody = document.getElementById('usersTbody');
-        if (!tbody) return;
-
-        const q = (document.getElementById('userSearch')?.value || '').trim().toLowerCase();
-        const roleF = document.getElementById('roleFilter')?.value || 'all';
-
-        const filtered = users.filter(u => {
-            const matchQ = !q ||
-                u.name.toLowerCase().includes(q) ||
-                u.email.toLowerCase().includes(q) ||
-                u.id.toLowerCase().includes(q);
-            const matchR = roleF === 'all' || u.role === roleF;
-            return matchQ && matchR;
-        });
-
-        document.getElementById('shownCount').textContent = filtered.length;
-        document.getElementById('totalCount').textContent = users.length;
-        document.getElementById('statTotalUsers').textContent = users.length;
-
-        if (!filtered.length) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:34px;color:#94A3B8;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.12em;">
-                <i class="fas fa-user-slash" style="display:block;font-size:22px;margin-bottom:10px;opacity:.4;"></i>
-                ${escapeHtml(t('admin_no_results'))}
-            </td></tr>`;
-            return;
-        }
-
-        tbody.innerHTML = filtered.map(u => {
-            const rm = ROLE_META[u.role] || ROLE_META.student;
-            const sm = STATUS_META[u.status] || STATUS_META.active;
-            const initials = makeInitials(u.name);
-            const nextStatus = u.status === 'active' ? 'inactive' : 'active';
-            return `
-                <tr>
-                    <td>
-                        <div class="tbl-user">
-                            <div class="tbl-avatar" style="background:${rm.bg};">${escapeHtml(initials)}</div>
-                            <div class="min-w-0">
-                                <p class="tbl-user-name">${escapeHtml(u.name)}</p>
-                                <p class="tbl-user-mail">${escapeHtml(u.email)} · ${escapeHtml(u.id)}</p>
-                            </div>
-                        </div>
-                    </td>
-                    <td><span class="chip ${rm.chip}">${escapeHtml(roleLabel(u.role))}</span></td>
-                    <td style="color:#475569;font-size:11px;font-weight:700;">${escapeHtml(u.lab || '—')}</td>
-                    <td><span class="status-badge ${sm.cls}">${escapeHtml(statusLabel(u.status))}</span></td>
-                    <td style="color:#94A3B8;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;">
-                        ${escapeHtml(relativeTime(u.lastActive || new Date().toISOString()))}
-                    </td>
-                    <td style="text-align:right;white-space:nowrap;">
-                        <button class="icon-btn" title="Edit" data-act="edit" data-id="${escapeHtml(u.id)}"><i class="fas fa-pen"></i></button>
-                        <button class="icon-btn ok" title="Toggle status" data-act="toggle" data-id="${escapeHtml(u.id)}" data-next="${nextStatus}"><i class="fas fa-power-off"></i></button>
-                        <button class="icon-btn" title="Delete" data-act="delete" data-id="${escapeHtml(u.id)}"><i class="fas fa-trash-can"></i></button>
-                    </td>
-                </tr>`;
-        }).join('');
-
-        tbody.querySelectorAll('button[data-act]').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const act = btn.dataset.act;
-                const id = btn.dataset.id;
-                if (act === 'edit') openUserModal(id);
-                else if (act === 'toggle') toggleUserStatus(id, btn.dataset.next);
-                else if (act === 'delete') deleteUser(id);
-            });
-        });
-    }
-
-    document.getElementById('userSearch').addEventListener('input', renderUsers);
-    document.getElementById('roleFilter').addEventListener('change', renderUsers);
-
-    function toggleUserStatus(id, next) {
-        const u = users.find(x => x.id === id);
-        if (!u) return;
-        u.status = next;
-        u.lastActive = new Date().toISOString();
-        saveUsers(); renderUsers();
-        logActivity('user_status', u.name, 'Status → ' + statusLabel(next));
-        showToast(t('toast_status_changed'), false);
-    }
-
-    function deleteUser(id) {
-        const u = users.find(x => x.id === id);
-        if (!u) return;
-        if (!confirm(t('admin_confirm_delete'))) return;
-        users = users.filter(x => x.id !== id);
-        saveUsers(); renderUsers();
-        logActivity('user_delete', u.name, u.email);
-        showToast(t('toast_user_deleted'), true);
-    }
-
-    document.getElementById('resetUsersBtn').addEventListener('click', function () {
-        if (!confirm(t('admin_confirm_reset'))) return;
-        users = seedUsers();
-        saveUsers(); renderUsers();
-        logActivity('users_reset', admin ? admin.name : '', users.length + ' accounts restored');
-        showToast(t('toast_users_reset'), false);
-    });
-
-    /* =========================================================
-       USER MODAL
-    ========================================================== */
-    const userModal = document.getElementById('userModal');
-    const uName = document.getElementById('uName');
-    const uEmail = document.getElementById('uEmail');
-    const uRole = document.getElementById('uRole');
-    const uStatus = document.getElementById('uStatus');
-    const uLab = document.getElementById('uLab');
-    const uId = document.getElementById('uId');
-    const userError = document.getElementById('userError');
-    const userModalAvatar = document.getElementById('userModalAvatar');
-    const userModalTitle = document.getElementById('userModalTitle');
-
-    function nextUserId() {
-        const nums = users.map(u => parseInt((u.id.match(/(\d+)$/) || [0, 0])[1], 10)).filter(n => !isNaN(n));
-        const max = nums.length ? Math.max.apply(null, nums) : 3000;
-        return 'USR-' + (max + 1);
-    }
-
-    function openUserModal(id) {
-        editingUserId = id || null;
-        hideUserError();
-        [uName, uEmail, uLab].forEach(f => f.classList.remove('is-invalid'));
-
-        if (id) {
-            const u = users.find(x => x.id === id);
-            if (!u) return;
-            userModalTitle.setAttribute('data-i18n', 'admin_user_modal_edit');
-            userModalTitle.textContent = t('admin_user_modal_edit');
-            uName.value = u.name;
-            uEmail.value = u.email;
-            uRole.value = u.role;
-            uStatus.value = u.status;
-            uLab.value = u.lab || '';
-            uId.value = u.id;
-            userModalAvatar.style.background = (ROLE_META[u.role] || ROLE_META.student).bg;
-            userModalAvatar.textContent = makeInitials(u.name);
-        } else {
-            userModalTitle.setAttribute('data-i18n', 'admin_user_modal_add');
-            userModalTitle.textContent = t('admin_user_modal_add');
-            uName.value = '';
-            uEmail.value = '';
-            uRole.value = 'student';
-            uStatus.value = 'active';
-            uLab.value = '';
-            uId.value = nextUserId();
-            userModalAvatar.style.background = '#002D62';
-            userModalAvatar.textContent = '--';
-        }
-
-        userModal.classList.add('open');
-        document.body.style.overflow = 'hidden';
-        setTimeout(() => uName.focus(), 120);
-    }
-
-    function closeUserModal() {
-        userModal.classList.remove('open');
-        document.body.style.overflow = '';
-        editingUserId = null;
-    }
-
-    function showUserError(msg) {
-        userError.innerHTML = '<ul><li>' + escapeHtml(msg) + '</li></ul>';
-        userError.classList.add('show');
-    }
-    function hideUserError() { userError.classList.remove('show'); }
-
-    uName.addEventListener('input', function () {
-        userModalAvatar.textContent = makeInitials(this.value) || '--';
-        this.classList.remove('is-invalid');
-        hideUserError();
-    });
-    uEmail.addEventListener('input', function () { this.classList.remove('is-invalid'); hideUserError(); });
-
-    uRole.addEventListener('change', function () {
-        userModalAvatar.style.background = (ROLE_META[this.value] || ROLE_META.student).bg;
-    });
-
-    document.getElementById('addUserBtn').addEventListener('click', () => openUserModal(null));
-    document.getElementById('userModalClose').addEventListener('click', closeUserModal);
-    document.getElementById('userCancel').addEventListener('click', closeUserModal);
-    userModal.addEventListener('click', e => { if (e.target === userModal) closeUserModal(); });
-
-    document.getElementById('userSave').addEventListener('click', function () {
-        hideUserError();
-        const name = uName.value.trim();
-        const email = uEmail.value.trim();
-
-        let bad = false;
-        if (!name) { uName.classList.add('is-invalid'); showUserError(t('admin_err_name')); bad = true; }
-        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            uEmail.classList.add('is-invalid');
-            if (!bad) showUserError(t('admin_err_email'));
-            bad = true;
-        }
-        if (bad) return;
-
-        if (editingUserId) {
-            const u = users.find(x => x.id === editingUserId);
-            if (!u) return;
-            u.name = name; u.email = email; u.role = uRole.value;
-            u.status = uStatus.value; u.lab = uLab.value.trim();
-            u.lastActive = new Date().toISOString();
-            saveUsers(); renderUsers(); closeUserModal();
-            logActivity('user_edit', name, 'Role: ' + roleLabel(u.role) + ' · Status: ' + statusLabel(u.status));
-            showToast(t('toast_user_updated'), false);
-        } else {
-            const newUser = {
-                id: uId.value,
-                name, email,
-                role: uRole.value,
-                status: uStatus.value,
-                lab: uLab.value.trim(),
-                lastActive: new Date().toISOString()
-            };
-            users.unshift(newUser);
-            saveUsers(); renderUsers(); closeUserModal();
-            logActivity('user_add', name, 'Role: ' + roleLabel(newUser.role) + ' · ' + email);
-            showToast(t('toast_user_added'), false);
-        }
-    });
 
     /* =========================================================
        APPROVALS
@@ -2737,7 +2254,7 @@
         logActivity('password_change', admin.name, 'Password successfully updated');
     });
 
-    /* AUTH CHANGE: persist admin into session cookie */
+    /* Persist admin into session cookie */
     function persistAdmin() {
         FMSAuth.saveSession(admin, 'admin');
     }
@@ -2757,15 +2274,16 @@
     }
 
     /* =========================================================
-       LOGOUT — AUTH CHANGE
+       LOGOUT
     ========================================================== */
     document.getElementById('logoutBtn').addEventListener('click', function () {
+        sessionStorage.removeItem(TAB_ALIVE_KEY);
         FMSAuth.clearSession();
-        window.location.href = 'login.html';
+        window.location.replace('login.html');
     });
 
     /* =========================================================
-       INIT — AUTH CHANGE
+       INIT
     ========================================================== */
     document.addEventListener('DOMContentLoaded', function () {
         admin = {
@@ -2779,7 +2297,6 @@
         };
 
         loadActivities();
-        loadUsers();
         loadApprovals();
 
         switchLanguage('en');
