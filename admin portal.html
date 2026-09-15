@@ -158,32 +158,96 @@
         background-size: 26px 26px; opacity: .35;
     }
 
-    /* Quick Links — SOLID colours */
-    .quick-link {
-        position: relative; overflow: hidden;
-        border-radius: 14px; color: #fff;
-        transition: all .28s cubic-bezier(.4,0,.2,1);
-        box-shadow: 0 8px 20px -10px rgba(0,0,0,.25);
-        display: flex; flex-direction: column; align-items: center; gap: 8px;
-        padding: 20px 12px; text-align: center; text-decoration: none;
+    /* ============================================================
+       PORTAL MENU
+    ============================================================ */
+    .portal-menu-card {
+        background: #fff;
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid rgba(226,232,240,.85);
+        box-shadow: 0 14px 34px -20px rgba(0,45,98,.28);
+        transition: all .3s cubic-bezier(.4,0,.2,1);
     }
-    .quick-link::before {
-        content: ''; position: absolute;
-        top: -30px; right: -30px;
-        width: 90px; height: 90px; border-radius: 50%;
-        background: rgba(255,255,255,0.14); transition: transform .35s;
+    .portal-menu-card:hover { box-shadow: 0 22px 44px -22px rgba(0,45,98,.35); }
+
+    .portal-menu-header {
+        background: #002D62;
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        position: relative;
+        overflow: hidden;
     }
-    .quick-link:hover { transform: translateY(-6px) scale(1.03); box-shadow: 0 20px 34px -14px rgba(0,0,0,.35); }
-    .quick-link:hover::before { transform: scale(1.4); }
-    .quick-link i { font-size: 22px; position: relative; z-index: 1; }
-    .quick-link span {
-        font-size: 10px; font-weight: 800; letter-spacing: .1em;
-        text-transform: uppercase; line-height: 1.25; position: relative; z-index: 1;
-        word-break: break-word;
+    .portal-menu-header::before {
+        content: '';
+        position: absolute; right: -50px; top: -50px;
+        width: 150px; height: 150px; border-radius: 50%;
+        background: rgba(255,255,255,.06);
+        pointer-events: none;
     }
-    .ql-navy   { background: #002D62; }
-    .ql-purple { background: #9B26B6; }
-    .ql-gold   { background: #FDB913; }
+    .portal-menu-title-wrap {
+        display: flex; align-items: center; gap: 14px;
+        position: relative; z-index: 1; min-width: 0;
+    }
+    .portal-menu-icon {
+        width: 42px; height: 42px; border-radius: 12px;
+        background: #FDB913;
+        display: flex; align-items: center; justify-content: center;
+        color: #002D62; font-size: 18px; flex-shrink: 0;
+        box-shadow: 0 6px 16px -6px rgba(253,185,19,.65);
+    }
+    .portal-menu-title {
+        font-size: 15px; font-weight: 900; color: #fff;
+        text-transform: uppercase; letter-spacing: .02em; line-height: 1.2;
+    }
+    .portal-menu-sub {
+        font-size: 9px; font-weight: 800; color: rgba(255,255,255,.65);
+        text-transform: uppercase; letter-spacing: .18em; margin-top: 3px;
+    }
+    .portal-menu-badge {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 6px 14px; border-radius: 9999px;
+        background: rgba(253,185,19,.12);
+        border: 1px solid rgba(253,185,19,.55);
+        color: #FDB913; font-size: 9px; font-weight: 900;
+        letter-spacing: .14em; text-transform: uppercase;
+        position: relative; z-index: 1; white-space: nowrap;
+    }
+    .portal-menu-badge i { font-size: 9px; }
+
+    .portal-menu-body { padding: 22px 24px 18px; }
+
+    .portal-menu-group-label {
+        display: flex; align-items: center; gap: 10px;
+        font-size: 11px; font-weight: 900;
+        color: #9B26B6; text-transform: uppercase;
+        letter-spacing: .16em;
+        padding-bottom: 12px; margin-bottom: 4px;
+        border-bottom: 2px solid #FDB913;
+    }
+    .portal-menu-group-label i { font-size: 13px; }
+
+    .portal-menu-item {
+        display: flex; align-items: center; gap: 12px;
+        padding: 14px 6px;
+        font-size: 12px; font-weight: 700;
+        color: #334155;
+        border-bottom: 1px dashed #F1F5F9;
+        cursor: pointer;
+        transition: all .2s ease;
+        text-decoration: none;
+    }
+    .portal-menu-item:last-child { border-bottom: none; }
+    .portal-menu-item:hover { color: #9B26B6; padding-left: 12px; }
+    .portal-menu-item i {
+        color: #9B26B6; font-size: 14px;
+        width: 20px; text-align: center;
+        flex-shrink: 0; transition: color .2s ease;
+    }
+    .portal-menu-item:hover i { color: #002D62; }
 
     /* Activity Trail */
     .activity-timeline { position: relative; }
@@ -700,21 +764,6 @@
         </div>
     </div>
 
-    <!-- Quick Links -->
-    <div class="card p-6 mb-6 anim-up rounded-3xl">
-        <div class="mb-5 pb-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
-            <div>
-                <span class="section-label" data-i18n="admin_quick_label">Quick Menu</span>
-                <h3 class="text-lg font-black text-p655c mt-1" data-i18n="admin_quick_title">Admin Quick Links</h3>
-            </div>
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest" data-i18n="admin_quick_hint">Opens in new tab</span>
-        </div>
-
-        <div id="quickLinksGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            <!-- rendered by JS -->
-        </div>
-    </div>
-
     <!-- Admin stat cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
         <div class="stat-card stat-navy card-hover p-6 rounded-2xl">
@@ -753,6 +802,34 @@
             <p class="text-[10px] font-black uppercase tracking-widest text-blue-100 relative z-10" data-i18n="admin_stat_uptime">System Uptime</p>
         </div>
     </div>
+
+    <!-- ============================================================
+         PORTAL MENU
+    ============================================================ -->
+    <section class="portal-menu-card mb-6 anim-up">
+        <div class="portal-menu-header">
+            <div class="portal-menu-title-wrap">
+                <div class="portal-menu-icon"><i class="fas fa-table-cells-large"></i></div>
+                <div class="min-w-0">
+                    <p class="portal-menu-title" data-i18n="portal_menu_title">Portal Menu</p>
+                    <p class="portal-menu-sub" data-i18n="portal_menu_sub">Quick access to all systems</p>
+                </div>
+            </div>
+            <span class="portal-menu-badge">
+                <i class="fas fa-rotate"></i> <span data-i18n="portal_menu_updated">Updated 2026</span>
+            </span>
+        </div>
+        <div class="portal-menu-body">
+            <div class="portal-menu-group-label">
+                <i class="fas fa-user-shield"></i>
+                <span data-i18n="portal_menu_admin">Administration</span>
+            </div>
+            <a href="#" class="portal-menu-item">
+                <i class="fas fa-users-gear"></i>
+                <span data-i18n="portal_menu_account_mgmt">Portal User Account Management</span>
+            </a>
+        </div>
+    </section>
 
     <!-- ============================================================
          ADMIN ANALYTICS DASHBOARD
@@ -1423,22 +1500,9 @@
     let approvals = [];
     let editingUserId = null;
 
-    /* Static quick links (3 SOLID colours only) */
-    const QUICK_LINKS = [
-        { href: 'https://istudent.uitm.edu.my',  icon: 'fa-users-gear',           color: 'ql-navy',   labelKey: 'admin_link_users' },
-        { href: 'https://elearning.uitm.edu.my', icon: 'fa-flask-vial',           color: 'ql-purple', labelKey: 'admin_link_labs' },
-        { href: 'https://ir.uitm.edu.my',        icon: 'fa-file-circle-check',    color: 'ql-gold',   labelKey: 'admin_link_approvals' },
-        { href: 'https://research.uitm.edu.my',  icon: 'fa-chart-pie',            color: 'ql-navy',   labelKey: 'admin_link_reports' },
-        { href: 'https://hr.uitm.edu.my',        icon: 'fa-clipboard-list',       color: 'ql-purple', labelKey: 'admin_link_audit' },
-        { href: 'https://library.uitm.edu.my',   icon: 'fa-bullhorn',             color: 'ql-gold',   labelKey: 'admin_link_announce' },
-        { href: 'https://finance.uitm.edu.my',   icon: 'fa-sliders',              color: 'ql-navy',   labelKey: 'admin_link_settings' },
-        { href: 'https://helpdesk.uitm.edu.my',  icon: 'fa-headset',              color: 'ql-purple', labelKey: 'admin_link_helpdesk' }
-    ];
-
     /* Activity type meta — SOLID colours */
     const ACTIVITY_TYPES = {
         login:           { icon: 'fa-right-to-bracket',           bg: '#002D62', en: 'Signed in to admin portal', ms: 'Log masuk ke portal admin' },
-        link_click:      { icon: 'fa-arrow-up-right-from-square', bg: '#002D62', en: 'Opened quick link',        ms: 'Buka pautan pantas' },
         profile_update:  { icon: 'fa-user-pen',                   bg: '#9B26B6', en: 'Updated profile',          ms: 'Kemas kini profil' },
         password_change: { icon: 'fa-key',                        bg: '#9B26B6', en: 'Changed password',         ms: 'Tukar kata laluan' },
         settings_open:   { icon: 'fa-gear',                       bg: '#FDB913', en: 'Opened settings',          ms: 'Buka tetapan' },
@@ -1529,11 +1593,11 @@
             admin_stat_live: "Live", admin_stat_labs: "Active Laboratories",
             admin_stat_uptime: "System Uptime",
 
-            admin_quick_label: "Quick Menu", admin_quick_title: "Admin Quick Links", admin_quick_hint: "Opens in new tab",
-            admin_link_users: "User Management", admin_link_labs: "Lab Registry",
-            admin_link_approvals: "Approvals", admin_link_reports: "Reports",
-            admin_link_audit: "Audit Log", admin_link_announce: "Announcements",
-            admin_link_settings: "System Settings", admin_link_helpdesk: "IT Helpdesk",
+            portal_menu_title: "Portal Menu",
+            portal_menu_sub: "Quick access to all systems",
+            portal_menu_updated: "Updated 2026",
+            portal_menu_admin: "Administration",
+            portal_menu_account_mgmt: "Portal User Account Management",
 
             admin_dash_tag: "Oversight", admin_dash_title: "System Analytics",
             admin_dash_sub: "Users, approvals &amp; laboratory operations · FKK Johor", admin_dash_trend: "Growing",
@@ -1671,11 +1735,11 @@
             admin_stat_live: "Aktif", admin_stat_labs: "Makmal Aktif",
             admin_stat_uptime: "Masa Operasi Sistem",
 
-            admin_quick_label: "Menu Pantas", admin_quick_title: "Pautan Pantas Admin", admin_quick_hint: "Buka dalam tab baharu",
-            admin_link_users: "Pengurusan Pengguna", admin_link_labs: "Daftar Makmal",
-            admin_link_approvals: "Kelulusan", admin_link_reports: "Laporan",
-            admin_link_audit: "Log Audit", admin_link_announce: "Pengumuman",
-            admin_link_settings: "Tetapan Sistem", admin_link_helpdesk: "Helpdesk IT",
+            portal_menu_title: "Menu Portal",
+            portal_menu_sub: "Akses pantas ke semua sistem",
+            portal_menu_updated: "Dikemas kini 2026",
+            portal_menu_admin: "Pentadbiran",
+            portal_menu_account_mgmt: "Pengurusan Akaun Pengguna Portal",
 
             admin_dash_tag: "Pemantauan", admin_dash_title: "Analitik Sistem",
             admin_dash_sub: "Pengguna, kelulusan &amp; operasi makmal · FKK Johor", admin_dash_trend: "Berkembang",
@@ -1853,7 +1917,6 @@
         document.getElementById('btn-ms').classList.toggle('active', lang === 'ms');
 
         if (admin) fillAdmin(admin);
-        renderQuickLinks();
         renderActivities();
         renderApprovals();
         renderUsers();
@@ -1884,32 +1947,6 @@
         }
         const sAvatar = document.getElementById('settingsAvatar');
         if (sAvatar) sAvatar.textContent = initials;
-    }
-
-    /* =========================================================
-       QUICK LINKS
-    ========================================================== */
-    function renderQuickLinks() {
-        const grid = document.getElementById('quickLinksGrid');
-        if (!grid) return;
-
-        grid.innerHTML = QUICK_LINKS.map(link => {
-            const label = t(link.labelKey);
-            return `
-                <a href="${escapeHtml(link.href)}" target="_blank" rel="noopener"
-                   class="quick-link ${link.color}"
-                   data-label-key="${escapeHtml(link.labelKey)}"
-                   data-href="${escapeHtml(link.href)}">
-                    <i class="fas ${escapeHtml(link.icon)}"></i>
-                    <span>${escapeHtml(label)}</span>
-                </a>`;
-        }).join('');
-
-        grid.querySelectorAll('.quick-link').forEach(a => {
-            a.addEventListener('click', () => {
-                logActivity('link_click', t(a.dataset.labelKey), a.dataset.href);
-            });
-        });
     }
 
     /* =========================================================
